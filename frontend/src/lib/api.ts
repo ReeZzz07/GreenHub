@@ -187,3 +187,22 @@ export function deleteListing(id: string, token: string): Promise<{ success: boo
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export function fetchModerationQueue(token: string): Promise<Listing[]> {
+  return request<Listing[]>('/listings/moderation-queue', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export interface ModeratePayload {
+  action: 'approve' | 'reject';
+  reason?: string;
+}
+
+export function moderateListing(id: string, payload: ModeratePayload, token: string): Promise<Listing> {
+  return request<Listing>(`/listings/${id}/moderate`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
