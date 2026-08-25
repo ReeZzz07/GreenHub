@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types';
 import { User } from '@/types/models';
+import { apiLogin, apiRegister, fetchMe, type ApiUser, type AuthResponse } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -21,58 +22,55 @@ interface RegisterData {
   phone?: string;
 }
 
+const TOKEN_STORAGE_KEY = 'greenhub_token';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function toUser(apiUser: ApiUser): User {
+  return {
+    id: apiUser.id,
+    email: apiUser.email,
+    name: apiUser.name,
+    role: apiUser.role,
+    phone: apiUser.phone,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Проверка сохраненной сессии
-    const savedUser = localStorage.getItem('greenhub_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        localStorage.removeItem('greenhub_user');
-      }
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+
+    fetchMe(token)
+      .then((apiUser) => setUser(toUser(apiUser)))
+      .catch(() => localStorage.removeItem(TOKEN_STORAGE_KEY))
+      .finally(() => setIsLoading(false));
   }, []);
 
+  const applyAuthResponse = (res: AuthResponse) => {
+    localStorage.setItem(TOKEN_STORAGE_KEY, res.accessToken);
+    setUser(toUser(res.user));
+  };
+
   const login = async (email: string, password: string) => {
-    // TODO: Заменить на реальный API вызов
     setIsLoading(true);
     try {
-      // Имитация входа
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        role: UserRole.BUYER,
-        createdAt: new Date(),
-      };
-      setUser(mockUser);
-      localStorage.setItem('greenhub_user', JSON.stringify(mockUser));
+      applyAuthResponse(await apiLogin(email, password));
     } finally {
       setIsLoading(false);
     }
   };
 
   const register = async (data: RegisterData) => {
-    // TODO: Заменить на реальный API вызов
     setIsLoading(true);
     try {
-      const mockUser: User = {
-        id: '2',
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        phone: data.phone,
-        createdAt: new Date(),
-      };
-      setUser(mockUser);
-      localStorage.setItem('greenhub_user', JSON.stringify(mockUser));
+      applyAuthResponse(await apiRegister(data));
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('greenhub_user');
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
   };
 
   return (

@@ -1,16 +1,24 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from '@/components/SearchBar';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { PlantCard } from '@/components/PlantCard';
 import { mockPlants } from '@/data/mockPlants';
+import { fetchCategories, type Category } from '@/lib/api';
 
 export default function CatalogPage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
 
   const filteredPlants = useMemo(() => {
     return mockPlants.filter((plant) => {
@@ -32,7 +40,7 @@ export default function CatalogPage() {
       </div>
 
       <div className="mb-6">
-        <CategoryFilter selectedCategory={category} onCategorySelect={setCategory} />
+        <CategoryFilter categories={categories} selectedCategory={category} onCategorySelect={setCategory} />
       </div>
 
       {filteredPlants.length === 0 ? (

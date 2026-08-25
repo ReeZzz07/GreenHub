@@ -20,12 +20,11 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚧 Статус проекта
 
-Сейчас реализован только фронтенд-каркас (папка `frontend/`) на моковых данных, без бэкенда:
-
-- ✅ Next.js-приложение с роутами `/`, `/catalog`, `/recognize`, `/cart`, `/profile`, `/plant/[id]`
-- ✅ UI-компоненты, контексты корзины/авторизации (на `localStorage`), моковый каталог растений
-- ❌ Backend (NestJS), база данных, очереди, S3 — не реализованы
+- ✅ **Frontend** (`frontend/`) — Next.js-приложение с роутами `/`, `/catalog`, `/recognize`, `/cart`, `/profile`, `/plant/[id]`, UI-компоненты, контексты корзины/авторизации; пока на моковых данных, не подключён к API
+- ✅ **Backend** (`backend/`) — стартовый каркас NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, Prisma-схема под PostgreSQL с ролевой моделью
+- ❌ Объявления/каталог, чат, очереди (BullMQ), загрузка медиа в S3, вотермарки — не реализованы
 - ❌ Интеграции с Plant.id, LLM, ЮKassa/Robokassa — не подключены
+- ❌ Frontend и backend пока не связаны между собой
 
 Разделы ниже описывают **целевую архитектуру MVP** согласно [TZ.md](./TZ.md), а не всё, что уже работает.
 
@@ -61,57 +60,68 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚀 Быстрый старт
 
-На данный момент в репозитории реализован только фронтенд — инструкции ниже касаются только его.
-Требования к бэкенду (Docker, PostgreSQL, Redis, Yandex Object Storage) актуальны только после его реализации.
-
 ### Предварительные требования
 - Node.js 18+
+- Docker и Docker Compose (для PostgreSQL/Redis, нужны только бэкенду)
 
-### Установка
+### Frontend
 
-1. **Клонирование репозитория**
 ```bash
 git clone https://github.com/ReeZzz07/GreenHub.git
 cd GreenHub/frontend
-```
-
-2. **Установка зависимостей**
-```bash
 npm install
-```
-
-3. **Запуск в режиме разработки**
-```bash
 npm run dev
 ```
 
 Приложение будет доступно на [http://localhost:3000](http://localhost:3000).
 
-### Другие команды
+Другие команды: `npm run build` — production-сборка, `npm run start` — запуск сборки, `npm run lint` — линтер.
+
+### Backend
+
 ```bash
-npm run build   # Production-сборка
-npm run start   # Запуск production-сборки
-npm run lint    # Проверка линтером
+# из корня репозитория — поднимает PostgreSQL и Redis
+docker-compose up -d
+
+cd backend
+npm install
+cp .env.example .env
+
+npx prisma migrate dev   # создаёт таблицы по schema.prisma
+npm run start:dev
 ```
+
+API будет доступно на [http://localhost:4000/api](http://localhost:4000/api) (например, `GET /api/health`).
+
+Другие команды: `npm run build` — компиляция в `dist/`, `npm run prisma:studio` — GUI для просмотра БД.
 
 ## 📁 Структура проекта
 
 ```
 GreenHub/
-├── TZ.md                      # Техническое задание
+├── TZ.md                       # Техническое задание
 ├── README.md
-└── frontend/                  # Next.js приложение (App Router)
-    ├── public/
-    │   └── manifest.json      # PWA-манифест
+├── docker-compose.yml           # PostgreSQL + Redis для локальной разработки
+├── frontend/                    # Next.js приложение (App Router)
+│   ├── public/
+│   │   └── manifest.json        # PWA-манифест
+│   └── src/
+│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id]
+│       ├── components/           # Переиспользуемые UI-компоненты
+│       ├── context/              # AuthContext, CartContext (React Context + localStorage)
+│       ├── data/                 # Моковые данные (mockPlants.ts)
+│       └── types/                # TypeScript-типы и enum'ы
+└── backend/                      # NestJS API
+    ├── prisma/
+    │   └── schema.prisma          # Модели User, Category + роли
     └── src/
-        ├── app/                # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id]
-        ├── components/         # Переиспользуемые UI-компоненты
-        ├── context/            # AuthContext, CartContext (React Context + localStorage)
-        ├── data/               # Моковые данные (mockPlants.ts)
-        └── types/              # TypeScript-типы и enum'ы
+        ├── auth/                  # JWT-регистрация/логин, guards, роли
+        ├── users/                 # CRUD пользователей
+        ├── categories/            # CRUD категорий (админ)
+        └── prisma/                # PrismaService (подключение к БД)
 ```
 
-Бэкенд (NestJS + PostgreSQL + Redis + AI-интеграции) в репозитории пока отсутствует — его структура (`apps/api`, `docker/` и т.д.) появится по мере реализации согласно [TZ.md](./TZ.md).
+Ещё не реализовано согласно [TZ.md](./TZ.md): объявления/каталог, чат, загрузка медиа в S3 с вотермарками, очереди BullMQ, интеграции Plant.id/LLM/ЮKassa, мониторинг и бэкапы.
 
 ## 🔑 Основные возможности MVP
 

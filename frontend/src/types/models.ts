@@ -6,8 +6,8 @@ export interface User {
   name: string;
   avatar?: string;
   role: UserRole;
-  phone?: string;
-  createdAt: Date;
+  phone?: string | null;
+  createdAt?: Date;
 }
 
 export interface Plant {

@@ -24,13 +24,13 @@ export const breakpoints = {
   largeDesktop: 1440,
 };
 
-// Типы пользователей
+// Роли пользователей (должны совпадать с enum UserRole в backend/prisma/schema.prisma)
 export enum UserRole {
-  GUEST = 'guest',
-  BUYER = 'buyer',
-  SELLER = 'seller',
-  ADMIN = 'admin',
-  BOTANIST = 'botanist',
+  BUYER = 'BUYER',
+  SELLER_INDIVIDUAL = 'SELLER_INDIVIDUAL',
+  SELLER_BUSINESS = 'SELLER_BUSINESS',
+  MODERATOR = 'MODERATOR',
+  ADMIN = 'ADMIN',
 }
 
 // Статусы заказа
@@ -42,16 +42,6 @@ export enum OrderStatus {
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
 }
-
-// Категории растений
-export const plantCategories = [
-  { id: 'indoor', name: 'Комнатные', icon: '🏠' },
-  { id: 'outdoor', name: 'Садовые', icon: '🌳' },
-  { id: 'succulents', name: 'Суккуленты', icon: '🌵' },
-  { id: 'flowers', name: 'Цветы', icon: '🌸' },
-  { id: 'trees', name: 'Деревья', icon: '🌲' },
-  { id: 'herbs', name: 'Травы', icon: '🌿' },
-];
 
 // Навигационные элементы
 export const navigationItems = [

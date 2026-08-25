@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Роли согласно TZ.md, раздел 3 (гость не хранится — это неавторизованный пользователь)
+enum UserRole {
+  BUYER
+  SELLER_INDIVIDUAL
+  SELLER_BUSINESS
+  MODERATOR
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         UserRole @default(BUYER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String
+  slug      String     @unique
+  icon      String?
+  parentId  String?
+  parent    Category?  @relation("CategoryToSubcategories", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[] @relation("CategoryToSubcategories")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
