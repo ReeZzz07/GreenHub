@@ -1,15 +1,20 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { StarIcon } from '@/components/Icons';
 import { PlantActions } from '@/components/PlantActions';
-import { mockPlants } from '@/data/mockPlants';
+import { fetchListing, ApiError } from '@/lib/api';
+import { listingToPlant } from '@/lib/listing-adapter';
 
 interface PlantDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 async function getPlant(id: string) {
-  return mockPlants.find((p) => p.id === id);
+  try {
+    return listingToPlant(await fetchListing(id));
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
 }
 
 export async function generateMetadata({ params }: PlantDetailPageProps): Promise<Metadata> {
@@ -45,15 +50,9 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
 
       <div className="p-4">
         <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
-        <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>
+        {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
 
-        <div className="flex items-center gap-1 mb-4">
-          <StarIcon size={16} filled className="text-amber-400" />
-          <span className="text-sm font-medium text-gray-700">{plant.rating.toFixed(1)}</span>
-          <span className="text-xs text-gray-400">({plant.reviewsCount} отзывов)</span>
-        </div>
-
-        <p className="text-2xl font-bold text-green-700 mb-4">
+        <p className="text-2xl font-bold text-green-700 mb-4 mt-2">
           {plant.price.toLocaleString('ru-RU')} ₽
         </p>
 

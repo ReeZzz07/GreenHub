@@ -67,11 +67,13 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
           </div>
         </div>
         
-        <div className="flex items-center gap-1 mb-3">
-          <StarIcon size={14} filled className="text-amber-400" />
-          <span className="text-sm font-medium text-gray-700">{plant.rating.toFixed(1)}</span>
-          <span className="text-xs text-gray-400">({plant.reviewsCount})</span>
-        </div>
+        {plant.reviewsCount > 0 && (
+          <div className="flex items-center gap-1 mb-3">
+            <StarIcon size={14} filled className="text-amber-400" />
+            <span className="text-sm font-medium text-gray-700">{plant.rating.toFixed(1)}</span>
+            <span className="text-xs text-gray-400">({plant.reviewsCount})</span>
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div className="flex flex-col">

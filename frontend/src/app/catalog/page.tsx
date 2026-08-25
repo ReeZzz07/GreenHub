@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from '@/components/SearchBar';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { PlantCard } from '@/components/PlantCard';
-import { mockPlants } from '@/data/mockPlants';
-import { fetchCategories, type Category } from '@/lib/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { fetchCategories, fetchListings, type Category } from '@/lib/api';
+import { listingToPlant } from '@/lib/listing-adapter';
+import { Plant } from '@/types/models';
 
 export default function CatalogPage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [plants, setPlants] = useState<Plant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchCategories()
@@ -20,15 +24,15 @@ export default function CatalogPage() {
       .catch(() => setCategories([]));
   }, []);
 
-  const filteredPlants = useMemo(() => {
-    return mockPlants.filter((plant) => {
-      const matchesCategory = !category || plant.category === category;
-      const matchesQuery =
-        !query ||
-        plant.name.toLowerCase().includes(query.toLowerCase()) ||
-        plant.latinName.toLowerCase().includes(query.toLowerCase());
-      return matchesCategory && matchesQuery;
-    });
+  useEffect(() => {
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      fetchListings({ category: category || undefined, search: query || undefined })
+        .then((page) => setPlants(page.items.map(listingToPlant)))
+        .catch(() => setPlants([]))
+        .finally(() => setIsLoading(false));
+    }, 300);
+    return () => clearTimeout(timeout);
   }, [query, category]);
 
   return (
@@ -43,11 +47,13 @@ export default function CatalogPage() {
         <CategoryFilter categories={categories} selectedCategory={category} onCategorySelect={setCategory} />
       </div>
 
-      {filteredPlants.length === 0 ? (
+      {isLoading ? (
+        <LoadingSpinner text="Загружаем объявления..." />
+      ) : plants.length === 0 ? (
         <p className="text-center text-gray-500 py-12">Ничего не найдено</p>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          {filteredPlants.map((plant) => (
+          {plants.map((plant) => (
             <PlantCard
               key={plant.id}
               plant={plant}

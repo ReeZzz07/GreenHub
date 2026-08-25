@@ -7,6 +7,7 @@ import { apiLogin, apiRegister, fetchMe, type ApiUser, type AuthResponse } from 
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
@@ -38,23 +39,28 @@ function toUser(apiUser: ApiUser): User {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!token) {
+    const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!savedToken) {
       setIsLoading(false);
       return;
     }
 
-    fetchMe(token)
-      .then((apiUser) => setUser(toUser(apiUser)))
+    fetchMe(savedToken)
+      .then((apiUser) => {
+        setUser(toUser(apiUser));
+        setToken(savedToken);
+      })
       .catch(() => localStorage.removeItem(TOKEN_STORAGE_KEY))
       .finally(() => setIsLoading(false));
   }, []);
 
   const applyAuthResponse = (res: AuthResponse) => {
     localStorage.setItem(TOKEN_STORAGE_KEY, res.accessToken);
+    setToken(res.accessToken);
     setUser(toUser(res.user));
   };
 
@@ -78,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem(TOKEN_STORAGE_KEY);
   };
 
@@ -85,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isLoading,
         login,
         register,

@@ -5,8 +5,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { UserIcon } from '@/components/Icons';
+import { MyListings } from '@/components/MyListings';
 import { UserRole } from '@/types';
 import { ApiError } from '@/lib/api';
+
+const SELLER_ROLES: UserRole[] = [UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN];
 
 const REGISTER_ROLES: { value: UserRole; label: string }[] = [
   { value: UserRole.BUYER, label: 'Покупатель' },
@@ -50,6 +53,12 @@ export default function ProfilePage() {
           <h1 className="text-xl font-bold text-gray-800">{user.name}</h1>
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
+
+        {SELLER_ROLES.includes(user.role) && (
+          <div className="mb-6">
+            <MyListings />
+          </div>
+        )}
 
         <Button fullWidth variant="ghost" onClick={logout}>
           Выйти

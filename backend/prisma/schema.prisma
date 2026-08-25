@@ -17,14 +17,15 @@ enum UserRole {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String    @id @default(uuid())
+  email        String    @unique
   passwordHash String
   name         String
   phone        String?
-  role         UserRole @default(BUYER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         UserRole  @default(BUYER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  listings     Listing[]
 }
 
 model Category {
@@ -35,6 +36,41 @@ model Category {
   parentId  String?
   parent    Category?  @relation("CategoryToSubcategories", fields: [parentId], references: [id], onDelete: SetNull)
   children  Category[] @relation("CategoryToSubcategories")
+  listings  Listing[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+// Статусы согласно TZ.md, раздел 5.2 (сценарий модерации)
+enum ListingStatus {
+  PENDING_MODERATION
+  PUBLISHED
+  REJECTED
+  SOLD
+}
+
+model Listing {
+  id                String        @id @default(uuid())
+  title             String
+  latinName         String?
+  description       String
+  price             Int
+  quantity          Int           @default(1)
+  images            String[]
+  lightRequirements String?
+  waterRequirements String?
+  careInstructions  String[]
+  status            ListingStatus @default(PENDING_MODERATION)
+  rejectionReason   String?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, categoryId])
 }

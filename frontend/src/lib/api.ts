@@ -84,3 +84,90 @@ export function fetchMe(token: string): Promise<ApiUser> {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export type ListingStatus = 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED' | 'SOLD';
+
+export interface Listing {
+  id: string;
+  title: string;
+  latinName: string | null;
+  description: string;
+  price: number;
+  quantity: number;
+  images: string[];
+  lightRequirements: string | null;
+  waterRequirements: string | null;
+  careInstructions: string[];
+  status: ListingStatus;
+  rejectionReason: string | null;
+  categoryId: string;
+  category: Category;
+  sellerId: string;
+  seller: { id: string; name: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListingsPage {
+  items: Listing[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ListingsQuery {
+  category?: string;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  limit?: number;
+  sortBy?: 'newest' | 'price_asc' | 'price_desc';
+}
+
+export function fetchListings(query: ListingsQuery = {}): Promise<ListingsPage> {
+  const params = new URLSearchParams();
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') params.set(key, String(value));
+  });
+  const qs = params.toString();
+  return request<ListingsPage>(`/listings${qs ? `?${qs}` : ''}`);
+}
+
+export function fetchListing(id: string): Promise<Listing> {
+  return request<Listing>(`/listings/${id}`);
+}
+
+export function fetchMyListings(token: string): Promise<Listing[]> {
+  return request<Listing[]>('/listings/mine', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export interface CreateListingPayload {
+  title: string;
+  latinName?: string;
+  description: string;
+  price: number;
+  quantity?: number;
+  categoryId: string;
+  images?: string[];
+  lightRequirements?: string;
+  waterRequirements?: string;
+  careInstructions?: string[];
+}
+
+export function createListing(payload: CreateListingPayload, token: string): Promise<Listing> {
+  return request<Listing>('/listings', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteListing(id: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/listings/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
