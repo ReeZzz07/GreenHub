@@ -1,10 +1,17 @@
 import Link from 'next/link';
-import { LeafIcon, StarIcon } from '@/components/Icons';
-import { mockPlants } from '@/data/mockPlants';
+import { LeafIcon } from '@/components/Icons';
+import { fetchListings } from '@/lib/api';
+import { listingToPlant } from '@/lib/listing-adapter';
 
-export default function HomePage() {
-  const featuredPlants = mockPlants.slice(0, 4);
-  const easyCarePlants = mockPlants.filter((p) => p.difficulty === 'easy').slice(0, 3);
+// Список объявлений меняется постоянно — рендерим на каждый запрос, не кэшируем на билд-тайм
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const page = await fetchListings({ limit: 7, sortBy: 'newest' }).catch(() => null);
+  const plants = (page?.items ?? []).map(listingToPlant);
+  const gridPlants = plants.slice(0, 4);
+  const listPlants = plants.slice(4, 7);
+  const totalCount = page?.total ?? 0;
 
   return (
     <div className="animate-fade-in">
@@ -51,84 +58,95 @@ export default function HomePage() {
               </svg>
             </div>
             <h3 className="font-semibold text-gray-800">Каталог</h3>
-            <p className="text-xs text-gray-500 mt-1">{mockPlants.length} растений</p>
+            <p className="text-xs text-gray-500 mt-1">{totalCount} растений</p>
           </Link>
         </div>
       </section>
 
-      {/* Featured Plants */}
-      <section className="px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Популярные растения</h2>
-          <Link href="/catalog" className="text-green-600 text-sm font-medium hover:text-green-700">
-            Все →
+      {plants.length === 0 ? (
+        <section className="px-4 py-12 text-center">
+          <p className="text-gray-500 mb-4">Пока нет опубликованных объявлений</p>
+          <Link href="/listings/new" className="btn-primary inline-block">
+            Разместить первое объявление
           </Link>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          {featuredPlants.map((plant) => (
-            <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-              <div className="card card-hover overflow-hidden">
-                <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
-                  <img
-                    src={plant.images[0]}
-                    alt={plant.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {!plant.inStock && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
-                        Нет в наличии
-                      </span>
+        </section>
+      ) : (
+        <>
+          {/* New Listings */}
+          <section className="px-4 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Новые объявления</h2>
+              <Link href="/catalog" className="text-green-600 text-sm font-medium hover:text-green-700">
+                Все →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {gridPlants.map((plant) => (
+                <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
+                  <div className="card card-hover overflow-hidden">
+                    <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
+                      {plant.images[0] && (
+                        <img
+                          src={plant.images[0]}
+                          alt={plant.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                      {!plant.inStock && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            Нет в наличии
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-gray-800 text-sm truncate">{plant.name}</h3>
-                  <div className="flex items-center gap-1 mt-1">
-                    <StarIcon size={12} filled className="text-amber-400" />
-                    <span className="text-xs text-gray-600">{plant.rating.toFixed(1)}</span>
+                    <div className="p-3">
+                      <h3 className="font-medium text-gray-800 text-sm truncate">{plant.name}</h3>
+                      <p className="text-green-700 font-bold text-sm mt-2">
+                        {plant.price.toLocaleString('ru-RU')} ₽
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-green-700 font-bold text-sm mt-2">
-                    {plant.price.toLocaleString('ru-RU')} ₽
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-      {/* Easy Care Section */}
-      <section className="px-4 py-4">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Для начинающих</h2>
-        <div className="space-y-3">
-          {easyCarePlants.map((plant) => (
-            <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-              <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
-                  <img
-                    src={plant.images[0]}
-                    alt={plant.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-800 truncate">{plant.name}</h3>
-                  <p className="text-xs text-gray-500 italic truncate">{plant.latinName}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="badge badge-success text-xs">Легко</span>
-                    <span className="text-green-700 font-bold text-sm">
-                      {plant.price.toLocaleString('ru-RU')} ₽
-                    </span>
-                  </div>
-                </div>
+          {listPlants.length > 0 && (
+            <section className="px-4 py-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Ещё объявления</h2>
+              <div className="space-y-3">
+                {listPlants.map((plant) => (
+                  <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
+                    <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
+                      <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+                        {plant.images[0] && (
+                          <img
+                            src={plant.images[0]}
+                            alt={plant.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-800 truncate">{plant.name}</h3>
+                        {plant.latinName && (
+                          <p className="text-xs text-gray-500 italic truncate">{plant.latinName}</p>
+                        )}
+                        <span className="text-green-700 font-bold text-sm mt-2 block">
+                          {plant.price.toLocaleString('ru-RU')} ₽
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+            </section>
+          )}
+        </>
+      )}
 
       {/* Features */}
       <section className="px-4 py-6">

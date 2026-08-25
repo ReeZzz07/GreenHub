@@ -255,3 +255,29 @@ export function fetchConversationMessages(id: string, token: string): Promise<Ch
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export function fetchFavorites(token: string): Promise<Listing[]> {
+  return request<Listing[]>('/favorites/mine', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function fetchFavoriteIds(token: string): Promise<string[]> {
+  return request<string[]>('/favorites/mine/ids', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function addFavorite(listingId: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/favorites/${listingId}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function removeFavorite(listingId: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/favorites/${listingId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

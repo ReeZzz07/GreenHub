@@ -6,18 +6,28 @@ import { Plant } from '@/types/models';
 import { HeartIcon, ChatIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import { useToast } from './Toast';
 import { createConversation, ApiError } from '@/lib/api';
 
 export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
   const { addToCart } = useCart();
   const { user, token, isAuthenticated } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
   const router = useRouter();
-  const [isFavorite, setIsFavorite] = React.useState(false);
   const [isMessaging, setIsMessaging] = React.useState(false);
+  const favorite = isFavorite(plant.id);
 
   const isOwnListing = isAuthenticated && user?.id === plant.sellerId;
+
+  const handleFavoriteToggle = () => {
+    if (!isAuthenticated) {
+      showToast('Войдите, чтобы добавлять в избранное', 'info');
+      return;
+    }
+    toggleFavorite(plant.id);
+  };
 
   const handleMessageSeller = async () => {
     if (!isAuthenticated || !token) {
@@ -60,11 +70,11 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
         </button>
       )}
       <button
-        onClick={() => setIsFavorite(!isFavorite)}
+        onClick={handleFavoriteToggle}
         className="p-3 rounded-xl border-2 border-gray-200 hover:border-red-300 transition-colors"
-        aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+        aria-label={favorite ? 'Удалить из избранного' : 'Добавить в избранное'}
       >
-        <HeartIcon size={22} filled={isFavorite} className={isFavorite ? 'text-red-500' : 'text-gray-500'} />
+        <HeartIcon size={22} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-500'} />
       </button>
     </div>
   );

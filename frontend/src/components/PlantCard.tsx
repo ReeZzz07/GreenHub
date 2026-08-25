@@ -4,6 +4,9 @@ import React from 'react';
 import { Plant } from '@/types/models';
 import { StarIcon, HeartIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from './Toast';
 
 interface PlantCardProps {
   plant: Plant;
@@ -12,7 +15,10 @@ interface PlantCardProps {
 
 export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
   const { addToCart } = useCart();
-  const [isFavorite, setIsFavorite] = React.useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
+  const favorite = isFavorite(plant.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -21,7 +27,11 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
 
   const handleFavoriteToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    if (!isAuthenticated) {
+      showToast('Войдите, чтобы добавлять в избранное', 'info');
+      return;
+    }
+    toggleFavorite(plant.id);
   };
 
   return (
@@ -39,9 +49,9 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
         <button
           onClick={handleFavoriteToggle}
           className="absolute top-3 right-3 p-2 glass rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
-          aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+          aria-label={favorite ? 'Удалить из избранного' : 'Добавить в избранное'}
         >
-          <HeartIcon size={20} filled={isFavorite} className={isFavorite ? 'text-red-500' : 'text-gray-600'} />
+          <HeartIcon size={20} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-600'} />
         </button>
         {!plant.inStock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

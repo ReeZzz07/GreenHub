@@ -56,6 +56,10 @@ export default function ProfilePage() {
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
 
+        <Link href="/favorites" className="btn-secondary block text-center mb-6">
+          Избранное
+        </Link>
+
         {MODERATOR_ROLES.includes(user.role) && (
           <Link href="/moderation" className="btn-secondary block text-center mb-6">
             Модерация объявлений

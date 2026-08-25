@@ -20,10 +20,9 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚧 Статус проекта
 
-- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, модуль объявлений (`/listings`) с фильтрами, модерацией и ролевыми правами, загрузка фото (`/media/upload`) с вотермарком через `sharp` в S3-совместимое хранилище, чат покупатель↔продавец (`/conversations` + WebSocket-namespace `/chat`, масштабирование через Redis-адаптер Socket.io)
-- ✅ **Frontend** (`frontend/`) — Next.js-приложение: каталог, карточка товара и главная категорий подключены к реальному API; регистрация/логин, создание объявления с загрузкой фото, «Мои объявления», модерация (`/moderation`) и чат (`/chats`, реалтайм через WebSocket) работают end-to-end
-- ⚠️ Главная страница (`/`) пока показывает моковые растения, не реальные объявления — это осознанно отложено до следующей итерации
-- ❌ Роли `MODERATOR`/`ADMIN` нельзя получить самостоятельной регистрацией (это осознанное ограничение) — назначаются вручную через БД, отдельного UI для этого пока нет
+- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT, CRUD пользователей и категорий, объявления (`/listings`) с фильтрами/модерацией, загрузка фото с вотермарком в S3, чат (`/conversations` + WebSocket `/chat` + Redis-адаптер), избранное (`/favorites`)
+- ✅ **Frontend** (`frontend/`) — Next.js: главная страница на реальных объявлениях (SSR, без кэширования на билд-тайм), каталог, карточка товара, избранное (`/favorites`, сердечко на карточках), создание объявления с фото, «Мои объявления», модерация, чат — все на реальном API end-to-end
+- ❌ Роли `MODERATOR`/`ADMIN` нельзя получить самостоятельной регистрацией (осознанное ограничение) — назначаются вручную через БД, отдельного UI для этого пока нет
 - ❌ Видео в объявлениях (TZ допускает MP4) — реализована загрузка только фото (JPG/PNG)
 - ❌ Очереди (BullMQ), интеграции Plant.id/LLM/ЮKassa, оффлайн-уведомления в чате — не реализованы
 
@@ -108,15 +107,14 @@ GreenHub/
 │   ├── public/
 │   │   └── manifest.json        # PWA-манифест
 │   └── src/
-│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id], /listings/new, /moderation, /chats, /chats/[id]
+│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /favorites, /profile, /plant/[id], /listings/new, /moderation, /chats, /chats/[id]
 │       ├── components/           # Переиспользуемые UI-компоненты (MyListings, ImageUploader, ...)
-│       ├── context/              # AuthContext, CartContext (React Context + localStorage)
-│       ├── data/                 # Моковые данные для главной страницы (mockPlants.ts)
+│       ├── context/              # AuthContext, CartContext, FavoritesContext (React Context)
 │       ├── lib/                  # API-клиент (api.ts), сокет-клиент чата (socket.ts), адаптер Listing → Plant
 │       └── types/                # TypeScript-типы и enum'ы
 └── backend/                      # NestJS API
     ├── prisma/
-    │   ├── schema.prisma          # Модели User, Category, Listing, Conversation, Message + роли/статусы
+    │   ├── schema.prisma          # Модели User, Category, Listing, Conversation, Message, Favorite + роли/статусы
     │   └── seed.ts                # Сид базовых категорий
     └── src/
         ├── auth/                  # JWT-регистрация/логин, guards, роли
@@ -125,6 +123,7 @@ GreenHub/
         ├── listings/              # CRUD объявлений, фильтры, модерация
         ├── media/                 # Загрузка фото: вотермарк (sharp) + S3 (originals/processed бакеты)
         ├── chat/                  # REST (/conversations) + WebSocket-шлюз (/chat) + Redis-адаптер
+        ├── favorites/             # Избранное
         └── prisma/                # PrismaService (подключение к БД)
 ```
 

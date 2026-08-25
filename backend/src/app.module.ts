@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ListingsModule } from './listings/listings.module';
 import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatModule } from './chat/chat.module';
     ListingsModule,
     MediaModule,
     ChatModule,
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
