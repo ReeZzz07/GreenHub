@@ -1,4 +1,4 @@
-import { UserRole, OrderStatus } from './index';
+import { UserRole, OrderStatus } from '@/types/index';
 
 export interface User {
   id: string;

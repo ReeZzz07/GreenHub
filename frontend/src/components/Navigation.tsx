@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { HomeIcon, GridIcon, CameraIcon, ShoppingCartIcon, UserIcon, LeafIcon } from './Icons';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 const navItems = [
   { path: '/', icon: HomeIcon, label: 'Главная' },
@@ -12,7 +15,7 @@ const navItems = [
 ];
 
 export const BottomNavigation: React.FC = () => {
-  const location = useLocation();
+  const pathname = usePathname();
   const { totalCount } = useCart();
 
   return (
@@ -20,13 +23,13 @@ export const BottomNavigation: React.FC = () => {
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = pathname === item.path;
           const hasBadge = item.path === '/cart' && totalCount > 0;
 
           return (
             <Link
               key={item.path}
-              to={item.path}
+              href={item.path}
               className={`relative flex flex-col items-center justify-center w-full h-full transition-all duration-300 ${
                 isActive
                   ? 'text-green-700 scale-105'
@@ -34,7 +37,7 @@ export const BottomNavigation: React.FC = () => {
               }`}
             >
               <div className="relative">
-                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={24} />
                 {hasBadge && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-fade-in">
                     {totalCount > 9 ? '9+' : totalCount}

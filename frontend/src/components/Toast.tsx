@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { createContext, useContext } from 'react';
 
 interface Toast {
   id: string;

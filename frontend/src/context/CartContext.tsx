@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CartItem, Plant } from '../types/models';
+'use client';
+
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { CartItem, Plant } from '@/types/models';
 
 interface CartContextType {
   items: CartItem[];

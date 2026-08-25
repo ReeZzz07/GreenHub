@@ -1,145 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { LeafIcon, StarIcon, ArrowLeftIcon } from '../components/Icons';
-import { Plant } from '../types/models';
+import Link from 'next/link';
+import { LeafIcon, StarIcon } from '@/components/Icons';
+import { mockPlants } from '@/data/mockPlants';
 
-// Моковые данные для растений
-const mockPlants: Plant[] = [
-  {
-    id: '1',
-    name: 'Монстера Делициоза',
-    latinName: 'Monstera deliciosa',
-    description: 'Эффектное тропическое растение с крупными резными листьями. Идеально подходит для создания зеленого уголка в интерьере.',
-    price: 2500,
-    images: ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500'],
-    category: 'indoor',
-    sellerId: 's1',
-    sellerName: 'GreenShop',
-    inStock: true,
-    quantity: 15,
-    rating: 4.8,
-    reviewsCount: 124,
-    aiGenerated: false,
-    careInstructions: ['Яркий рассеянный свет', 'Полив 2-3 раза в неделю', 'Высокая влажность'],
-    lightRequirements: 'Яркий рассеянный свет',
-    waterRequirements: 'Умеренный полив',
-    difficulty: 'easy',
-    createdAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Фикус Лирата',
-    latinName: 'Ficus lyrata',
-    description: 'Элегантное дерево с крупными листьями в форме скрипки. Станет отличным акцентом в просторном помещении.',
-    price: 4500,
-    images: ['https://images.unsplash.com/photo-1612361668944-5871a5f07411?w=500'],
-    category: 'indoor',
-    sellerId: 's2',
-    sellerName: 'PlantHome',
-    inStock: true,
-    quantity: 8,
-    rating: 4.6,
-    reviewsCount: 89,
-    aiGenerated: false,
-    careInstructions: ['Яркий свет', 'Полив раз в неделю', 'Протирать листья'],
-    lightRequirements: 'Яркий свет',
-    waterRequirements: 'Умеренный полив',
-    difficulty: 'medium',
-    createdAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'Сансевиерия',
-    latinName: 'Sansevieria trifasciata',
-    description: 'Неприхотливое растение с вертикальными мечевидными листьями. Очищает воздух и не требует частого полива.',
-    price: 1200,
-    images: ['https://images.unsplash.com/photo-1599598425947-d352e0a6e0a7?w=500'],
-    category: 'succulents',
-    sellerId: 's1',
-    sellerName: 'GreenShop',
-    inStock: true,
-    quantity: 25,
-    rating: 4.9,
-    reviewsCount: 201,
-    aiGenerated: false,
-    careInstructions: ['Любой свет', 'Полив раз в 2-3 недели', 'Не требовательна'],
-    lightRequirements: 'Любой свет',
-    waterRequirements: 'Редкий полив',
-    difficulty: 'easy',
-    createdAt: new Date(),
-  },
-  {
-    id: '4',
-    name: 'Калатея Орната',
-    latinName: 'Calathea ornata',
-    description: 'Декоративнолиственное растение с удивительным узором на листьях. Требует внимания, но вознаграждает красотой.',
-    price: 1800,
-    images: ['https://images.unsplash.com/photo-1628151016024-5d510f69626e?w=500'],
-    category: 'indoor',
-    sellerId: 's3',
-    sellerName: 'TropicalGarden',
-    inStock: true,
-    quantity: 12,
-    rating: 4.5,
-    reviewsCount: 67,
-    aiGenerated: false,
-    careInstructions: ['Рассеянный свет', 'Частый полив', 'Высокая влажность'],
-    lightRequirements: 'Рассеянный свет',
-    waterRequirements: 'Частый полив',
-    difficulty: 'hard',
-    createdAt: new Date(),
-  },
-  {
-    id: '5',
-    name: 'Эхеверия',
-    latinName: 'Echeveria elegans',
-    description: 'Миниатюрный суккулент с розеткой мясистых листьев голубовато-зеленого цвета. Идеален для композиций.',
-    price: 450,
-    images: ['https://images.unsplash.com/photo-1459411552884-841f9436f384?w=500'],
-    category: 'succulents',
-    sellerId: 's2',
-    sellerName: 'PlantHome',
-    inStock: true,
-    quantity: 50,
-    rating: 4.7,
-    reviewsCount: 156,
-    aiGenerated: false,
-    careInstructions: ['Яркий свет', 'Редкий полив', 'Хороший дренаж'],
-    lightRequirements: 'Яркий свет',
-    waterRequirements: 'Редкий полив',
-    difficulty: 'easy',
-    createdAt: new Date(),
-  },
-  {
-    id: '6',
-    name: 'Папоротник Нефролепис',
-    latinName: 'Nephrolepis exaltata',
-    description: 'Классический папоротник с пышной ажурной листвой. Создает уютную атмосферу в любом помещении.',
-    price: 950,
-    images: ['https://images.unsplash.com/photo-1596541673894-1b9d1f89d2e6?w=500'],
-    category: 'indoor',
-    sellerId: 's1',
-    sellerName: 'GreenShop',
-    inStock: false,
-    quantity: 0,
-    rating: 4.4,
-    reviewsCount: 93,
-    aiGenerated: false,
-    careInstructions: ['Рассеянный свет', 'Частый полив', 'Опрыскивание'],
-    lightRequirements: 'Рассеянный свет',
-    waterRequirements: 'Частый полив',
-    difficulty: 'medium',
-    createdAt: new Date(),
-  },
-];
-
-interface HomePageProps {
-  // props
-}
-
-const HomePage: React.FC<HomePageProps> = () => {
+export default function HomePage() {
   const featuredPlants = mockPlants.slice(0, 4);
-  const easyCarePlants = mockPlants.filter(p => p.difficulty === 'easy').slice(0, 3);
+  const easyCarePlants = mockPlants.filter((p) => p.difficulty === 'easy').slice(0, 3);
 
   return (
     <div className="animate-fade-in">
@@ -161,7 +26,7 @@ const HomePage: React.FC<HomePageProps> = () => {
       <section className="px-4 py-6">
         <div className="grid grid-cols-2 gap-4">
           <Link
-            to="/recognize"
+            href="/recognize"
             className="card p-4 text-center hover:scale-105 transition-transform"
           >
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
@@ -174,7 +39,7 @@ const HomePage: React.FC<HomePageProps> = () => {
             <p className="text-xs text-gray-500 mt-1">AI-помощник</p>
           </Link>
           <Link
-            to="/catalog"
+            href="/catalog"
             className="card p-4 text-center hover:scale-105 transition-transform"
           >
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
@@ -195,13 +60,13 @@ const HomePage: React.FC<HomePageProps> = () => {
       <section className="px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-800">Популярные растения</h2>
-          <Link to="/catalog" className="text-green-600 text-sm font-medium hover:text-green-700">
+          <Link href="/catalog" className="text-green-600 text-sm font-medium hover:text-green-700">
             Все →
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4">
           {featuredPlants.map((plant) => (
-            <Link key={plant.id} to={`/plant/${plant.id}`} className="block">
+            <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
               <div className="card card-hover overflow-hidden">
                 <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
                   <img
@@ -239,7 +104,7 @@ const HomePage: React.FC<HomePageProps> = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-4">Для начинающих</h2>
         <div className="space-y-3">
           {easyCarePlants.map((plant) => (
-            <Link key={plant.id} to={`/plant/${plant.id}`} className="block">
+            <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
               <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
                 <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                   <img
@@ -316,6 +181,4 @@ const HomePage: React.FC<HomePageProps> = () => {
       </section>
     </div>
   );
-};
-
-export default HomePage;
+}

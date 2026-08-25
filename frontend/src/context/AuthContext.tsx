@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { UserRole } from '../types';
-import { User, CartItem, Order } from '../types/models';
+'use client';
+
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { UserRole } from '@/types';
+import { User } from '@/types/models';
 
 interface AuthContextType {
   user: User | null;

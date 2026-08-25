@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { plantCategories } from '../types';
+import { plantCategories } from '@/types';
 
 interface CategoryFilterProps {
   selectedCategory?: string;

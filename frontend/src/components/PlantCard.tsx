@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
-import { Plant } from '../types/models';
+import { Plant } from '@/types/models';
 import { StarIcon, HeartIcon } from './Icons';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 
 interface PlantCardProps {
   plant: Plant;
