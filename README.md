@@ -18,6 +18,17 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 - [Техническое задание (TZ.md)](./TZ.md) — полное описание требований, архитектуры и плана разработки
 
+## 🚧 Статус проекта
+
+Сейчас реализован только фронтенд-каркас (папка `frontend/`) на моковых данных, без бэкенда:
+
+- ✅ Next.js-приложение с роутами `/`, `/catalog`, `/recognize`, `/cart`, `/profile`, `/plant/[id]`
+- ✅ UI-компоненты, контексты корзины/авторизации (на `localStorage`), моковый каталог растений
+- ❌ Backend (NestJS), база данных, очереди, S3 — не реализованы
+- ❌ Интеграции с Plant.id, LLM, ЮKassa/Robokassa — не подключены
+
+Разделы ниже описывают **целевую архитектуру MVP** согласно [TZ.md](./TZ.md), а не всё, что уже работает.
+
 ## 🛠 Технологический стек
 
 ### Frontend
@@ -50,59 +61,57 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚀 Быстрый старт
 
+На данный момент в репозитории реализован только фронтенд — инструкции ниже касаются только его.
+Требования к бэкенду (Docker, PostgreSQL, Redis, Yandex Object Storage) актуальны только после его реализации.
+
 ### Предварительные требования
 - Node.js 18+
-- Docker и Docker Compose
-- PostgreSQL 14+
-- Redis 6+
-- Аккаунт в Yandex Cloud (для Object Storage)
 
 ### Установка
 
 1. **Клонирование репозитория**
 ```bash
-git clone <repository-url>
-cd greenhub
+git clone https://github.com/ReeZzz07/GreenHub.git
+cd GreenHub/frontend
 ```
 
-2. **Настройка переменных окружения**
+2. **Установка зависимостей**
 ```bash
-cp .env.example .env
-# Отредактируйте .env с вашими ключами API и настройками
+npm install
 ```
 
-3. **Запуск через Docker Compose**
+3. **Запуск в режиме разработки**
 ```bash
-docker-compose up -d
+npm run dev
 ```
 
-4. **Миграции базы данных**
-```bash
-npm run migrate
-```
+Приложение будет доступно на [http://localhost:3000](http://localhost:3000).
 
-5. **Запуск в режиме разработки**
+### Другие команды
 ```bash
-# Frontend
-cd apps/web && npm run dev
-
-# Backend
-cd apps/api && npm run start:dev
+npm run build   # Production-сборка
+npm run start   # Запуск production-сборки
+npm run lint    # Проверка линтером
 ```
 
 ## 📁 Структура проекта
 
 ```
-greenhub/
-├── apps/
-│   ├── web/           # Next.js frontend
-│   └── api/           # NestJS backend
-├── packages/          # Общие библиотеки
-├── docker/            # Docker конфигурации
-├── scripts/           # Скрипты для деплоя и миграций
-├── docs/              # Дополнительная документация
-└── TZ.md              # Техническое задание
+GreenHub/
+├── TZ.md                      # Техническое задание
+├── README.md
+└── frontend/                  # Next.js приложение (App Router)
+    ├── public/
+    │   └── manifest.json      # PWA-манифест
+    └── src/
+        ├── app/                # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id]
+        ├── components/         # Переиспользуемые UI-компоненты
+        ├── context/            # AuthContext, CartContext (React Context + localStorage)
+        ├── data/               # Моковые данные (mockPlants.ts)
+        └── types/              # TypeScript-типы и enum'ы
 ```
+
+Бэкенд (NestJS + PostgreSQL + Redis + AI-интеграции) в репозитории пока отсутствует — его структура (`apps/api`, `docker/` и т.д.) появится по мере реализации согласно [TZ.md](./TZ.md).
 
 ## 🔑 Основные возможности MVP
 
@@ -181,5 +190,5 @@ greenhub/
 
 ---
 
-**Версия документа:** 1.0  
-**Последнее обновление:** 2026
+**Версия документа:** 1.1  
+**Последнее обновление:** 25 августа 2026
