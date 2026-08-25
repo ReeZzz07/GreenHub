@@ -8,6 +8,7 @@ import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { fetchCategories, createListing, ApiError, type Category } from '@/lib/api';
+import { ImageUploader } from '@/components/ImageUploader';
 import { UserRole } from '@/types';
 
 const SELLER_ROLES: UserRole[] = [UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN];
@@ -27,7 +28,7 @@ export default function NewListingPage() {
   const [lightRequirements, setLightRequirements] = useState('');
   const [waterRequirements, setWaterRequirements] = useState('');
   const [careInstructions, setCareInstructions] = useState('');
-  const [images, setImages] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -55,10 +56,7 @@ export default function NewListingPage() {
           price: Number(price),
           quantity: Number(quantity) || 1,
           categoryId,
-          images: images
-            .split(',')
-            .map((url) => url.trim())
-            .filter(Boolean),
+          images,
           lightRequirements: lightRequirements || undefined,
           waterRequirements: waterRequirements || undefined,
           careInstructions: careInstructions
@@ -157,13 +155,7 @@ export default function NewListingPage() {
           className="input-field"
         />
 
-        <input
-          type="text"
-          placeholder="Ссылки на фото через запятую (необязательно)"
-          value={images}
-          onChange={(e) => setImages(e.target.value)}
-          className="input-field"
-        />
+        <ImageUploader images={images} onChange={setImages} />
 
         <input
           type="text"

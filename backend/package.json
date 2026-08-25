@@ -16,6 +16,7 @@
     "seed": "ts-node --compiler-options {\"module\":\"commonjs\"} prisma/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
@@ -31,13 +32,15 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.0.0",
     "@types/passport-jwt": "^4.0.1",
     "prisma": "^5.20.0",
@@ -50,6 +53,7 @@
     "@prisma/client@5.22.0": true,
     "@prisma/engines@5.22.0": true,
     "bcrypt@5.1.1": true,
-    "prisma@5.22.0": true
+    "prisma@5.22.0": true,
+    "sharp@0.33.5": true
   }
 }

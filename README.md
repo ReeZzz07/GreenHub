@@ -20,11 +20,11 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚧 Статус проекта
 
-- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, модуль объявлений (`/listings`) с фильтрами, модерацией (на модерации/опубликовано/отклонено/продано) и ролевыми правами (продавец создаёт, владелец/админ редактирует, модератор/админ публикует или отклоняет)
-- ✅ **Frontend** (`frontend/`) — Next.js-приложение: каталог, карточка товара и главная категорий подключены к реальному API; регистрация/логин продавца, создание объявления и личный кабинет с «Моими объявлениями» работают end-to-end
+- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, модуль объявлений (`/listings`) с фильтрами, модерацией (на модерации/опубликовано/отклонено/продано) и ролевыми правами, загрузка фото (`/media/upload`) с автоматическим вотермарком через `sharp` и хранением в S3-совместимом хранилище (MinIO локально / Yandex Object Storage в проде)
+- ✅ **Frontend** (`frontend/`) — Next.js-приложение: каталог, карточка товара и главная категорий подключены к реальному API; регистрация/логин продавца, создание объявления с загрузкой реальных фото и личный кабинет с «Моими объявлениями» работают end-to-end
 - ⚠️ Главная страница (`/`) пока показывает моковые растения, не реальные объявления — это осознанно отложено до следующей итерации
-- ❌ Загрузка фото в S3 с вотермарками — создание объявления пока принимает только ссылки на уже готовые изображения
 - ❌ UI модерации для модератора/администратора — публикация/отклонение объявлений сейчас доступны только через API
+- ❌ Видео в объявлениях (TZ допускает MP4) — реализована загрузка только фото (JPG/PNG)
 - ❌ Чат, очереди (BullMQ), интеграции Plant.id/LLM/ЮKassa — не реализованы
 
 Разделы ниже описывают **целевую архитектуру MVP** согласно [TZ.md](./TZ.md), а не всё, что уже работает.
@@ -81,7 +81,7 @@ npm run dev
 ### Backend
 
 ```bash
-# из корня репозитория — поднимает PostgreSQL и Redis
+# из корня репозитория — поднимает PostgreSQL, Redis и MinIO (S3-совместимое хранилище для фото)
 docker-compose up -d
 
 cd backend
@@ -89,10 +89,11 @@ npm install
 cp .env.example .env
 
 npx prisma migrate dev   # создаёт таблицы по schema.prisma
+npm run prisma:seed      # базовые категории
 npm run start:dev
 ```
 
-API будет доступно на [http://localhost:4000/api](http://localhost:4000/api) (например, `GET /api/health`).
+API будет доступно на [http://localhost:4000/api](http://localhost:4000/api) (например, `GET /api/health`). Бакеты S3 создаются автоматически при старте; консоль MinIO — [http://localhost:9001](http://localhost:9001) (`minioadmin` / `minioadmin`).
 
 Другие команды: `npm run build` — компиляция в `dist/`, `npm run prisma:studio` — GUI для просмотра БД.
 
@@ -102,13 +103,13 @@ API будет доступно на [http://localhost:4000/api](http://localhos
 GreenHub/
 ├── TZ.md                       # Техническое задание
 ├── README.md
-├── docker-compose.yml           # PostgreSQL + Redis для локальной разработки
+├── docker-compose.yml           # PostgreSQL + Redis + MinIO для локальной разработки
 ├── frontend/                    # Next.js приложение (App Router)
 │   ├── public/
 │   │   └── manifest.json        # PWA-манифест
 │   └── src/
 │       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id], /listings/new
-│       ├── components/           # Переиспользуемые UI-компоненты (включая MyListings)
+│       ├── components/           # Переиспользуемые UI-компоненты (MyListings, ImageUploader, ...)
 │       ├── context/              # AuthContext, CartContext (React Context + localStorage)
 │       ├── data/                 # Моковые данные для главной страницы (mockPlants.ts)
 │       ├── lib/                  # API-клиент (api.ts) и адаптер Listing → Plant
@@ -122,10 +123,11 @@ GreenHub/
         ├── users/                 # CRUD пользователей
         ├── categories/            # CRUD категорий (админ)
         ├── listings/              # CRUD объявлений, фильтры, модерация
+        ├── media/                 # Загрузка фото: вотермарк (sharp) + S3 (originals/processed бакеты)
         └── prisma/                # PrismaService (подключение к БД)
 ```
 
-Ещё не реализовано согласно [TZ.md](./TZ.md): чат, загрузка медиа в S3 с вотермарками, AI-распознавание и генерация описаний, очереди BullMQ, интеграция ЮKassa/Robokassa, UI модерации, мониторинг и бэкапы.
+Ещё не реализовано согласно [TZ.md](./TZ.md): чат, AI-распознавание и генерация описаний, очереди BullMQ, интеграция ЮKassa/Robokassa, UI модерации, мониторинг и бэкапы.
 
 ## 🔑 Основные возможности MVP
 
