@@ -3,13 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, GridIcon, CameraIcon, ShoppingCartIcon, UserIcon, LeafIcon } from './Icons';
+import { HomeIcon, GridIcon, CameraIcon, ChatIcon, ShoppingCartIcon, UserIcon, LeafIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 
 const navItems = [
   { path: '/', icon: HomeIcon, label: 'Главная' },
   { path: '/catalog', icon: GridIcon, label: 'Каталог' },
   { path: '/recognize', icon: CameraIcon, label: 'Распознать' },
+  { path: '/chats', icon: ChatIcon, label: 'Чаты' },
   { path: '/cart', icon: ShoppingCartIcon, label: 'Корзина' },
   { path: '/profile', icon: UserIcon, label: 'Профиль' },
 ];
@@ -23,7 +24,7 @@ export const BottomNavigation: React.FC = () => {
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.path;
+          const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path);
           const hasBadge = item.path === '/cart' && totalCount > 0;
 
           return (

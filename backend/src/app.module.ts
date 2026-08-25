@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ListingsModule } from './listings/listings.module';
 import { MediaModule } from './media/media.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MediaModule } from './media/media.module';
     CategoriesModule,
     ListingsModule,
     MediaModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

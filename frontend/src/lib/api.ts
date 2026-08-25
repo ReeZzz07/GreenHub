@@ -206,3 +206,52 @@ export function moderateListing(id: string, payload: ModeratePayload, token: str
     body: JSON.stringify(payload),
   });
 }
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+  sender: { id: string; name: string };
+}
+
+export interface Conversation {
+  id: string;
+  listingId: string;
+  buyerId: string;
+  sellerId: string;
+  createdAt: string;
+  updatedAt: string;
+  lastMessageAt: string;
+  listing: { id: string; title: string; images: string[]; price: number; sellerId: string };
+  buyer: { id: string; name: string };
+  seller: { id: string; name: string };
+  messages?: ChatMessage[];
+}
+
+export function fetchConversations(token: string): Promise<Conversation[]> {
+  return request<Conversation[]>('/conversations', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function createConversation(listingId: string, token: string): Promise<Conversation> {
+  return request<Conversation>('/conversations', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ listingId }),
+  });
+}
+
+export function fetchConversation(id: string, token: string): Promise<Conversation> {
+  return request<Conversation>(`/conversations/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function fetchConversationMessages(id: string, token: string): Promise<ChatMessage[]> {
+  return request<ChatMessage[]>(`/conversations/${id}/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

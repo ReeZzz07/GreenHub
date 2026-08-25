@@ -20,12 +20,12 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚧 Статус проекта
 
-- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, модуль объявлений (`/listings`) с фильтрами, модерацией (на модерации/опубликовано/отклонено/продано) и ролевыми правами, загрузка фото (`/media/upload`) с автоматическим вотермарком через `sharp` и хранением в S3-совместимом хранилище (MinIO локально / Yandex Object Storage в проде)
-- ✅ **Frontend** (`frontend/`) — Next.js-приложение: каталог, карточка товара и главная категорий подключены к реальному API; регистрация/логин продавца, создание объявления с загрузкой реальных фото, личный кабинет с «Моими объявлениями» и страница модерации (`/moderation`) для модератора/администратора работают end-to-end
+- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT (`/auth/register`, `/auth/login`, `/auth/me`), CRUD пользователей и категорий, модуль объявлений (`/listings`) с фильтрами, модерацией и ролевыми правами, загрузка фото (`/media/upload`) с вотермарком через `sharp` в S3-совместимое хранилище, чат покупатель↔продавец (`/conversations` + WebSocket-namespace `/chat`, масштабирование через Redis-адаптер Socket.io)
+- ✅ **Frontend** (`frontend/`) — Next.js-приложение: каталог, карточка товара и главная категорий подключены к реальному API; регистрация/логин, создание объявления с загрузкой фото, «Мои объявления», модерация (`/moderation`) и чат (`/chats`, реалтайм через WebSocket) работают end-to-end
 - ⚠️ Главная страница (`/`) пока показывает моковые растения, не реальные объявления — это осознанно отложено до следующей итерации
 - ❌ Роли `MODERATOR`/`ADMIN` нельзя получить самостоятельной регистрацией (это осознанное ограничение) — назначаются вручную через БД, отдельного UI для этого пока нет
 - ❌ Видео в объявлениях (TZ допускает MP4) — реализована загрузка только фото (JPG/PNG)
-- ❌ Чат, очереди (BullMQ), интеграции Plant.id/LLM/ЮKassa — не реализованы
+- ❌ Очереди (BullMQ), интеграции Plant.id/LLM/ЮKassa, оффлайн-уведомления в чате — не реализованы
 
 Разделы ниже описывают **целевую архитектуру MVP** согласно [TZ.md](./TZ.md), а не всё, что уже работает.
 
@@ -108,15 +108,15 @@ GreenHub/
 │   ├── public/
 │   │   └── manifest.json        # PWA-манифест
 │   └── src/
-│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id], /listings/new, /moderation
+│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /profile, /plant/[id], /listings/new, /moderation, /chats, /chats/[id]
 │       ├── components/           # Переиспользуемые UI-компоненты (MyListings, ImageUploader, ...)
 │       ├── context/              # AuthContext, CartContext (React Context + localStorage)
 │       ├── data/                 # Моковые данные для главной страницы (mockPlants.ts)
-│       ├── lib/                  # API-клиент (api.ts) и адаптер Listing → Plant
+│       ├── lib/                  # API-клиент (api.ts), сокет-клиент чата (socket.ts), адаптер Listing → Plant
 │       └── types/                # TypeScript-типы и enum'ы
 └── backend/                      # NestJS API
     ├── prisma/
-    │   ├── schema.prisma          # Модели User, Category, Listing + роли/статусы
+    │   ├── schema.prisma          # Модели User, Category, Listing, Conversation, Message + роли/статусы
     │   └── seed.ts                # Сид базовых категорий
     └── src/
         ├── auth/                  # JWT-регистрация/логин, guards, роли
@@ -124,10 +124,11 @@ GreenHub/
         ├── categories/            # CRUD категорий (админ)
         ├── listings/              # CRUD объявлений, фильтры, модерация
         ├── media/                 # Загрузка фото: вотермарк (sharp) + S3 (originals/processed бакеты)
+        ├── chat/                  # REST (/conversations) + WebSocket-шлюз (/chat) + Redis-адаптер
         └── prisma/                # PrismaService (подключение к БД)
 ```
 
-Ещё не реализовано согласно [TZ.md](./TZ.md): чат, AI-распознавание и генерация описаний, очереди BullMQ, интеграция ЮKassa/Robokassa, мониторинг и бэкапы.
+Ещё не реализовано согласно [TZ.md](./TZ.md): AI-распознавание и генерация описаний, очереди BullMQ, интеграция ЮKassa/Robokassa, мониторинг и бэкапы.
 
 ## 🔑 Основные возможности MVP
 
