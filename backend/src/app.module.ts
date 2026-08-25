@@ -10,6 +10,7 @@ import { ListingsModule } from './listings/listings.module';
 import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FavoritesModule } from './favorites/favorites.module';
     MediaModule,
     ChatModule,
     FavoritesModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

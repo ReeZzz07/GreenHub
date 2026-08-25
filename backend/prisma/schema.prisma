@@ -97,6 +97,15 @@ model Favorite {
   @@unique([userId, listingId])
 }
 
+// Ключи внешних интеграций (ЮKassa, Plant.id, LLM), заполняются только администратором через /admin/settings.
+// Значения никогда не отдаются обратно в API — только статус "настроено/нет" (см. SettingsController).
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
 // Один чат на пару (покупатель, объявление) — сообщения продавцу пишутся в контексте конкретного товара
 model Conversation {
   id String @id @default(uuid())

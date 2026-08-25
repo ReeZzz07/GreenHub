@@ -66,6 +66,12 @@ export default function ProfilePage() {
           </Link>
         )}
 
+        {user.role === UserRole.ADMIN && (
+          <Link href="/admin/settings" className="btn-secondary block text-center mb-6">
+            Настройки интеграций
+          </Link>
+        )}
+
         {SELLER_ROLES.includes(user.role) && (
           <div className="mb-6">
             <MyListings />

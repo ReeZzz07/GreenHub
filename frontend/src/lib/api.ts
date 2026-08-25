@@ -281,3 +281,30 @@ export function removeFavorite(listingId: string, token: string): Promise<{ succ
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export type SettingKey =
+  | 'YOOKASSA_SHOP_ID'
+  | 'YOOKASSA_SECRET_KEY'
+  | 'PLANT_ID_API_KEY'
+  | 'LLM_API_KEY'
+  | 'LLM_API_URL'
+  | 'LLM_MODEL';
+
+export type SettingsStatus = Record<SettingKey, boolean>;
+
+export function fetchSettingsStatus(token: string): Promise<SettingsStatus> {
+  return request<SettingsStatus>('/admin/settings', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function updateSettings(
+  values: Partial<Record<SettingKey, string>>,
+  token: string,
+): Promise<SettingsStatus> {
+  return request<SettingsStatus>('/admin/settings', {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(values),
+  });
+}
