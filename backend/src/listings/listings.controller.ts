@@ -37,6 +37,13 @@ export class ListingsController {
     return this.listingsService.findModerationQueue();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.MODERATOR, UserRole.ADMIN)
+  @Get(':id/review')
+  findForReview(@Param('id') id: string) {
+    return this.listingsService.findByIdForModerator(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.listingsService.findPublishedById(id);

@@ -200,6 +200,12 @@ export function fetchModerationQueue(token: string): Promise<Listing[]> {
   });
 }
 
+export function fetchListingForReview(id: string, token: string): Promise<Listing> {
+  return request<Listing>(`/listings/${id}/review`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 export interface ModeratePayload {
   action: 'approve' | 'reject';
   reason?: string;

@@ -184,7 +184,7 @@ export default function ModerationPage() {
         <div className="space-y-4">
           {queue.map((listing) => (
             <div key={listing.id} className="card p-4">
-              <div className="flex gap-3">
+              <Link href={`/moderation/${listing.id}`} className="flex gap-3">
                 <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                   {listing.images[0] && (
                     <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
@@ -199,9 +199,16 @@ export default function ModerationPage() {
                     {listing.price.toLocaleString('ru-RU')} ₽
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <p className="text-sm text-gray-600 mt-3 line-clamp-3">{listing.description}</p>
+
+              <Link
+                href={`/moderation/${listing.id}`}
+                className="text-green-600 text-sm font-medium hover:text-green-700 inline-block mt-2"
+              >
+                Открыть карточку →
+              </Link>
 
               <div className="flex gap-2 mt-4">
                 <Button

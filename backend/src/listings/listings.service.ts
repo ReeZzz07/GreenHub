@@ -71,6 +71,15 @@ export class ListingsService {
     return listing;
   }
 
+  async findByIdForModerator(id: string) {
+    const listing = await this.prisma.listing.findUnique({
+      where: { id },
+      include: LISTING_INCLUDE,
+    });
+    if (!listing) throw new NotFoundException('Объявление не найдено');
+    return listing;
+  }
+
   findMine(sellerId: string) {
     return this.prisma.listing.findMany({
       where: { sellerId },
