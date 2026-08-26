@@ -11,13 +11,11 @@ const navItems = [
   { path: '/catalog', icon: GridIcon, label: 'Каталог' },
   { path: '/recognize', icon: CameraIcon, label: 'Распознать' },
   { path: '/chats', icon: ChatIcon, label: 'Чаты' },
-  { path: '/cart', icon: ShoppingCartIcon, label: 'Корзина' },
   { path: '/profile', icon: UserIcon, label: 'Профиль' },
 ];
 
 export const BottomNavigation: React.FC = () => {
   const pathname = usePathname();
-  const { totalCount } = useCart();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 glass border-t border-green-100 bg-white/95 backdrop-blur-lg z-40 safe-area-bottom">
@@ -25,7 +23,6 @@ export const BottomNavigation: React.FC = () => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path);
-          const hasBadge = item.path === '/cart' && totalCount > 0;
 
           return (
             <Link
@@ -37,14 +34,7 @@ export const BottomNavigation: React.FC = () => {
                   : 'text-gray-400 hover:text-green-600'
               }`}
             >
-              <div className="relative">
-                <Icon size={24} />
-                {hasBadge && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-fade-in">
-                    {totalCount > 9 ? '9+' : totalCount}
-                  </span>
-                )}
-              </div>
+              <Icon size={24} />
               <span className={`text-[10px] mt-1 font-medium transition-opacity duration-300 ${
                 isActive ? 'opacity-100' : 'opacity-70'
               }`}>
@@ -65,6 +55,8 @@ export const Header: React.FC<{ title?: string; showBack?: boolean }> = ({
   title = 'GreenHub', 
   showBack = false 
 }) => {
+  const { totalCount } = useCart();
+
   return (
     <header className="sticky top-0 z-40 gradient-nature text-white shadow-lg">
       <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
@@ -90,6 +82,14 @@ export const Header: React.FC<{ title?: string; showBack?: boolean }> = ({
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
           </button>
+          <Link href="/cart" className="relative p-2 hover:bg-white/20 rounded-full transition-colors" aria-label="Корзина">
+            <ShoppingCartIcon size={20} />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-fade-in">
+                {totalCount > 9 ? '9+' : totalCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
     </header>
