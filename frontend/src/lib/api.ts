@@ -363,3 +363,28 @@ export async function recognizePlant(file: File, token: string): Promise<Recogni
   });
   return handleResponse<RecognitionResult>(res);
 }
+
+export interface GenerateDescriptionPayload {
+  title: string;
+  categoryName: string;
+  lightRequirements?: string;
+  waterRequirements?: string;
+  careInstructions?: string[];
+}
+
+export interface GenerateDescriptionResult {
+  description: string;
+  flagged: boolean;
+  flagReasons: string[];
+}
+
+export function generateDescription(
+  payload: GenerateDescriptionPayload,
+  token: string,
+): Promise<GenerateDescriptionResult> {
+  return request<GenerateDescriptionResult>('/ai/generate-description', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}

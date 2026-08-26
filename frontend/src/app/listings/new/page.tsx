@@ -7,7 +7,13 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { fetchCategories, createListing, ApiError, type Category } from '@/lib/api';
+import {
+  fetchCategories,
+  createListing,
+  generateDescription,
+  ApiError,
+  type Category,
+} from '@/lib/api';
 import { ImageUploader } from '@/components/ImageUploader';
 import { UserRole } from '@/types';
 
@@ -39,6 +45,7 @@ function NewListingForm() {
   const [careInstructions, setCareInstructions] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     fetchCategories()
@@ -50,6 +57,42 @@ function NewListingForm() {
   }, []);
 
   const canSell = !!user && SELLER_ROLES.includes(user.role);
+
+  const handleGenerateDescription = async () => {
+    if (!token) return;
+    const categoryName = categories.find((c) => c.id === categoryId)?.name;
+    if (!title || !categoryName) {
+      showToast('Укажите название и категорию перед генерацией описания', 'info');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const result = await generateDescription(
+        {
+          title,
+          categoryName,
+          lightRequirements: lightRequirements || undefined,
+          waterRequirements: waterRequirements || undefined,
+          careInstructions: careInstructions
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean),
+        },
+        token,
+      );
+      setDescription(result.description);
+      if (result.flagged) {
+        showToast(`Проверьте текст перед отправкой: ${result.flagReasons.join(', ')}`, 'warning');
+      } else {
+        showToast('Описание сгенерировано', 'success');
+      }
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось сгенерировать описание', 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,18 +197,6 @@ function NewListingForm() {
           />
         </div>
 
-        <textarea
-          required
-          minLength={10}
-          rows={4}
-          placeholder="Описание"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="input-field"
-        />
-
-        <ImageUploader images={images} onChange={setImages} />
-
         <input
           type="text"
           placeholder="Освещение, например «Яркий рассеянный свет» (необязательно)"
@@ -187,6 +218,32 @@ function NewListingForm() {
           onChange={(e) => setCareInstructions(e.target.value)}
           className="input-field"
         />
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm text-gray-700">Описание</label>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              isLoading={isGenerating}
+              onClick={handleGenerateDescription}
+            >
+              Сгенерировать с ИИ
+            </Button>
+          </div>
+          <textarea
+            required
+            minLength={10}
+            rows={5}
+            placeholder="Описание (или нажмите «Сгенерировать с ИИ» выше)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="input-field"
+          />
+        </div>
+
+        <ImageUploader images={images} onChange={setImages} />
 
         <Button type="submit" fullWidth isLoading={isSubmitting}>
           Отправить на модерацию
