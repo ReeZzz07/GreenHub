@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
+import { PageHeader } from '@/components/PageHeader';
 import { PlusIcon, MinusIcon, TrashIcon } from '@/components/Icons';
 import { createOrder, ApiError } from '@/lib/api';
 
@@ -38,19 +39,21 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
-        <h1 className="text-xl font-bold text-gray-800 mb-2">Корзина пуста</h1>
-        <p className="text-sm text-gray-500 mb-6">Добавьте растения из каталога</p>
-        <Link href="/catalog" className="btn-primary inline-block">
-          Перейти в каталог
-        </Link>
+      <div className="animate-fade-in px-4 py-4">
+        <PageHeader title="Корзина" fallbackHref="/" />
+        <div className="text-center py-8">
+          <p className="text-sm text-gray-500 mb-6">Добавьте растения из каталога</p>
+          <Link href="/catalog" className="btn-primary inline-block">
+            Перейти в каталог
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-1">Корзина</h1>
+      <PageHeader title="Корзина" fallbackHref="/" className="mb-1" />
       <p className="text-xs text-gray-500 mb-4">
         Каждый товар оплачивается отдельной ссылкой — продавцы разные
       </p>

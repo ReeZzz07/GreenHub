@@ -7,7 +7,6 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { UserIcon, HeartIcon, CheckIcon } from '@/components/Icons';
-import { MyListings } from '@/components/MyListings';
 import { UserRole } from '@/types';
 import { ApiError, fetchModerationQueue } from '@/lib/api';
 
@@ -124,9 +123,9 @@ export default function ProfilePage() {
         )}
 
         {SELLER_ROLES.includes(user.role) && (
-          <div className="mb-6">
-            <MyListings />
-          </div>
+          <Link href="/listings/mine" className="btn-secondary block text-center mb-6">
+            Мои объявления
+          </Link>
         )}
 
         <Button fullWidth variant="ghost" onClick={logout}>

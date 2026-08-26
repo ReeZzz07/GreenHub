@@ -7,6 +7,7 @@ import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
 import {
   fetchModerationQueue,
   moderateListing,
@@ -139,7 +140,7 @@ export default function ModerationPage() {
 
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Модерация объявлений</h1>
+      <PageHeader title="Модерация объявлений" fallbackHref="/profile" />
 
       {userQueue === null ? (
         <LoadingSpinner text="Загрузка очереди..." />

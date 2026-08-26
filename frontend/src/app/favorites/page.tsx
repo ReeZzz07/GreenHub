@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
 import { PlantCard } from '@/components/PlantCard';
 import { fetchFavorites } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
@@ -44,7 +45,7 @@ export default function FavoritesPage() {
 
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Избранное</h1>
+      <PageHeader title="Избранное" fallbackHref="/profile" />
 
       {plants === null ? (
         <LoadingSpinner text="Загрузка избранного..." />

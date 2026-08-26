@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
 import {
   fetchSettingsStatus,
   updateSettings,
@@ -138,7 +139,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="animate-fade-in px-4 py-6">
-      <h1 className="text-xl font-bold text-gray-800 mb-2">Настройки интеграций</h1>
+      <PageHeader title="Настройки интеграций" fallbackHref="/profile" className="mb-2" />
       <p className="text-sm text-gray-500 mb-6">
         Ключи хранятся в базе данных и нигде не отображаются повторно — только статус.
         Оставьте поле пустым, чтобы не менять текущее значение.

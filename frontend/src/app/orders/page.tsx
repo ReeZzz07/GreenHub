@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PageHeader } from '@/components/PageHeader';
 import { fetchMyOrders, type Order, type OrderStatus } from '@/lib/api';
 
 const STATUS_LABELS: Record<OrderStatus, { label: string; className: string }> = {
@@ -41,7 +42,7 @@ export default function OrdersPage() {
 
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Мои заказы</h1>
+      <PageHeader title="Мои заказы" fallbackHref="/profile" />
 
       {orders === null ? (
         <LoadingSpinner text="Загрузка заказов..." />

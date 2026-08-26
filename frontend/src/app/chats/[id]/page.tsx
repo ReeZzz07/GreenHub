@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { Socket } from 'socket.io-client';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ArrowLeftIcon } from '@/components/Icons';
+import { BackButton } from '@/components/PageHeader';
 import {
   fetchConversation,
   fetchConversationMessages,
@@ -91,9 +91,7 @@ export default function ChatThreadPage() {
   return (
     <div className="animate-fade-in flex flex-col h-[calc(100vh-8.5rem)]">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 flex-shrink-0">
-        <Link href="/chats" className="p-1 -ml-1 text-gray-500 hover:text-gray-700">
-          <ArrowLeftIcon size={20} />
-        </Link>
+        <BackButton fallbackHref="/chats" />
         <div className="min-w-0">
           <h1 className="font-semibold text-gray-800 truncate">{counterpart?.name ?? 'Чат'}</h1>
           {conversation && <p className="text-xs text-gray-500 truncate">{conversation.listing.title}</p>}

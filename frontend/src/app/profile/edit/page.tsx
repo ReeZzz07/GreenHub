@@ -6,7 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ArrowLeftIcon, UserIcon, CameraIcon, LoaderIcon } from '@/components/Icons';
+import { PageHeader } from '@/components/PageHeader';
+import { UserIcon, CameraIcon, LoaderIcon } from '@/components/Icons';
 import { updateProfile, changePassword, requestEmailChange, uploadAvatar, ApiError } from '@/lib/api';
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
@@ -119,12 +120,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="animate-fade-in px-4 py-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/profile" className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors">
-          <ArrowLeftIcon size={20} className="text-gray-600" />
-        </Link>
-        <h1 className="text-xl font-bold text-gray-800">Редактирование профиля</h1>
-      </div>
+      <PageHeader title="Редактирование профиля" fallbackHref="/profile" className="mb-6" />
 
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
