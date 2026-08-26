@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -32,8 +33,12 @@ function toUser(apiUser: ApiUser): User {
     id: apiUser.id,
     email: apiUser.email,
     name: apiUser.name,
+    avatarUrl: apiUser.avatarUrl,
     role: apiUser.role,
     phone: apiUser.phone,
+    pendingEmail: apiUser.pendingEmail,
+    verificationStatus: apiUser.verificationStatus,
+    rejectionReason: apiUser.rejectionReason,
   };
 }
 
@@ -88,6 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
   };
 
+  const refreshUser = async () => {
+    if (!token) return;
+    const apiUser = await fetchMe(token);
+    setUser(toUser(apiUser));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -97,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
         isAuthenticated: !!user,
       }}
     >

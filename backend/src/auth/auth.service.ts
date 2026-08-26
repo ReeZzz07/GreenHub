@@ -52,6 +52,9 @@ export class AuthService {
         name: user.name,
         role: user.role,
         phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        pendingEmail: user.pendingEmail,
+        verificationStatus: user.verificationStatus,
       },
     };
   }

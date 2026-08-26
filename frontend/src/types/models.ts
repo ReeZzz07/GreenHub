@@ -1,12 +1,17 @@
 import { UserRole, OrderStatus } from '@/types/index';
 
+export type UserVerificationStatus = 'VERIFIED' | 'PENDING_MODERATION';
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
+  avatarUrl?: string | null;
   role: UserRole;
   phone?: string | null;
+  pendingEmail?: string | null;
+  verificationStatus?: UserVerificationStatus;
+  rejectionReason?: string | null;
   createdAt?: Date;
 }
 

@@ -82,6 +82,32 @@ export class MediaService implements OnModuleInit {
     return `${this.publicUrl}/${this.processedBucket}/${processedKey}`;
   }
 
+  // Аватар пользователя: без вотермарка (это личное фото, а не карточка товара),
+  // квадратный кроп 512×512 в публичный бакет.
+  async uploadAvatar(file: { buffer: Buffer; mimetype: string }, userId: string): Promise<string> {
+    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Допустимые форматы изображений: JPG, PNG');
+    }
+
+    const processed = await sharp(file.buffer)
+      .rotate()
+      .resize({ width: 512, height: 512, fit: 'cover' })
+      .webp({ quality: 85 })
+      .toBuffer();
+
+    const key = `avatars/${userId}-${randomUUID()}.webp`;
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.processedBucket,
+        Key: key,
+        Body: processed,
+        ContentType: 'image/webp',
+      }),
+    );
+
+    return `${this.publicUrl}/${this.processedBucket}/${key}`;
+  }
+
   private async applyWatermark(buffer: Buffer, sellerId: string): Promise<Buffer> {
     const image = sharp(buffer).rotate();
     const metadata = await image.metadata();

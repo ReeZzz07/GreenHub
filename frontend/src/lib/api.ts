@@ -60,12 +60,18 @@ export function fetchCategories(): Promise<Category[]> {
   return request<Category[]>('/categories');
 }
 
+export type UserVerificationStatus = 'VERIFIED' | 'PENDING_MODERATION';
+
 export interface ApiUser {
   id: string;
   email: string;
   name: string;
   role: UserRole;
   phone: string | null;
+  avatarUrl: string | null;
+  pendingEmail: string | null;
+  verificationStatus: UserVerificationStatus;
+  rejectionReason?: string | null;
 }
 
 export interface AuthResponse {
@@ -384,6 +390,75 @@ export function generateDescription(
 ): Promise<GenerateDescriptionResult> {
   return request<GenerateDescriptionResult>('/ai/generate-description', {
     method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+// Имя/телефон — не чувствительные поля, применяются сразу без модерации
+export function updateProfile(
+  userId: string,
+  data: { name?: string; phone?: string },
+  token: string,
+): Promise<ApiUser> {
+  return request<ApiUser>(`/users/${userId}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+}
+
+export function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  token: string,
+): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>('/users/me/change-password', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+// Email — логин пользователя, поэтому не применяется сразу: уходит на модерацию
+export function requestEmailChange(newEmail: string, token: string): Promise<ApiUser> {
+  return request<ApiUser>('/users/me/email-change-request', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ newEmail }),
+  });
+}
+
+export async function uploadAvatar(file: File, token: string): Promise<ApiUser> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_URL}/users/me/avatar`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  return handleResponse<ApiUser>(res);
+}
+
+export function fetchVerificationQueue(token: string): Promise<ApiUser[]> {
+  return request<ApiUser[]>('/users/verification-queue', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export interface ModerateVerificationPayload {
+  action: 'approve' | 'reject';
+  reason?: string;
+}
+
+export function moderateVerification(
+  userId: string,
+  payload: ModerateVerificationPayload,
+  token: string,
+): Promise<ApiUser> {
+  return request<ApiUser>(`/users/${userId}/moderate-verification`, {
+    method: 'PATCH',
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload),
   });

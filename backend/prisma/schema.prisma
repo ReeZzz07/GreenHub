@@ -16,16 +16,27 @@ enum UserRole {
   ADMIN
 }
 
+// Смена email — чувствительная операция (это же логин), поэтому не применяется сразу:
+// новое значение ждёт в pendingEmail до одобрения модератором/админом (см. UsersService).
+enum UserVerificationStatus {
+  VERIFIED
+  PENDING_MODERATION
+}
+
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String
-  name         String
-  phone        String?
-  role         UserRole  @default(BUYER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  listings     Listing[]
+  id                 String                  @id @default(uuid())
+  email              String                  @unique
+  passwordHash       String
+  name               String
+  phone              String?
+  avatarUrl          String?
+  pendingEmail       String?
+  verificationStatus UserVerificationStatus  @default(VERIFIED)
+  rejectionReason    String?
+  role               UserRole                @default(BUYER)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  listings           Listing[]
 
   conversationsAsBuyer  Conversation[] @relation("BuyerConversations")
   conversationsAsSeller Conversation[] @relation("SellerConversations")

@@ -7,7 +7,15 @@ import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { fetchModerationQueue, moderateListing, ApiError, type Listing } from '@/lib/api';
+import {
+  fetchModerationQueue,
+  moderateListing,
+  fetchVerificationQueue,
+  moderateVerification,
+  ApiError,
+  type Listing,
+  type ApiUser,
+} from '@/lib/api';
 import { UserRole } from '@/types';
 
 const MODERATOR_ROLES: UserRole[] = [UserRole.MODERATOR, UserRole.ADMIN];
@@ -21,6 +29,11 @@ export default function ModerationPage() {
   const [rejectTarget, setRejectTarget] = useState<Listing | null>(null);
   const [reason, setReason] = useState('');
 
+  const [userQueue, setUserQueue] = useState<ApiUser[] | null>(null);
+  const [processingUserId, setProcessingUserId] = useState<string | null>(null);
+  const [rejectUserTarget, setRejectUserTarget] = useState<ApiUser | null>(null);
+  const [userReason, setUserReason] = useState('');
+
   const canModerate = !!user && MODERATOR_ROLES.includes(user.role);
 
   const load = () => {
@@ -28,12 +41,49 @@ export default function ModerationPage() {
     fetchModerationQueue(token)
       .then(setQueue)
       .catch(() => setQueue([]));
+    fetchVerificationQueue(token)
+      .then(setUserQueue)
+      .catch(() => setUserQueue([]));
   };
 
   useEffect(() => {
     if (canModerate) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canModerate, token]);
+
+  const handleApproveUser = async (target: ApiUser) => {
+    if (!token) return;
+    setProcessingUserId(target.id);
+    try {
+      await moderateVerification(target.id, { action: 'approve' }, token);
+      showToast(`Email для «${target.name}» подтверждён`, 'success');
+      setUserQueue((prev) => prev?.filter((item) => item.id !== target.id) ?? null);
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось одобрить', 'error');
+    } finally {
+      setProcessingUserId(null);
+    }
+  };
+
+  const openRejectUser = (target: ApiUser) => {
+    setRejectUserTarget(target);
+    setUserReason('');
+  };
+
+  const confirmRejectUser = async () => {
+    if (!token || !rejectUserTarget) return;
+    setProcessingUserId(rejectUserTarget.id);
+    try {
+      await moderateVerification(rejectUserTarget.id, { action: 'reject', reason: userReason }, token);
+      showToast(`Запрос «${rejectUserTarget.name}» отклонён`, 'success');
+      setUserQueue((prev) => prev?.filter((item) => item.id !== rejectUserTarget.id) ?? null);
+      setRejectUserTarget(null);
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось отклонить', 'error');
+    } finally {
+      setProcessingUserId(null);
+    }
+  };
 
   const handleApprove = async (listing: Listing) => {
     if (!token) return;
@@ -90,6 +140,41 @@ export default function ModerationPage() {
   return (
     <div className="animate-fade-in px-4 py-4">
       <h1 className="text-xl font-bold text-gray-800 mb-4">Модерация объявлений</h1>
+
+      {userQueue === null ? (
+        <LoadingSpinner text="Загрузка очереди..." />
+      ) : userQueue.length > 0 ? (
+        <div className="space-y-4 mb-6">
+          <h2 className="font-semibold text-gray-700">Смена email на проверке</h2>
+          {userQueue.map((target) => (
+            <div key={target.id} className="card p-4">
+              <p className="font-semibold text-gray-800">{target.name}</p>
+              <p className="text-sm text-gray-500">
+                {target.email} → <span className="text-gray-800">{target.pendingEmail}</span>
+              </p>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  size="sm"
+                  fullWidth
+                  onClick={() => handleApproveUser(target)}
+                  isLoading={processingUserId === target.id}
+                >
+                  Одобрить
+                </Button>
+                <Button
+                  size="sm"
+                  fullWidth
+                  variant="danger"
+                  onClick={() => openRejectUser(target)}
+                  disabled={processingUserId === target.id}
+                >
+                  Отклонить
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {queue === null ? (
         <LoadingSpinner text="Загрузка очереди..." />
@@ -162,6 +247,30 @@ export default function ModerationPage() {
             disabled={reason.trim().length < 3}
           >
             Отклонить объявление
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={!!rejectUserTarget} onClose={() => setRejectUserTarget(null)} title="Причина отклонения">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">{rejectUserTarget?.name} — {rejectUserTarget?.pendingEmail}</p>
+          <textarea
+            required
+            minLength={3}
+            rows={3}
+            placeholder="Например: email уже используется, подозрительный домен..."
+            value={userReason}
+            onChange={(e) => setUserReason(e.target.value)}
+            className="input-field"
+          />
+          <Button
+            fullWidth
+            variant="danger"
+            onClick={confirmRejectUser}
+            isLoading={processingUserId === rejectUserTarget?.id}
+            disabled={userReason.trim().length < 3}
+          >
+            Отклонить запрос
           </Button>
         </div>
       </Modal>

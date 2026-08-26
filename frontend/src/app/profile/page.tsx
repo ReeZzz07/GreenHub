@@ -49,12 +49,31 @@ export default function ProfilePage() {
     return (
       <div className="animate-fade-in px-4 py-6">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3">
-            <UserIcon size={40} className="text-green-600" />
+          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon size={40} className="text-green-600" />
+            )}
           </div>
           <h1 className="text-xl font-bold text-gray-800">{user.name}</h1>
           <p className="text-sm text-gray-500">{user.email}</p>
+
+          {user.verificationStatus === 'PENDING_MODERATION' && (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 mt-2">
+              Смена email на проверке
+            </p>
+          )}
+          {user.verificationStatus !== 'PENDING_MODERATION' && user.rejectionReason && (
+            <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-full px-3 py-1 mt-2">
+              Запрос на смену email отклонён
+            </p>
+          )}
         </div>
+
+        <Link href="/profile/edit" className="btn-secondary block text-center mb-3">
+          Настройки профиля
+        </Link>
 
         <Link href="/orders" className="btn-secondary block text-center mb-3">
           Мои заказы
