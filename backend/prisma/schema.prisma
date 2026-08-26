@@ -43,6 +43,8 @@ model User {
   messages              Message[]
   favorites             Favorite[]
   orders                Order[]
+  reviewsWritten        Review[]       @relation("ReviewsWritten")
+  reviewsReceived       Review[]       @relation("ReviewsReceived")
 }
 
 model Category {
@@ -79,6 +81,7 @@ model Listing {
   careInstructions  String[]
   status            ListingStatus @default(PENDING_MODERATION)
   rejectionReason   String?
+  views             Int           @default(0)
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
@@ -180,6 +183,31 @@ model Order {
   buyerId String
   buyer   User   @relation(fields: [buyerId], references: [id])
 
+  review Review?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Отзыв покупателя о продавце, привязан к оплаченной сделке (один отзыв на заказ).
+// Продавец может один раз ответить (sellerReply) — как в отзывах на Avito.
+model Review {
+  id          String  @id @default(uuid())
+  rating      Int
+  comment     String?
+  sellerReply String?
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  reviewerId String
+  reviewer   User   @relation("ReviewsWritten", fields: [reviewerId], references: [id])
+
+  sellerId String
+  seller   User   @relation("ReviewsReceived", fields: [sellerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
 }

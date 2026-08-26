@@ -1,7 +1,12 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PlantActions } from '@/components/PlantActions';
-import { fetchListing, ApiError } from '@/lib/api';
+import { BackButton } from '@/components/PageHeader';
+import { ImageGallery } from '@/components/ImageGallery';
+import { SimilarListings } from '@/components/SimilarListings';
+import { EyeIcon, StarIcon } from '@/components/Icons';
+import { fetchListing, fetchSimilarListings, fetchSellerSummary, ApiError } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
 
 interface PlantDetailPageProps {
@@ -35,26 +40,45 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
     notFound();
   }
 
+  const [similarListings, seller] = await Promise.all([
+    fetchSimilarListings(id)
+      .then((listings) => listings.map(listingToPlant))
+      .catch(() => []),
+    fetchSellerSummary(plant.sellerId).catch(() => undefined),
+  ]);
+
   return (
-    <div className="animate-fade-in">
-      <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
-        <img src={plant.images[0]} alt={plant.name} className="w-full h-full object-cover" />
-        {!plant.inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-semibold text-sm">
-              Нет в наличии
-            </span>
-          </div>
-        )}
+    <div className="animate-fade-in pt-4">
+      <div className="px-4 mb-4">
+        <BackButton fallbackHref="/catalog" />
       </div>
+
+      <ImageGallery
+        images={plant.images}
+        alt={plant.name}
+        variant="card"
+        overlay={
+          !plant.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-semibold text-sm">
+                Нет в наличии
+              </span>
+            </div>
+          )
+        }
+      />
 
       <div className="p-4">
         <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
         {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
 
-        <p className="text-2xl font-bold text-green-700 mb-4 mt-2">
-          {plant.price.toLocaleString('ru-RU')} ₽
-        </p>
+        <div className="flex items-center justify-between mb-4 mt-2">
+          <p className="text-2xl font-bold text-green-700">{plant.price.toLocaleString('ru-RU')} ₽</p>
+          <span className="flex items-center gap-1 text-xs text-gray-400">
+            <EyeIcon size={14} />
+            {plant.views}
+          </span>
+        </div>
 
         <p className="text-gray-600 mb-6">{plant.description}</p>
 
@@ -72,10 +96,24 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
           </div>
         )}
 
-        <p className="text-sm text-gray-500 mb-6">Продавец: {plant.sellerName}</p>
+        <Link
+          href={`/seller/${plant.sellerId}`}
+          className="flex items-center justify-between mb-6 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-sm text-gray-700">Продавец: <span className="font-medium">{plant.sellerName}</span></span>
+          {seller && seller.reviewsCount > 0 && (
+            <span className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
+              <StarIcon size={14} filled className="text-amber-400" />
+              {seller.avgRating.toFixed(1)}
+              <span className="text-xs text-gray-400">({seller.reviewsCount})</span>
+            </span>
+          )}
+        </Link>
 
         <PlantActions plant={plant} />
       </div>
+
+      <SimilarListings plants={similarListings} />
     </div>
   );
 }

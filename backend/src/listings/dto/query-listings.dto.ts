@@ -11,6 +11,10 @@ export class QueryListingsDto {
   search?: string;
 
   @IsOptional()
+  @IsString()
+  sellerId?: string;
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(0)

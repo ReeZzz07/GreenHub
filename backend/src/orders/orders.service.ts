@@ -7,6 +7,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 
 const ORDER_INCLUDE = {
   listing: { select: { id: true, title: true, images: true, sellerId: true } },
+  review: true,
 } as const;
 
 @Injectable()

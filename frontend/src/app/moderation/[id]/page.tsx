@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -9,7 +8,8 @@ import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ArrowLeftIcon, XIcon } from '@/components/Icons';
+import { PageHeader } from '@/components/PageHeader';
+import { ImageGallery } from '@/components/ImageGallery';
 import {
   fetchListingForReview,
   moderateListing,
@@ -38,32 +38,15 @@ export default function ModerationListingReviewPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [reason, setReason] = useState('');
-  const [activeImage, setActiveImage] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const canModerate = !!user && MODERATOR_ROLES.includes(user.role);
 
   useEffect(() => {
     if (!canModerate || !token) return;
     fetchListingForReview(id, token)
-      .then((data) => {
-        setListing(data);
-        setActiveImage(0);
-      })
+      .then(setListing)
       .catch(() => setListing(null));
   }, [canModerate, token, id]);
-
-  useEffect(() => {
-    if (!isLightboxOpen || !listing) return;
-    const total = listing.images.length;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsLightboxOpen(false);
-      if (e.key === 'ArrowLeft') setActiveImage((prev) => (prev - 1 + total) % total);
-      if (e.key === 'ArrowRight') setActiveImage((prev) => (prev + 1) % total);
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [isLightboxOpen, listing]);
 
   if (authLoading) {
     return <LoadingSpinner text="Загрузка..." />;
@@ -131,100 +114,9 @@ export default function ModerationListingReviewPage() {
 
   return (
     <div className="animate-fade-in pb-24">
-      <div className="flex items-center gap-3 p-4">
-        <Link href="/moderation" className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors">
-          <ArrowLeftIcon size={20} className="text-gray-600" />
-        </Link>
-        <h1 className="text-lg font-bold text-gray-800">Проверка объявления</h1>
-      </div>
+      <PageHeader title="Проверка объявления" fallbackHref="/moderation" className="p-4" />
 
-      <div className="px-4">
-        <div
-          className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative rounded-2xl overflow-hidden cursor-zoom-in group"
-          onClick={() => setIsLightboxOpen(true)}
-        >
-          {listing.images[activeImage] && (
-            <img
-              src={listing.images[activeImage]}
-              alt={listing.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            />
-          )}
-        </div>
-      </div>
-
-      {listing.images.length > 1 && (
-        <div className="flex gap-2 p-4 overflow-x-auto">
-          {listing.images.map((url, index) => (
-            <button
-              key={url}
-              type="button"
-              onClick={() => setActiveImage(index)}
-              className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
-                index === activeImage
-                  ? 'ring-2 ring-green-600 ring-offset-2'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              <img src={url} alt={listing.title} className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
-
-      {isLightboxOpen &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center animate-fade-in"
-            onClick={() => setIsLightboxOpen(false)}
-          >
-            <button
-              onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-10"
-              aria-label="Закрыть"
-            >
-              <XIcon size={24} />
-            </button>
-
-            {listing.images.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveImage((prev) => (prev - 1 + listing.images.length) % listing.images.length);
-                  }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-10"
-                  aria-label="Предыдущее фото"
-                >
-                  <ArrowLeftIcon size={24} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveImage((prev) => (prev + 1) % listing.images.length);
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-10"
-                  aria-label="Следующее фото"
-                >
-                  <ArrowLeftIcon size={24} className="rotate-180" />
-                </button>
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-sm z-10">
-                  {activeImage + 1} / {listing.images.length}
-                </div>
-              </>
-            )}
-
-            {listing.images[activeImage] && (
-              <img
-                src={listing.images[activeImage]}
-                alt={listing.title}
-                onClick={(e) => e.stopPropagation()}
-                className="max-w-[92vw] max-h-[85vh] object-contain rounded-lg"
-              />
-            )}
-          </div>,
-          document.body,
-        )}
+      <ImageGallery images={listing.images} alt={listing.title} variant="card" />
 
       <div className="p-4">
         <span className={`badge ${status.className} mb-2`}>{status.label}</span>
@@ -255,6 +147,7 @@ export default function ModerationListingReviewPage() {
         <div className="card p-4 mb-6 space-y-1 text-sm text-gray-600">
           <p>Категория: <span className="text-gray-800">{listing.category.name}</span></p>
           <p>Продавец: <span className="text-gray-800">{listing.seller.name}</span></p>
+          <p>Просмотров: <span className="text-gray-800">{listing.views}</span></p>
           {listing.lightRequirements && <p>Освещение: <span className="text-gray-800">{listing.lightRequirements}</span></p>}
           {listing.waterRequirements && <p>Полив: <span className="text-gray-800">{listing.waterRequirements}</span></p>}
         </div>

@@ -29,6 +29,7 @@ export interface Plant {
   quantity: number;
   rating: number;
   reviewsCount: number;
+  views: number;
   aiGenerated?: boolean;
   careInstructions?: string[];
   lightRequirements?: string;

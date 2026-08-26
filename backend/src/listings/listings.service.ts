@@ -1,10 +1,11 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ListingStatus, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
 import { ModerateListingDto } from './dto/moderate-listing.dto';
+import { UpdateAvailabilityDto } from './dto/update-availability.dto';
 
 interface RequestUser {
   id: string;
@@ -27,6 +28,7 @@ export class ListingsService {
     const where: Prisma.ListingWhereInput = {
       status: ListingStatus.PUBLISHED,
       ...(query.category ? { category: { slug: query.category } } : {}),
+      ...(query.sellerId ? { sellerId: query.sellerId } : {}),
       ...(query.minPrice !== undefined || query.maxPrice !== undefined
         ? { price: { gte: query.minPrice, lte: query.maxPrice } }
         : {}),
@@ -65,10 +67,29 @@ export class ListingsService {
   async findPublishedById(id: string) {
     const listing = await this.prisma.listing.findFirst({
       where: { id, status: ListingStatus.PUBLISHED },
-      include: LISTING_INCLUDE,
     });
     if (!listing) throw new NotFoundException('Объявление не найдено');
-    return listing;
+
+    return this.prisma.listing.update({
+      where: { id: listing.id },
+      data: { views: { increment: 1 } },
+      include: LISTING_INCLUDE,
+    });
+  }
+
+  async findSimilar(id: string, limit = 6) {
+    const listing = await this.prisma.listing.findUnique({
+      where: { id },
+      select: { categoryId: true },
+    });
+    if (!listing) return [];
+
+    return this.prisma.listing.findMany({
+      where: { status: ListingStatus.PUBLISHED, categoryId: listing.categoryId, id: { not: id } },
+      include: LISTING_INCLUDE,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
   }
 
   async findByIdForModerator(id: string) {
@@ -117,9 +138,43 @@ export class ListingsService {
 
   async update(id: string, dto: UpdateListingDto, requester: RequestUser) {
     const listing = await this.getOwnedOrThrow(id, requester);
+
+    // Правки уже опубликованного/отклонённого объявления уходят на повторную модерацию —
+    // иначе продавец мог бы одобренным объявлением подменить фото/описание на что угодно.
+    const needsReModeration =
+      requester.role !== UserRole.ADMIN &&
+      (listing.status === ListingStatus.PUBLISHED || listing.status === ListingStatus.REJECTED);
+
     return this.prisma.listing.update({
       where: { id: listing.id },
-      data: dto,
+      data: {
+        ...dto,
+        ...(needsReModeration ? { status: ListingStatus.PENDING_MODERATION, rejectionReason: null } : {}),
+      },
+      include: LISTING_INCLUDE,
+    });
+  }
+
+  async updateAvailability(id: string, dto: UpdateAvailabilityDto, requester: RequestUser) {
+    const listing = await this.getOwnedOrThrow(id, requester);
+
+    if (dto.action === 'mark_sold') {
+      if (listing.status !== ListingStatus.PUBLISHED) {
+        throw new BadRequestException('Пометить проданным можно только опубликованное объявление');
+      }
+      return this.prisma.listing.update({
+        where: { id },
+        data: { status: ListingStatus.SOLD },
+        include: LISTING_INCLUDE,
+      });
+    }
+
+    if (listing.status !== ListingStatus.SOLD) {
+      throw new BadRequestException('Вернуть в продажу можно только проданное объявление');
+    }
+    return this.prisma.listing.update({
+      where: { id },
+      data: { status: ListingStatus.PUBLISHED },
       include: LISTING_INCLUDE,
     });
   }

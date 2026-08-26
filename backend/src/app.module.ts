@@ -13,6 +13,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { SettingsModule } from './settings/settings.module';
 import { OrdersModule } from './orders/orders.module';
 import { AiModule } from './ai/ai.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AiModule } from './ai/ai.module';
     SettingsModule,
     OrdersModule,
     AiModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

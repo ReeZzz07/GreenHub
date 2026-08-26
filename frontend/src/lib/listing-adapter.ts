@@ -18,6 +18,7 @@ export function listingToPlant(listing: Listing): Plant {
     quantity: listing.quantity,
     rating: 0,
     reviewsCount: 0,
+    views: listing.views,
     aiGenerated: false,
     careInstructions: listing.careInstructions,
     lightRequirements: listing.lightRequirements ?? undefined,

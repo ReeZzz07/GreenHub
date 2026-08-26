@@ -4,7 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from './Toast';
-import { fetchMyListings, deleteListing, ApiError, type Listing, type ListingStatus } from '@/lib/api';
+import {
+  fetchMyListings,
+  deleteListing,
+  updateListingAvailability,
+  ApiError,
+  type Listing,
+  type ListingStatus,
+} from '@/lib/api';
 import { TrashIcon } from './Icons';
 
 const STATUS_LABELS: Record<ListingStatus, { label: string; className: string }> = {
@@ -18,6 +25,7 @@ export function MyListings() {
   const { token } = useAuth();
   const { showToast } = useToast();
   const [listings, setListings] = useState<Listing[] | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const load = () => {
     if (!token) return;
@@ -39,10 +47,23 @@ export function MyListings() {
     }
   };
 
+  const handleAvailability = async (id: string, action: 'mark_sold' | 'relist') => {
+    if (!token) return;
+    setProcessingId(id);
+    try {
+      await updateListingAvailability(id, action, token);
+      showToast(action === 'mark_sold' ? 'Объявление помечено проданным' : 'Объявление снова в продаже', 'success');
+      load();
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось изменить статус', 'error');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-gray-800">Мои объявления</h2>
+      <div className="flex items-center justify-end mb-3">
         <Link href="/listings/new" className="text-green-600 text-sm font-medium hover:text-green-700">
           + Новое
         </Link>
@@ -57,7 +78,7 @@ export function MyListings() {
           {listings.map((listing) => {
             const status = STATUS_LABELS[listing.status];
             return (
-              <div key={listing.id} className="card p-3 flex items-center gap-3">
+              <div key={listing.id} className="card p-3">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-800 truncate">{listing.title}</p>
                   <div className="flex items-center gap-2 mt-1">
@@ -70,13 +91,42 @@ export function MyListings() {
                     <p className="text-xs text-red-600 mt-1">{listing.rejectionReason}</p>
                   )}
                 </div>
-                <button
-                  onClick={() => handleDelete(listing.id)}
-                  className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors flex-shrink-0"
-                  aria-label="Удалить объявление"
-                >
-                  <TrashIcon size={16} />
-                </button>
+
+                <div className="flex items-center gap-3 mt-2 pt-2 border-t border-gray-100">
+                  <Link
+                    href={`/listings/${listing.id}/edit`}
+                    className="text-xs font-medium text-green-600 hover:text-green-700"
+                  >
+                    Редактировать
+                  </Link>
+
+                  {listing.status === 'PUBLISHED' && (
+                    <button
+                      onClick={() => handleAvailability(listing.id, 'mark_sold')}
+                      disabled={processingId === listing.id}
+                      className="text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                    >
+                      Пометить проданным
+                    </button>
+                  )}
+                  {listing.status === 'SOLD' && (
+                    <button
+                      onClick={() => handleAvailability(listing.id, 'relist')}
+                      disabled={processingId === listing.id}
+                      className="text-xs font-medium text-green-600 hover:text-green-700 disabled:opacity-50"
+                    >
+                      Вернуть в продажу
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleDelete(listing.id)}
+                    className="ml-auto p-1.5 rounded-full hover:bg-red-50 text-red-500 transition-colors flex-shrink-0"
+                    aria-label="Удалить объявление"
+                  >
+                    <TrashIcon size={14} />
+                  </button>
+                </div>
               </div>
             );
           })}

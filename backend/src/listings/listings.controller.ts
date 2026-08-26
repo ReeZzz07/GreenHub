@@ -9,6 +9,7 @@ import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
 import { ModerateListingDto } from './dto/moderate-listing.dto';
+import { UpdateAvailabilityDto } from './dto/update-availability.dto';
 
 interface RequestUser {
   id: string;
@@ -44,6 +45,11 @@ export class ListingsController {
     return this.listingsService.findByIdForModerator(id);
   }
 
+  @Get(':id/similar')
+  findSimilar(@Param('id') id: string) {
+    return this.listingsService.findSimilar(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.listingsService.findPublishedById(id);
@@ -64,6 +70,16 @@ export class ListingsController {
     @CurrentUser() user: RequestUser,
   ) {
     return this.listingsService.update(id, dto, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/availability')
+  updateAvailability(
+    @Param('id') id: string,
+    @Body() dto: UpdateAvailabilityDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.listingsService.updateAvailability(id, dto, user);
   }
 
   @UseGuards(JwtAuthGuard)

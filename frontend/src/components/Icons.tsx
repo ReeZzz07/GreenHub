@@ -138,6 +138,24 @@ export const SunIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
   </svg>
 );
 
+export const FilterIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="4" y1="6" x2="20" y2="6"></line>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+    <line x1="4" y1="18" x2="20" y2="18"></line>
+    <circle cx="9" cy="6" r="2" fill="currentColor"></circle>
+    <circle cx="16" cy="12" r="2" fill="currentColor"></circle>
+    <circle cx="11" cy="18" r="2" fill="currentColor"></circle>
+  </svg>
+);
+
+export const EyeIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
+
 export const DropletIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>

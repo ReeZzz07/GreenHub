@@ -122,6 +122,7 @@ export interface Listing {
   careInstructions: string[];
   status: ListingStatus;
   rejectionReason: string | null;
+  views: number;
   categoryId: string;
   category: Category;
   sellerId: string;
@@ -140,6 +141,7 @@ export interface ListingsPage {
 export interface ListingsQuery {
   category?: string;
   search?: string;
+  sellerId?: string;
   minPrice?: number;
   maxPrice?: number;
   page?: number;
@@ -158,6 +160,10 @@ export function fetchListings(query: ListingsQuery = {}): Promise<ListingsPage> 
 
 export function fetchListing(id: string): Promise<Listing> {
   return request<Listing>(`/listings/${id}`);
+}
+
+export function fetchSimilarListings(id: string): Promise<Listing[]> {
+  return request<Listing[]>(`/listings/${id}/similar`);
 }
 
 export function fetchMyListings(token: string): Promise<Listing[]> {
@@ -191,6 +197,30 @@ export function deleteListing(id: string, token: string): Promise<{ success: boo
   return request<{ success: boolean }>(`/listings/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function updateListing(
+  id: string,
+  payload: Partial<CreateListingPayload>,
+  token: string,
+): Promise<Listing> {
+  return request<Listing>(`/listings/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateListingAvailability(
+  id: string,
+  action: 'mark_sold' | 'relist',
+  token: string,
+): Promise<Listing> {
+  return request<Listing>(`/listings/${id}/availability`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ action }),
   });
 }
 
@@ -323,6 +353,19 @@ export function updateSettings(
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED';
 
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string | null;
+  sellerReply: string | null;
+  orderId: string;
+  reviewerId: string;
+  sellerId: string;
+  reviewer: { id: string; name: string; avatarUrl: string | null };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Order {
   id: string;
   amount: number;
@@ -333,6 +376,7 @@ export interface Order {
   listingId: string;
   listing: { id: string; title: string; images: string[]; sellerId: string };
   buyerId: string;
+  review: Review | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -467,5 +511,45 @@ export function moderateVerification(
     method: 'PATCH',
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload),
+  });
+}
+
+export interface SellerSummary {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  createdAt: string;
+  avgRating: number;
+  reviewsCount: number;
+  breakdown: { star: number; count: number }[];
+}
+
+export function fetchSellerSummary(id: string): Promise<SellerSummary> {
+  return request<SellerSummary>(`/sellers/${id}`);
+}
+
+export function fetchSellerReviews(id: string): Promise<Review[]> {
+  return request<Review[]>(`/sellers/${id}/reviews`);
+}
+
+export interface CreateReviewPayload {
+  rating: number;
+  comment?: string;
+}
+
+export function createReview(orderId: string, payload: CreateReviewPayload, token: string): Promise<Review> {
+  return request<Review>(`/orders/${orderId}/review`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function replyToReview(reviewId: string, reply: string, token: string): Promise<Review> {
+  return request<Review>(`/reviews/${reviewId}/reply`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ reply }),
   });
 }
