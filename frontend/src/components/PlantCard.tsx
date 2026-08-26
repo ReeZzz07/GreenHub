@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Plant } from '@/types/models';
-import { StarIcon, HeartIcon } from './Icons';
+import { StarIcon, HeartIcon, ShoppingCartIcon, PlusIcon, MinusIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useAuth } from '@/context/AuthContext';
@@ -14,15 +14,22 @@ interface PlantCardProps {
 }
 
 export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
-  const { addToCart } = useCart();
+  const { items, addToCart, updateQuantity } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const favorite = isFavorite(plant.id);
+  const cartItem = items.find((item) => item.plantId === plant.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addToCart(plant, 1);
+  };
+
+  const handleQuantityChange = (e: React.MouseEvent, delta: number) => {
+    e.stopPropagation();
+    if (!cartItem) return;
+    updateQuantity(cartItem.id, cartItem.quantity + delta);
   };
 
   const handleFavoriteToggle = (e: React.MouseEvent) => {
@@ -95,14 +102,39 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
             )}
           </div>
           
-          <button
-            onClick={handleAddToCart}
-            disabled={!plant.inStock}
-            className="btn-primary py-2 px-4 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Добавить в корзину"
-          >
-            В корзину
-          </button>
+          {cartItem ? (
+            <div
+              className="flex items-center gap-1 bg-green-700 rounded-xl px-1 py-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={(e) => handleQuantityChange(e, -1)}
+                className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Уменьшить количество"
+              >
+                <MinusIcon size={14} />
+              </button>
+              <span className="w-5 text-center text-sm font-semibold text-white">
+                {cartItem.quantity}
+              </span>
+              <button
+                onClick={(e) => handleQuantityChange(e, 1)}
+                className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Увеличить количество"
+              >
+                <PlusIcon size={14} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={!plant.inStock}
+              className="btn-primary p-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Добавить в корзину"
+            >
+              <ShoppingCartIcon size={18} />
+            </button>
+          )}
         </div>
       </div>
     </div>
