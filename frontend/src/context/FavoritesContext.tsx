@@ -7,6 +7,7 @@ import { fetchFavoriteIds, addFavorite, removeFavorite } from '@/lib/api';
 interface FavoritesContextType {
   isFavorite: (listingId: string) => boolean;
   toggleFavorite: (listingId: string) => Promise<void>;
+  count: number;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -58,7 +59,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const isFavorite = useCallback((listingId: string) => favoriteIds.has(listingId), [favoriteIds]);
 
   return (
-    <FavoritesContext.Provider value={{ isFavorite, toggleFavorite }}>
+    <FavoritesContext.Provider value={{ isFavorite, toggleFavorite, count: favoriteIds.size }}>
       {children}
     </FavoritesContext.Provider>
   );

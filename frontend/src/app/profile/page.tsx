@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
-import { UserIcon } from '@/components/Icons';
+import { UserIcon, HeartIcon, CheckIcon } from '@/components/Icons';
 import { MyListings } from '@/components/MyListings';
 import { UserRole } from '@/types';
-import { ApiError } from '@/lib/api';
+import { ApiError, fetchModerationQueue } from '@/lib/api';
 
 const SELLER_ROLES: UserRole[] = [UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN];
 const MODERATOR_ROLES: UserRole[] = [UserRole.MODERATOR, UserRole.ADMIN];
@@ -20,7 +21,8 @@ const REGISTER_ROLES: { value: UserRole; label: string }[] = [
 ];
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, login, register, logout, isLoading } = useAuth();
+  const { user, token, isAuthenticated, login, register, logout, isLoading } = useAuth();
+  const { count: favoritesCount } = useFavorites();
   const { showToast } = useToast();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -29,6 +31,16 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.BUYER);
+
+  const canModerate = !!user && MODERATOR_ROLES.includes(user.role);
+  const [pendingListingsCount, setPendingListingsCount] = useState(0);
+
+  useEffect(() => {
+    if (!canModerate || !token) return;
+    fetchModerationQueue(token)
+      .then((queue) => setPendingListingsCount(queue.length))
+      .catch(() => setPendingListingsCount(0));
+  }, [canModerate, token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +91,28 @@ export default function ProfilePage() {
           Мои заказы
         </Link>
 
-        <Link href="/favorites" className="btn-secondary block text-center mb-6">
+        <Link href="/favorites" className="btn-secondary flex items-center justify-center gap-2 mb-6">
+          <span className="relative">
+            <HeartIcon size={20} />
+            {favoritesCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {favoritesCount > 9 ? '9+' : favoritesCount}
+              </span>
+            )}
+          </span>
           Избранное
         </Link>
 
-        {MODERATOR_ROLES.includes(user.role) && (
-          <Link href="/moderation" className="btn-secondary block text-center mb-6">
+        {canModerate && (
+          <Link href="/moderation" className="btn-secondary flex items-center justify-center gap-2 mb-6">
+            <span className="relative">
+              <CheckIcon size={20} />
+              {pendingListingsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                  {pendingListingsCount > 9 ? '9+' : pendingListingsCount}
+                </span>
+              )}
+            </span>
             Модерация объявлений
           </Link>
         )}
