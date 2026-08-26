@@ -20,9 +20,10 @@ GreenHub — это прогрессивное веб-приложение (PWA)
 
 ## 🚧 Статус проекта
 
-- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT, CRUD пользователей и категорий, объявления (`/listings`) с фильтрами/модерацией, загрузка фото с вотермарком в S3, чат (`/conversations` + WebSocket `/chat` + Redis-адаптер), избранное (`/favorites`), настройки интеграций (`/admin/settings`, только ADMIN)
-- ✅ **Frontend** (`frontend/`) — Next.js: главная на реальных объявлениях (SSR), каталог, карточка товара, избранное, создание объявления с фото, «Мои объявления», модерация, чат, админ-панель настроек (`/admin/settings`) — всё на реальном API end-to-end
-- ⏳ Ключи ЮKassa/Plant.id/LLM можно сохранить через админку, но сами интеграции (генерация платёжных ссылок, AI-распознавание, AI-описания) ещё не подключены к этим ключам — в разработке
+- ✅ **Backend** (`backend/`) — NestJS: авторизация по JWT, CRUD пользователей и категорий, объявления с фильтрами/модерацией, загрузка фото с вотермарком в S3, чат (WebSocket + Redis-адаптер), избранное, настройки интеграций (`/admin/settings`, только ADMIN), заказы и оплата через ЮKassa (`/orders` + вебхук, разовая ссылка на объявление)
+- ✅ **Frontend** (`frontend/`) — Next.js: главная на реальных объявлениях (SSR), каталог, карточка товара, избранное, создание объявления с фото, «Мои объявления», модерация, чат, оплата из корзины (`/orders`), админ-панель настроек — всё на реальном API end-to-end
+- ⏳ Оплата ЮKassa реализована по документированному API (запрос платежа, вебхук с серверной перепроверкой статуса), но не протестирована на боевом API — рабочих ключей ещё нет; без них корректно отдаёт «платежи не настроены»
+- ⏳ Ключи Plant.id/LLM можно сохранить через админку, но сами интеграции (AI-распознавание, AI-описания) ещё не подключены к этим ключам — в разработке
 - ❌ Роли `MODERATOR`/`ADMIN` нельзя получить самостоятельной регистрацией (осознанное ограничение) — назначаются вручную через БД
 - ❌ Видео в объявлениях (TZ допускает MP4) — реализована загрузка только фото (JPG/PNG)
 - ❌ Очереди (BullMQ), оффлайн-уведомления в чате — не реализованы
@@ -108,14 +109,14 @@ GreenHub/
 │   ├── public/
 │   │   └── manifest.json        # PWA-манифест
 │   └── src/
-│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /favorites, /profile, /plant/[id], /listings/new, /moderation, /chats, /chats/[id], /admin/settings
+│       ├── app/                  # Роуты: /, /catalog, /recognize, /cart, /favorites, /profile, /plant/[id], /listings/new, /moderation, /chats, /chats/[id], /orders, /orders/[id], /admin/settings
 │       ├── components/           # Переиспользуемые UI-компоненты (MyListings, ImageUploader, ...)
 │       ├── context/              # AuthContext, CartContext, FavoritesContext (React Context)
 │       ├── lib/                  # API-клиент (api.ts), сокет-клиент чата (socket.ts), адаптер Listing → Plant
 │       └── types/                # TypeScript-типы и enum'ы
 └── backend/                      # NestJS API
     ├── prisma/
-    │   ├── schema.prisma          # Модели User, Category, Listing, Conversation, Message, Favorite, SystemSetting + роли/статусы
+    │   ├── schema.prisma          # Модели User, Category, Listing, Conversation, Message, Favorite, SystemSetting, Order + роли/статусы
     │   └── seed.ts                # Сид базовых категорий
     └── src/
         ├── auth/                  # JWT-регистрация/логин, guards, роли
@@ -126,6 +127,7 @@ GreenHub/
         ├── chat/                  # REST (/conversations) + WebSocket-шлюз (/chat) + Redis-адаптер
         ├── favorites/             # Избранное
         ├── settings/              # Ключи интеграций (ЮKassa/Plant.id/LLM), CRUD только для ADMIN
+        ├── orders/                # Заказы + клиент ЮKassa (создание платежа, вебхук)
         └── prisma/                # PrismaService (подключение к БД)
 ```
 

@@ -308,3 +308,39 @@ export function updateSettings(
     body: JSON.stringify(values),
   });
 }
+
+export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED';
+
+export interface Order {
+  id: string;
+  amount: number;
+  quantity: number;
+  status: OrderStatus;
+  paymentUrl: string | null;
+  paymentId: string | null;
+  listingId: string;
+  listing: { id: string; title: string; images: string[]; sellerId: string };
+  buyerId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function createOrder(listingId: string, quantity: number, token: string): Promise<Order> {
+  return request<Order>('/orders', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ listingId, quantity }),
+  });
+}
+
+export function fetchMyOrders(token: string): Promise<Order[]> {
+  return request<Order[]>('/orders/mine', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function fetchOrder(id: string, token: string): Promise<Order> {
+  return request<Order>(`/orders/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

@@ -56,6 +56,10 @@ export default function ProfilePage() {
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
 
+        <Link href="/orders" className="btn-secondary block text-center mb-3">
+          Мои заказы
+        </Link>
+
         <Link href="/favorites" className="btn-secondary block text-center mb-6">
           Избранное
         </Link>

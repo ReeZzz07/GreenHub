@@ -11,6 +11,7 @@ import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { SettingsModule } from './settings/settings.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SettingsModule } from './settings/settings.module';
     ChatModule,
     FavoritesModule,
     SettingsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
