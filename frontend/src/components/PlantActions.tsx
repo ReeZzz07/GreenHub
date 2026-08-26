@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Plant } from '@/types/models';
-import { HeartIcon, ChatIcon } from './Icons';
+import { HeartIcon, ChatIcon, PlusIcon, MinusIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -11,15 +11,21 @@ import { useToast } from './Toast';
 import { createConversation, ApiError } from '@/lib/api';
 
 export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
-  const { addToCart } = useCart();
+  const { items, addToCart, updateQuantity } = useCart();
   const { user, token, isAuthenticated } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
   const router = useRouter();
   const [isMessaging, setIsMessaging] = React.useState(false);
   const favorite = isFavorite(plant.id);
+  const cartItem = items.find((item) => item.plantId === plant.id);
 
   const isOwnListing = isAuthenticated && user?.id === plant.sellerId;
+
+  const handleQuantityChange = (delta: number) => {
+    if (!cartItem) return;
+    updateQuantity(cartItem.id, cartItem.quantity + delta);
+  };
 
   const handleFavoriteToggle = () => {
     if (!isAuthenticated) {
@@ -49,16 +55,36 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
 
   return (
     <div className="flex items-center gap-3">
-      <button
-        onClick={() => {
-          addToCart(plant, 1);
-          showToast('Добавлено в корзину', 'success');
-        }}
-        disabled={!plant.inStock}
-        className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        В корзину
-      </button>
+      {cartItem ? (
+        <div className="flex-1 flex items-center justify-between bg-green-700 rounded-xl px-2 py-2">
+          <button
+            onClick={() => handleQuantityChange(-1)}
+            className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+            aria-label="Уменьшить количество"
+          >
+            <MinusIcon size={18} />
+          </button>
+          <span className="font-semibold text-white">{cartItem.quantity}</span>
+          <button
+            onClick={() => handleQuantityChange(1)}
+            className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+            aria-label="Увеличить количество"
+          >
+            <PlusIcon size={18} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => {
+            addToCart(plant, 1);
+            showToast('Добавлено в корзину', 'success');
+          }}
+          disabled={!plant.inStock}
+          className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          В корзину
+        </button>
+      )}
       {!isOwnListing && (
         <button
           onClick={handleMessageSeller}
