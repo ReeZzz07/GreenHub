@@ -344,3 +344,22 @@ export function fetchOrder(id: string, token: string): Promise<Order> {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export interface RecognitionResult {
+  recognized: boolean;
+  name?: string;
+  commonNames?: string[];
+  confidence?: number;
+}
+
+export async function recognizePlant(file: File, token: string): Promise<RecognitionResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_URL}/ai/recognize`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  return handleResponse<RecognitionResult>(res);
+}

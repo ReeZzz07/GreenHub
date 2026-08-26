@@ -1,30 +1,56 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { UploadIcon } from '@/components/Icons';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/Button';
+import { useAuth } from '@/context/AuthContext';
+import { recognizePlant, ApiError, type RecognitionResult } from '@/lib/api';
 
 export default function RecognizePage() {
+  const { token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isRecognizing, setIsRecognizing] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<RecognitionResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !token) return;
 
     setResult(null);
+    setError(null);
     setPreview(URL.createObjectURL(file));
     setIsRecognizing(true);
 
-    // TODO: заменить на реальный вызов Plant.id API через бэкенд
-    setTimeout(() => {
+    try {
+      const data = await recognizePlant(file, token);
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не удалось распознать растение');
+    } finally {
       setIsRecognizing(false);
-      setResult('Интеграция с AI-распознаванием ещё не подключена — это заглушка для UI.');
-    }, 1500);
+    }
   };
+
+  if (authLoading) {
+    return <LoadingSpinner text="Загрузка..." />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="animate-fade-in px-4 py-12 text-center">
+        <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы распознать растение</h1>
+        <Link href="/profile" className="btn-primary inline-block">
+          Перейти в профиль
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in px-4 py-4">
@@ -60,12 +86,46 @@ export default function RecognizePage() {
             <LoadingSpinner text="Распознаём растение..." />
           ) : (
             <>
-              {result && (
-                <div className="card p-4 text-sm text-gray-700">{result}</div>
+              {error && (
+                <div className="card p-4 text-sm text-gray-700">
+                  <p className="mb-1">{error}</p>
+                  <p className="text-xs text-gray-500">Введите название вручную при создании объявления.</p>
+                </div>
               )}
-              <Button fullWidth onClick={() => fileInputRef.current?.click()}>
-                Загрузить другое фото
-              </Button>
+
+              {result && !result.recognized && (
+                <div className="card p-4 text-sm text-gray-700">
+                  Не удалось уверенно распознать растение. Введите название вручную.
+                </div>
+              )}
+
+              {result?.recognized && (
+                <div className="card p-4">
+                  <h2 className="font-semibold text-gray-800 mb-1">{result.name}</h2>
+                  {result.commonNames && result.commonNames.length > 0 && (
+                    <p className="text-sm text-gray-600 mb-2">{result.commonNames.join(', ')}</p>
+                  )}
+                  {typeof result.confidence === 'number' && (
+                    <p className="text-xs text-gray-400">
+                      Уверенность: {Math.round(result.confidence * 100)}%
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button variant="secondary" fullWidth onClick={() => fileInputRef.current?.click()}>
+                  Другое фото
+                </Button>
+                {result?.recognized && (
+                  <Button
+                    fullWidth
+                    onClick={() => router.push(`/listings/new?title=${encodeURIComponent(result.name ?? '')}`)}
+                  >
+                    Создать объявление
+                  </Button>
+                )}
+              </div>
             </>
           )}
         </div>

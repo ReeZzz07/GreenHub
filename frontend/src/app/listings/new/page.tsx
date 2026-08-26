@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -14,12 +14,21 @@ import { UserRole } from '@/types';
 const SELLER_ROLES: UserRole[] = [UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN];
 
 export default function NewListingPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner text="Загрузка..." />}>
+      <NewListingForm />
+    </Suspense>
+  );
+}
+
+function NewListingForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(searchParams.get('title') ?? '');
   const [latinName, setLatinName] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [price, setPrice] = useState('');
