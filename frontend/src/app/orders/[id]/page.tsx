@@ -105,7 +105,7 @@ export default function OrderDetailPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы увидеть заказ</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -116,7 +116,7 @@ export default function OrderDetailPage() {
 
   if (error) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <p className="text-gray-500">{error}</p>
       </div>
     );
@@ -127,7 +127,7 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 md:max-w-md md:mx-auto">
       <BackButton fallbackHref="/orders" className="mb-2" />
 
       <div className="text-center py-2">

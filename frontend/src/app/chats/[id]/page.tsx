@@ -73,7 +73,7 @@ export default function ChatThreadPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы открыть чат</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -89,7 +89,7 @@ export default function ChatThreadPage() {
     : null;
 
   return (
-    <div className="animate-fade-in flex flex-col h-[calc(100vh-8.5rem)]">
+    <div className="animate-fade-in flex flex-col h-[calc(100vh-8.5rem)] md:h-[calc(100vh-4.5rem)] lg:max-w-2xl lg:mx-auto">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 flex-shrink-0">
         <BackButton fallbackHref="/chats" />
         <div className="min-w-0">

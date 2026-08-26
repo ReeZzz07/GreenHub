@@ -28,7 +28,7 @@ function NewListingGuard() {
 
   if (!isAuthenticated || !canSell) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Доступно только продавцам</h1>
         <p className="text-sm text-gray-500 mb-6">
           Чтобы разместить объявление, войдите как продавец (физ. лицо или юр. лицо).
@@ -41,7 +41,7 @@ function NewListingGuard() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-6">
+    <div className="animate-fade-in px-4 py-6 md:max-w-xl lg:max-w-2xl md:mx-auto">
       <PageHeader title="Новое объявление" fallbackHref="/listings/mine" className="mb-6" />
       <ListingForm mode="create" />
     </div>

@@ -53,64 +53,68 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
         <BackButton fallbackHref="/catalog" />
       </div>
 
-      <ImageGallery
-        images={plant.images}
-        alt={plant.name}
-        variant="card"
-        overlay={
-          !plant.inStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-semibold text-sm">
-                Нет в наличии
-              </span>
-            </div>
-          )
-        }
-      />
-
-      <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
-        {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
-
-        <div className="flex items-center justify-between mb-4 mt-2">
-          <p className="text-2xl font-bold text-green-700">{plant.price.toLocaleString('ru-RU')} ₽</p>
-          <span className="flex items-center gap-1 text-xs text-gray-400">
-            <EyeIcon size={14} />
-            {plant.views}
-          </span>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-2 lg:items-start">
+        <div className="lg:sticky lg:top-20">
+          <ImageGallery
+            images={plant.images}
+            alt={plant.name}
+            variant="card"
+            overlay={
+              !plant.inStock && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-semibold text-sm">
+                    Нет в наличии
+                  </span>
+                </div>
+              )
+            }
+          />
         </div>
 
-        <p className="text-gray-600 mb-6">{plant.description}</p>
+        <div className="p-4">
+          <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
+          {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
 
-        {plant.careInstructions && plant.careInstructions.length > 0 && (
-          <div className="card p-4 mb-6">
-            <h2 className="font-semibold text-gray-800 mb-3">Уход</h2>
-            <ul className="space-y-2">
-              {plant.careInstructions.map((instruction) => (
-                <li key={instruction} className="text-sm text-gray-600 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  {instruction}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <Link
-          href={`/seller/${plant.sellerId}`}
-          className="flex items-center justify-between mb-6 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-        >
-          <span className="text-sm text-gray-700">Продавец: <span className="font-medium">{plant.sellerName}</span></span>
-          {seller && seller.reviewsCount > 0 && (
-            <span className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
-              <StarIcon size={14} filled className="text-amber-400" />
-              {seller.avgRating.toFixed(1)}
-              <span className="text-xs text-gray-400">({seller.reviewsCount})</span>
+          <div className="flex items-center justify-between mb-4 mt-2">
+            <p className="text-2xl font-bold text-green-700">{plant.price.toLocaleString('ru-RU')} ₽</p>
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              <EyeIcon size={14} />
+              {plant.views}
             </span>
-          )}
-        </Link>
+          </div>
 
-        <PlantActions plant={plant} />
+          <p className="text-gray-600 mb-6">{plant.description}</p>
+
+          {plant.careInstructions && plant.careInstructions.length > 0 && (
+            <div className="card p-4 mb-6">
+              <h2 className="font-semibold text-gray-800 mb-3">Уход</h2>
+              <ul className="space-y-2">
+                {plant.careInstructions.map((instruction) => (
+                  <li key={instruction} className="text-sm text-gray-600 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    {instruction}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <Link
+            href={`/seller/${plant.sellerId}`}
+            className="flex items-center justify-between mb-6 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+          >
+            <span className="text-sm text-gray-700">Продавец: <span className="font-medium">{plant.sellerName}</span></span>
+            {seller && seller.reviewsCount > 0 && (
+              <span className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
+                <StarIcon size={14} filled className="text-amber-400" />
+                {seller.avgRating.toFixed(1)}
+                <span className="text-xs text-gray-400">({seller.reviewsCount})</span>
+              </span>
+            )}
+          </Link>
+
+          <PlantActions plant={plant} />
+        </div>
       </div>
 
       <SimilarListings plants={similarListings} />

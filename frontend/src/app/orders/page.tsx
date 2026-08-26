@@ -31,7 +31,7 @@ export default function OrdersPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы увидеть заказы</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -41,7 +41,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 lg:max-w-3xl lg:mx-auto">
       <PageHeader title="Мои заказы" fallbackHref="/profile" />
 
       {orders === null ? (
@@ -54,7 +54,7 @@ export default function OrdersPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {orders.map((order) => {
             const status = STATUS_LABELS[order.status];
             return (

@@ -39,7 +39,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="animate-fade-in px-4 py-4">
+      <div className="animate-fade-in px-4 py-4 lg:max-w-3xl lg:mx-auto">
         <PageHeader title="Корзина" fallbackHref="/" />
         <div className="text-center py-8">
           <p className="text-sm text-gray-500 mb-6">Добавьте растения из каталога</p>
@@ -52,13 +52,13 @@ export default function CartPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 lg:max-w-3xl lg:mx-auto">
       <PageHeader title="Корзина" fallbackHref="/" className="mb-1" />
       <p className="text-xs text-gray-500 mb-4">
         Каждый товар оплачивается отдельной ссылкой — продавцы разные
       </p>
 
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3 mb-6 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
         {items.map((item) => (
           <div key={item.id} className="card p-3 flex gap-3">
             <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">

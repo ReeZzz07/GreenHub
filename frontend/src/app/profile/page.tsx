@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
   if (isAuthenticated && user) {
     return (
-      <div className="animate-fade-in px-4 py-6">
+      <div className="animate-fade-in px-4 py-6 md:max-w-md md:mx-auto">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
             {user.avatarUrl ? (
@@ -136,7 +136,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-6">
+    <div className="animate-fade-in px-4 py-6 md:max-w-md md:mx-auto">
       <div className="flex gap-2 mb-6">
         <button
           type="button"

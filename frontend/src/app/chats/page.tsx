@@ -23,7 +23,7 @@ export default function ChatsPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы увидеть чаты</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -33,7 +33,7 @@ export default function ChatsPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 lg:max-w-2xl lg:mx-auto">
       <h1 className="text-xl font-bold text-gray-800 mb-4">Чаты</h1>
 
       {conversations === null ? (

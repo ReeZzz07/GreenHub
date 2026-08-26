@@ -126,7 +126,7 @@ export default function ModerationPage() {
 
   if (!isAuthenticated || !canModerate) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Доступно только модераторам</h1>
         <p className="text-sm text-gray-500 mb-6">
           Войдите под учётной записью модератора или администратора.
@@ -139,14 +139,15 @@ export default function ModerationPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 lg:max-w-4xl lg:mx-auto">
       <PageHeader title="Модерация объявлений" fallbackHref="/profile" />
 
       {userQueue === null ? (
         <LoadingSpinner text="Загрузка очереди..." />
       ) : userQueue.length > 0 ? (
-        <div className="space-y-4 mb-6">
-          <h2 className="font-semibold text-gray-700">Смена email на проверке</h2>
+        <div className="mb-6">
+          <h2 className="font-semibold text-gray-700 mb-4">Смена email на проверке</h2>
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           {userQueue.map((target) => (
             <div key={target.id} className="card p-4">
               <p className="font-semibold text-gray-800">{target.name}</p>
@@ -174,6 +175,7 @@ export default function ModerationPage() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       ) : null}
 
@@ -182,7 +184,7 @@ export default function ModerationPage() {
       ) : queue.length === 0 ? (
         <p className="text-center text-gray-500 py-12">Очередь пуста</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           {queue.map((listing) => (
             <div key={listing.id} className="card p-4">
               <Link href={`/moderation/${listing.id}`} className="flex gap-3">

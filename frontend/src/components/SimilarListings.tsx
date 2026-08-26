@@ -17,7 +17,7 @@ export function SimilarListings({ plants, title = 'Похожие объявле
   return (
     <div className="px-4 pb-4">
       <h2 className="font-semibold text-gray-800 mb-3">{title}</h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {plants.map((plant) => (
           <PlantCard key={plant.id} plant={plant} onClick={() => router.push(`/plant/${plant.id}`)} />
         ))}

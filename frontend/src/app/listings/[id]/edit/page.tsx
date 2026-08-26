@@ -35,7 +35,7 @@ function EditListingGuard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы редактировать объявление</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -50,7 +50,7 @@ function EditListingGuard() {
 
   if (listing === null) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Объявление не найдено</h1>
         <p className="text-sm text-gray-500 mb-6">Либо оно не существует, либо принадлежит другому продавцу.</p>
         <Link href="/listings/mine" className="btn-primary inline-block">
@@ -61,7 +61,7 @@ function EditListingGuard() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-6">
+    <div className="animate-fade-in px-4 py-6 md:max-w-xl lg:max-w-2xl md:mx-auto">
       <PageHeader title="Редактирование объявления" fallbackHref="/listings/mine" className="mb-6" />
       <ListingForm mode="edit" listingId={listing.id} initial={listing} />
     </div>

@@ -34,7 +34,7 @@ export default function FavoritesPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы увидеть избранное</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -57,7 +57,7 @@ export default function FavoritesPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {plants.map((plant) => (
             <PlantCard key={plant.id} plant={plant} onClick={() => router.push(`/plant/${plant.id}`)} />
           ))}

@@ -128,7 +128,7 @@ export default function AdminSettingsPage() {
 
   if (!isAuthenticated || !isAdmin) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Доступно только администратору</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -138,7 +138,7 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-6">
+    <div className="animate-fade-in px-4 py-6 md:max-w-xl lg:max-w-2xl md:mx-auto">
       <PageHeader title="Настройки интеграций" fallbackHref="/profile" className="mb-2" />
       <p className="text-sm text-gray-500 mb-6">
         Ключи хранятся в базе данных и нигде не отображаются повторно — только статус.

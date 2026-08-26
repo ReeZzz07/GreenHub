@@ -60,7 +60,7 @@ export default function CatalogPage() {
     <div className="animate-fade-in px-4 py-4">
       <h1 className="text-xl font-bold text-gray-800 mb-4">Каталог</h1>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 lg:max-w-xl">
         <div className="flex-1">
           <SearchBar value={query} onChange={setQuery} onClear={() => setQuery('')} />
         </div>
@@ -81,7 +81,7 @@ export default function CatalogPage() {
       </div>
 
       {isFiltersOpen && (
-        <div className="card p-4 mb-4 space-y-3 animate-fade-in">
+        <div className="card p-4 mb-4 space-y-3 animate-fade-in lg:max-w-xl">
           <div>
             <label className="text-sm text-gray-700 mb-1 block">Сортировка</label>
             <select
@@ -143,7 +143,7 @@ export default function CatalogPage() {
       ) : plants.length === 0 ? (
         <p className="text-center text-gray-500 py-12">Ничего не найдено</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {plants.map((plant) => (
             <PlantCard
               key={plant.id}

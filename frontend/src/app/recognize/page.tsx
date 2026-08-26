@@ -43,7 +43,7 @@ export default function RecognizePage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Войдите, чтобы распознать растение</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти в профиль
@@ -53,7 +53,7 @@ export default function RecognizePage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 md:max-w-md md:mx-auto">
       <h1 className="text-xl font-bold text-gray-800 mb-2">Распознать растение</h1>
       <p className="text-sm text-gray-500 mb-6">
         Загрузите фото — AI-помощник определит вид и предложит теги

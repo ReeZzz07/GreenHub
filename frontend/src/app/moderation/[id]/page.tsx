@@ -54,7 +54,7 @@ export default function ModerationListingReviewPage() {
 
   if (!isAuthenticated || !canModerate) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Доступно только модераторам</h1>
         <p className="text-sm text-gray-500 mb-6">
           Войдите под учётной записью модератора или администратора.
@@ -101,7 +101,7 @@ export default function ModerationListingReviewPage() {
 
   if (listing === null) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Объявление не найдено</h1>
         <Link href="/moderation" className="btn-primary inline-block">
           Вернуться к очереди
@@ -113,7 +113,7 @@ export default function ModerationListingReviewPage() {
   const status = STATUS_LABELS[listing.status];
 
   return (
-    <div className="animate-fade-in pb-24">
+    <div className="animate-fade-in pb-24 md:max-w-xl lg:max-w-2xl md:mx-auto">
       <PageHeader title="Проверка объявления" fallbackHref="/moderation" className="p-4" />
 
       <ImageGallery images={listing.images} alt={listing.title} variant="card" />

@@ -74,7 +74,7 @@ export function MyListings() {
       ) : listings.length === 0 ? (
         <p className="text-sm text-gray-500">Пока нет объявлений</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {listings.map((listing) => {
             const status = STATUS_LABELS[listing.status];
             return (

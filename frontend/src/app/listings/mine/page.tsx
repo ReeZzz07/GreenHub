@@ -18,7 +18,7 @@ export default function MyListingsPage() {
 
   if (!isAuthenticated || !user || !SELLER_ROLES.includes(user.role)) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Доступно только продавцам</h1>
         <p className="text-sm text-gray-500 mb-6">
           Войдите под учётной записью продавца, чтобы управлять своими объявлениями.
@@ -31,7 +31,7 @@ export default function MyListingsPage() {
   }
 
   return (
-    <div className="animate-fade-in px-4 py-4">
+    <div className="animate-fade-in px-4 py-4 lg:max-w-4xl lg:mx-auto">
       <PageHeader title="Мои объявления" fallbackHref="/profile" />
 
       <MyListings />

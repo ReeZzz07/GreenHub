@@ -31,7 +31,7 @@ export default async function HomePage() {
 
       {/* Quick Actions */}
       <section className="px-4 py-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:max-w-xl">
           <Link
             href="/recognize"
             className="card p-4 text-center hover:scale-105 transition-transform"
@@ -80,7 +80,7 @@ export default async function HomePage() {
                 Все →
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridPlants.map((plant) => (
                 <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
                   <div className="card card-hover overflow-hidden">
@@ -116,7 +116,7 @@ export default async function HomePage() {
           {listPlants.length > 0 && (
             <section className="px-4 py-4">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Ещё объявления</h2>
-              <div className="space-y-3">
+              <div className="space-y-3 lg:max-w-2xl">
                 {listPlants.map((plant) => (
                   <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
                     <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
@@ -152,7 +152,7 @@ export default async function HomePage() {
       <section className="px-4 py-6">
         <div className="gradient-sand rounded-2xl p-6">
           <h2 className="text-lg font-bold text-gray-800 mb-4">Почему GreenHub?</h2>
-          <div className="space-y-4">
+          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-6">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">

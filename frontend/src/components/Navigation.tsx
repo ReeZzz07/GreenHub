@@ -18,7 +18,7 @@ export const BottomNavigation: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 glass border-t border-green-100 bg-white/95 backdrop-blur-lg z-40 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 glass border-t border-green-100 bg-white/95 backdrop-blur-lg z-40 safe-area-bottom md:hidden">
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -56,10 +56,11 @@ export const Header: React.FC<{ title?: string; showBack?: boolean }> = ({
   showBack = false 
 }) => {
   const { totalCount } = useCart();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-40 gradient-nature text-white shadow-lg">
-      <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
+      <div className="flex items-center justify-between h-14 px-4 max-w-lg md:max-w-3xl lg:max-w-6xl mx-auto">
         <div className="flex items-center gap-3">
           {showBack && (
             <button
@@ -75,6 +76,24 @@ export const Header: React.FC<{ title?: string; showBack?: boolean }> = ({
           <LeafIcon size={28} className="text-white" />
           <h1 className="text-xl font-bold tracking-tight">{title}</h1>
         </div>
+
+        <nav className="hidden md:flex items-center gap-1">
+          {navItems.map((item) => {
+            const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'bg-white/20 text-white' : 'text-green-50 hover:bg-white/10'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
         <div className="flex items-center gap-2">
           <button className="p-2 hover:bg-white/20 rounded-full transition-colors" aria-label="Уведомления">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

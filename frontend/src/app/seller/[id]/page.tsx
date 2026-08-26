@@ -57,7 +57,7 @@ export default async function SellerPage({ params }: SellerPageProps) {
         <BackButton fallbackHref="/catalog" className="mb-4" />
       </div>
 
-      <div className="flex flex-col items-center text-center mb-6 px-4">
+      <div className="flex flex-col items-center text-center mb-6 px-4 lg:max-w-md lg:mx-auto">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
           {seller.avatarUrl ? (
             <img src={seller.avatarUrl} alt={seller.name} className="w-full h-full object-cover" />
@@ -79,7 +79,7 @@ export default async function SellerPage({ params }: SellerPageProps) {
       </div>
 
       {seller.reviewsCount > 0 && (
-        <div className="card p-4 mb-6 mx-4 space-y-1.5">
+        <div className="card p-4 mb-6 mx-4 lg:max-w-md lg:mx-auto space-y-1.5">
           {seller.breakdown.map(({ star, count }) => (
             <div key={star} className="flex items-center gap-2 text-xs text-gray-500">
               <span className="w-3">{star}</span>
@@ -98,7 +98,7 @@ export default async function SellerPage({ params }: SellerPageProps) {
 
       <SimilarListings plants={plants} title="Объявления продавца" />
 
-      <div className="px-4">
+      <div className="px-4 lg:max-w-3xl lg:mx-auto">
         <h2 className="font-semibold text-gray-800 mb-3">Отзывы</h2>
         <SellerReviews sellerId={seller.id} reviews={reviews} />
       </div>

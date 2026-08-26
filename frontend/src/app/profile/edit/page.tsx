@@ -37,7 +37,7 @@ export default function EditProfilePage() {
 
   if (!user || !token) {
     return (
-      <div className="animate-fade-in px-4 py-12 text-center">
+      <div className="animate-fade-in px-4 py-12 text-center md:max-w-md md:mx-auto">
         <h1 className="text-xl font-bold text-gray-800 mb-2">Нужно войти</h1>
         <Link href="/profile" className="btn-primary inline-block">
           Перейти к входу
@@ -119,7 +119,7 @@ export default function EditProfilePage() {
   const isPending = user.verificationStatus === 'PENDING_MODERATION';
 
   return (
-    <div className="animate-fade-in px-4 py-6">
+    <div className="animate-fade-in px-4 py-6 md:max-w-xl md:mx-auto">
       <PageHeader title="Редактирование профиля" fallbackHref="/profile" className="mb-6" />
 
       <div className="flex flex-col items-center mb-8">
