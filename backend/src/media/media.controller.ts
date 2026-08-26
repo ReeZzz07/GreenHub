@@ -11,7 +11,6 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { MediaService } from './media.service';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ, лимит из TZ.md
@@ -24,14 +23,11 @@ export class MediaController {
   @Roles(UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }))
-  async upload(
-    @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() user: { id: string },
-  ) {
+  async upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Файл не передан');
     }
-    const url = await this.mediaService.uploadListingImage(file, user.id);
+    const url = await this.mediaService.uploadListingImage(file);
     return { url };
   }
 }

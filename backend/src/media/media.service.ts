@@ -47,10 +47,7 @@ export class MediaService implements OnModuleInit {
   }
 
   // Загружает оригинал (приватно, для модерации/пересборки) и вотермарк-версию (публично)
-  async uploadListingImage(
-    file: { buffer: Buffer; mimetype: string },
-    sellerId: string,
-  ): Promise<string> {
+  async uploadListingImage(file: { buffer: Buffer; mimetype: string }): Promise<string> {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException('Допустимые форматы изображений: JPG, PNG');
     }
@@ -67,7 +64,7 @@ export class MediaService implements OnModuleInit {
       }),
     );
 
-    const processedBuffer = await this.applyWatermark(file.buffer, sellerId);
+    const processedBuffer = await this.applyWatermark(file.buffer);
     const processedKey = `${id}.webp`;
 
     await this.s3.send(
@@ -108,7 +105,7 @@ export class MediaService implements OnModuleInit {
     return `${this.publicUrl}/${this.processedBucket}/${key}`;
   }
 
-  private async applyWatermark(buffer: Buffer, sellerId: string): Promise<Buffer> {
+  private async applyWatermark(buffer: Buffer): Promise<Buffer> {
     const image = sharp(buffer).rotate();
     const metadata = await image.metadata();
     const sourceWidth = metadata.width ?? MAX_DIMENSION;
@@ -120,19 +117,15 @@ export class MediaService implements OnModuleInit {
       .resize({ width: targetWidth, withoutEnlargement: true })
       .toBuffer({ resolveWithObject: true });
 
-    const badgeWidth = Math.max(140, Math.round(info.width * 0.32));
-    const badgeHeight = Math.round(badgeWidth * 0.22);
-    const titleSize = Math.round(badgeHeight * 0.4);
-    const subtitleSize = Math.round(titleSize * 0.68);
-    const sellerTag = sellerId.slice(0, 8);
+    const margin = Math.round(info.width * 0.03);
+    const fontSize = Math.max(16, Math.round(info.width * 0.045));
+    const svgWidth = Math.round(fontSize * 5.2) + margin;
+    const svgHeight = Math.round(fontSize * 1.8);
 
     const svg = `
-      <svg width="${badgeWidth}" height="${badgeHeight}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${badgeWidth}" height="${badgeHeight}" rx="${badgeHeight / 6}" fill="black" fill-opacity="0.45"/>
-        <text x="${badgeWidth / 2}" y="${badgeHeight * 0.42}" font-family="sans-serif" font-size="${titleSize}"
-              font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">GreenHub</text>
-        <text x="${badgeWidth / 2}" y="${badgeHeight * 0.78}" font-family="sans-serif" font-size="${subtitleSize}"
-              fill="white" fill-opacity="0.85" text-anchor="middle" dominant-baseline="middle">#${sellerTag}</text>
+      <svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+        <text x="${svgWidth - margin}" y="${svgHeight / 2}" font-family="sans-serif" font-size="${fontSize}"
+              font-weight="700" fill="white" fill-opacity="0.5" text-anchor="end" dominant-baseline="middle">GreenHub</text>
       </svg>
     `;
 
