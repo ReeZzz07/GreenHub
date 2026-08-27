@@ -78,8 +78,8 @@ export default function RecognizePage() {
         </button>
       ) : (
         <div className="space-y-4">
-          <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100">
-            <img src={preview} alt="Загруженное фото" className="w-full h-full object-cover" />
+          <div className="rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center max-h-[70vh]">
+            <img src={preview} alt="Загруженное фото" className="w-full h-full max-h-[70vh] object-contain" />
           </div>
 
           {isRecognizing ? (
