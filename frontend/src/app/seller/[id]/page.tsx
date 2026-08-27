@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { BackButton } from '@/components/PageHeader';
 import { SimilarListings } from '@/components/SimilarListings';
 import { SellerReviews } from '@/components/SellerReviews';
@@ -58,9 +59,9 @@ export default async function SellerPage({ params }: SellerPageProps) {
       </div>
 
       <div className="flex flex-col items-center text-center mb-6 px-4 lg:max-w-md lg:mx-auto">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
+        <div className="relative w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
           {seller.avatarUrl ? (
-            <img src={seller.avatarUrl} alt={seller.name} className="w-full h-full object-cover" />
+            <Image src={seller.avatarUrl} alt={seller.name} fill sizes="80px" className="object-cover" />
           ) : (
             <UserIcon size={40} className="text-green-600" />
           )}

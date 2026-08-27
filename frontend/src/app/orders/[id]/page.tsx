@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
@@ -131,9 +132,9 @@ export default function OrderDetailPage() {
       <BackButton fallbackHref="/orders" className="mb-2" />
 
       <div className="text-center py-2">
-        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 mx-auto mb-4 overflow-hidden">
+        <div className="relative w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 mx-auto mb-4 overflow-hidden">
           {order.listing.images[0] && (
-            <img src={order.listing.images[0]} alt={order.listing.title} className="w-full h-full object-cover" />
+            <Image src={order.listing.images[0]} alt={order.listing.title} fill sizes="80px" className="object-cover" />
           )}
         </div>
 

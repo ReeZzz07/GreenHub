@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Plant } from '@/types/models';
 import { StarIcon, HeartIcon, PlusIcon, MinusIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
@@ -47,11 +48,12 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
       onClick={onClick}
     >
       <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-green-50 to-green-100">
-        <img
+        <Image
           src={plant.images[0] || '/placeholder-plant.jpg'}
           alt={plant.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <button
           onClick={handleFavoriteToggle}

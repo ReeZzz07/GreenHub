@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { fetchConversations, type Conversation } from '@/lib/api';
@@ -52,12 +53,14 @@ export default function ChatsPage() {
             return (
               <Link key={conversation.id} href={`/chats/${conversation.id}`} className="block">
                 <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+                  <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                     {conversation.listing.images[0] && (
-                      <img
+                      <Image
                         src={conversation.listing.images[0]}
                         alt={conversation.listing.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="56px"
+                        className="object-cover"
                       />
                     )}
                   </div>

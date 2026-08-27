@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import { XIcon, ArrowLeftIcon } from './Icons';
 
 interface ImageGalleryProps {
@@ -36,10 +37,13 @@ export function ImageGallery({ images, alt, variant = 'card', overlay }: ImageGa
   const mainImage = (
     <div className={mainWrapperClass} onClick={() => images.length > 0 && setIsLightboxOpen(true)}>
       {images[activeImage] && (
-        <img
+        <Image
           src={images[activeImage]}
           alt={alt}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          fill
+          priority
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-110"
         />
       )}
       {overlay}
@@ -57,11 +61,11 @@ export function ImageGallery({ images, alt, variant = 'card', overlay }: ImageGa
               key={url}
               type="button"
               onClick={() => setActiveImage(index)}
-              className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
+              className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
                 index === activeImage ? 'ring-2 ring-green-600 ring-offset-2' : 'opacity-70 hover:opacity-100'
               }`}
             >
-              <img src={url} alt={alt} className="w-full h-full object-cover" />
+              <Image src={url} alt={alt} fill sizes="64px" className="object-cover" />
             </button>
           ))}
         </div>
@@ -111,12 +115,18 @@ export function ImageGallery({ images, alt, variant = 'card', overlay }: ImageGa
             )}
 
             {images[activeImage] && (
-              <img
-                src={images[activeImage]}
-                alt={alt}
+              <div
+                className="relative w-[92vw] h-[85vh]"
                 onClick={(e) => e.stopPropagation()}
-                className="max-w-[92vw] max-h-[85vh] object-contain rounded-lg"
-              />
+              >
+                <Image
+                  src={images[activeImage]}
+                  alt={alt}
+                  fill
+                  sizes="92vw"
+                  className="object-contain rounded-lg"
+                />
+              </div>
             )}
           </div>,
           document.body,

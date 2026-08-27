@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
@@ -188,9 +189,9 @@ export default function ModerationPage() {
           {queue.map((listing) => (
             <div key={listing.id} className="card p-4">
               <Link href={`/moderation/${listing.id}`} className="flex gap-3">
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+                <div className="relative w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                   {listing.images[0] && (
-                    <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
+                    <Image src={listing.images[0]} alt={listing.title} fill sizes="80px" className="object-cover" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">

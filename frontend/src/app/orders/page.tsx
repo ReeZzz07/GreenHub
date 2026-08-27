@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PageHeader } from '@/components/PageHeader';
@@ -60,12 +61,14 @@ export default function OrdersPage() {
             return (
               <Link key={order.id} href={`/orders/${order.id}`} className="block">
                 <div className="card p-3 flex items-center gap-3 hover:shadow-lg transition-shadow">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                     {order.listing.images[0] && (
-                      <img
+                      <Image
                         src={order.listing.images[0]}
                         alt={order.listing.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="64px"
+                        className="object-cover"
                       />
                     )}
                   </div>

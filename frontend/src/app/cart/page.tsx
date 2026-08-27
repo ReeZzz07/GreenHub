@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -61,11 +62,13 @@ export default function CartPage() {
       <div className="space-y-3 mb-6 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
         {items.map((item) => (
           <div key={item.id} className="card p-3 flex gap-3">
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
-              <img
-                src={item.plant.images[0]}
+            <div className="relative w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+              <Image
+                src={item.plant.images[0] || '/placeholder-plant.jpg'}
                 alt={item.plant.name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="80px"
+                className="object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">

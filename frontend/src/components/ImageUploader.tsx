@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { uploadMedia, ApiError } from '@/lib/api';
 import { useToast } from './Toast';
@@ -63,7 +64,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       <div className="grid grid-cols-4 gap-2 mb-2">
         {images.map((url) => (
           <div key={url} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-            <img src={url} alt="" className="w-full h-full object-cover" />
+            <Image src={url} alt="" fill sizes="25vw" className="object-cover" />
             <button
               type="button"
               onClick={() => removeImage(url)}

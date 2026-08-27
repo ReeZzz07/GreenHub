@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from './Toast';
 import { Button } from './Button';
@@ -46,9 +47,9 @@ export function SellerReviews({ sellerId, reviews: initialReviews }: { sellerId:
       {reviews.map((review) => (
         <div key={review.id} className="card p-4">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="relative w-9 h-9 rounded-full bg-green-100 flex items-center justify-center overflow-hidden flex-shrink-0">
               {review.reviewer.avatarUrl ? (
-                <img src={review.reviewer.avatarUrl} alt={review.reviewer.name} className="w-full h-full object-cover" />
+                <Image src={review.reviewer.avatarUrl} alt={review.reviewer.name} fill sizes="36px" className="object-cover" />
               ) : (
                 <UserIcon size={18} className="text-green-600" />
               )}

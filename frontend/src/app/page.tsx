@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { SearchIcon, CameraIcon } from '@/components/Icons';
 import { HomeCategoryShortcuts } from '@/components/HomeCategoryShortcuts';
 import { fetchListings, fetchCategories } from '@/lib/api';
@@ -207,11 +208,12 @@ export default async function HomePage() {
                 <div className="card">
                   <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
                     {plant.images[0] && (
-                      <img
+                      <Image
                         src={plant.images[0]}
                         alt={plant.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        fill
+                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                        className="object-cover"
                       />
                     )}
                     {!plant.inStock && (

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -71,9 +72,9 @@ function ProfileContent() {
     return (
       <div className="animate-fade-in px-4 py-6 md:max-w-md md:mx-auto">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
+          <div className="relative w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
             {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+              <Image src={user.avatarUrl} alt={user.name} fill sizes="80px" className="object-cover" />
             ) : (
               <UserIcon size={40} className="text-green-600" />
             )}

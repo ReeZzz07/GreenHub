@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
@@ -124,9 +125,9 @@ export default function EditProfilePage() {
 
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
+          <div className="relative w-24 h-24 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
             {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+              <Image src={user.avatarUrl} alt={user.name} fill sizes="96px" className="object-cover" />
             ) : (
               <UserIcon size={44} className="text-green-600" />
             )}
