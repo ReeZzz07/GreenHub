@@ -49,7 +49,7 @@ function CatalogSkeleton() {
 function CatalogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchParams.get('search') || '');
   const [category, setCategory] = useState(searchParams.get('category') || '');
   const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [minPrice, setMinPrice] = useState('');

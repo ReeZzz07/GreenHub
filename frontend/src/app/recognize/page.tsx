@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UploadIcon } from '@/components/Icons';
+import { UploadIcon, SearchIcon } from '@/components/Icons';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -56,7 +56,7 @@ export default function RecognizePage() {
     <div className="animate-fade-in px-4 py-4 md:max-w-md md:mx-auto">
       <h1 className="text-xl font-bold text-gray-800 mb-2">Распознать растение</h1>
       <p className="text-sm text-gray-500 mb-6">
-        Загрузите фото — AI-помощник определит вид и предложит теги
+        Загрузите фото — AI определит вид, а вы сможете найти его на маркетплейсе или разместить своё объявление
       </p>
 
       <input
@@ -89,13 +89,15 @@ export default function RecognizePage() {
               {error && (
                 <div className="card p-4 text-sm text-gray-700">
                   <p className="mb-1">{error}</p>
-                  <p className="text-xs text-gray-500">Введите название вручную при создании объявления.</p>
+                  <p className="text-xs text-gray-500">
+                    Попробуйте другое фото, поищите растение в каталоге вручную или введите название сами при создании объявления.
+                  </p>
                 </div>
               )}
 
               {result && !result.recognized && (
                 <div className="card p-4 text-sm text-gray-700">
-                  Не удалось уверенно распознать растение. Введите название вручную.
+                  Не удалось уверенно распознать растение. Попробуйте другое фото.
                 </div>
               )}
 
@@ -113,19 +115,28 @@ export default function RecognizePage() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <Button variant="secondary" fullWidth onClick={() => fileInputRef.current?.click()}>
-                  Другое фото
-                </Button>
-                {result?.recognized && (
+              {result?.recognized && (
+                <div className="flex flex-col gap-3">
                   <Button
+                    fullWidth
+                    onClick={() => router.push(`/catalog?search=${encodeURIComponent(result.name ?? '')}`)}
+                  >
+                    <SearchIcon size={16} />
+                    Найти растение
+                  </Button>
+                  <Button
+                    variant="secondary"
                     fullWidth
                     onClick={() => router.push(`/listings/new?title=${encodeURIComponent(result.name ?? '')}`)}
                   >
                     Создать объявление
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
+
+              <Button variant="secondary" fullWidth onClick={() => fileInputRef.current?.click()}>
+                Другое фото
+              </Button>
             </>
           )}
         </div>
