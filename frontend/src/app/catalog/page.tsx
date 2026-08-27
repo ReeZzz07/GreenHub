@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchBar } from '@/components/SearchBar';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { PlantCard, PlantCardSkeleton } from '@/components/PlantCard';
+import { EmptyCatalogIllustration } from '@/components/EmptyCatalogIllustration';
 import { FilterIcon } from '@/components/Icons';
 import { fetchCategories, fetchListings, type Category } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
@@ -59,6 +60,7 @@ function CatalogContent() {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [suggestions, setSuggestions] = useState<Plant[]>([]);
 
   const hasPriceFilter = minPrice !== '' || maxPrice !== '';
 
@@ -90,6 +92,18 @@ function CatalogContent() {
     }, 300);
     return () => clearTimeout(timeout);
   }, [query, category, sortBy, minPrice, maxPrice]);
+
+  // Когда по запросу ничего не нашлось — подсказываем похожие растения (по категории,
+  // если она выбрана, иначе просто новые поступления), чтобы страница не была тупиком
+  useEffect(() => {
+    if (isLoading || plants.length > 0) {
+      setSuggestions([]);
+      return;
+    }
+    fetchListings({ category: category || undefined, sortBy: 'newest', limit: 8 })
+      .then((page) => setSuggestions(page.items.map(listingToPlant)))
+      .catch(() => setSuggestions([]));
+  }, [isLoading, plants.length, category]);
 
   const isPricePreset = (preset: { min?: number; max?: number }) =>
     minPrice === String(preset.min ?? '') && maxPrice === String(preset.max ?? '');
@@ -201,10 +215,8 @@ function CatalogContent() {
         <CategoryFilter categories={categories} selectedCategory={category} onCategorySelect={setCategory} />
       </div>
 
-      {!isLoading && (
-        <p className="text-sm text-gray-500 mb-4">
-          {total === 0 ? 'Ничего не найдено' : `Найдено объявлений: ${total}`}
-        </p>
+      {!isLoading && total > 0 && (
+        <p className="text-sm text-gray-500 mb-4">Найдено объявлений: {total}</p>
       )}
 
       {isLoading ? (
@@ -213,7 +225,44 @@ function CatalogContent() {
             <PlantCardSkeleton key={i} />
           ))}
         </div>
-      ) : plants.length === 0 ? null : (
+      ) : plants.length === 0 ? (
+        <div>
+          <div className="text-center py-8 px-4">
+            <EmptyCatalogIllustration />
+            <h2 className="font-display text-xl font-bold text-gray-900 mb-2 mt-2">Пока ничего не нашли</h2>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto mb-6">
+              Такого растения в каталоге пока нет — но продавцы добавляют новые объявления каждый день. Загляните позже или посмотрите, что есть прямо сейчас.
+            </p>
+            <button
+              onClick={() => {
+                setQuery('');
+                setCategory('');
+                setSortBy('newest');
+                setMinPrice('');
+                setMaxPrice('');
+              }}
+              className="btn-primary inline-block"
+            >
+              Смотреть весь каталог
+            </button>
+          </div>
+
+          {suggestions.length > 0 && (
+            <div className="px-4 pb-4">
+              <h3 className="font-display text-lg font-bold text-gray-900 mb-4">Может быть, вам понравится</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {suggestions.map((plant) => (
+                  <PlantCard
+                    key={plant.id}
+                    plant={plant}
+                    onClick={() => router.push(`/plant/${plant.id}`)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {plants.map((plant) => (
             <PlantCard
