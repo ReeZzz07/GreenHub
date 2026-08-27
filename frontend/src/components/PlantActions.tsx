@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useToast } from './Toast';
-import { createConversation, ApiError } from '@/lib/api';
+import { createConversation, createOrder, ApiError } from '@/lib/api';
 
 export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
   const { items, addToCart, updateQuantity } = useCart();
@@ -17,6 +17,7 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
   const { showToast } = useToast();
   const router = useRouter();
   const [isMessaging, setIsMessaging] = React.useState(false);
+  const [isBuyingNow, setIsBuyingNow] = React.useState(false);
   const favorite = isFavorite(plant.id);
   const cartItem = items.find((item) => item.plantId === plant.id);
 
@@ -33,6 +34,28 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
       return;
     }
     toggleFavorite(plant.id);
+  };
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated || !token) {
+      showToast('Войдите, чтобы купить', 'info');
+      router.push('/profile');
+      return;
+    }
+
+    setIsBuyingNow(true);
+    try {
+      const order = await createOrder(plant.id, 1, token);
+      if (order.paymentUrl) {
+        window.location.href = order.paymentUrl;
+      } else {
+        showToast('Не удалось получить ссылку на оплату', 'error');
+      }
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось создать заказ', 'error');
+    } finally {
+      setIsBuyingNow(false);
+    }
   };
 
   const handleMessageSeller = async () => {
@@ -54,54 +77,66 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
   };
 
   return (
-    <div className="flex items-center gap-3">
-      {cartItem ? (
-        <div className="flex-1 flex items-center justify-between bg-green-700 rounded-xl px-2 py-2">
-          <button
-            onClick={() => handleQuantityChange(-1)}
-            className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
-            aria-label="Уменьшить количество"
-          >
-            <MinusIcon size={18} />
-          </button>
-          <span className="font-semibold text-white">{cartItem.quantity}</span>
-          <button
-            onClick={() => handleQuantityChange(1)}
-            className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
-            aria-label="Увеличить количество"
-          >
-            <PlusIcon size={18} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => {
-            addToCart(plant, 1);
-            showToast('Добавлено в корзину', 'success');
-          }}
-          disabled={!plant.inStock}
-          className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          В корзину
-        </button>
-      )}
+    <div className="space-y-3">
       {!isOwnListing && (
         <button
-          onClick={handleMessageSeller}
-          disabled={isMessaging}
-          className="p-3 rounded-xl border-2 border-gray-200 hover:border-green-300 transition-colors disabled:opacity-50"
-          aria-label="Написать продавцу"
+          onClick={handleBuyNow}
+          disabled={!plant.inStock || isBuyingNow}
+          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <ChatIcon size={22} className="text-gray-500" />
+          {isBuyingNow ? 'Оформляем...' : 'Купить сейчас'}
         </button>
       )}
-      <button
-        onClick={handleFavoriteToggle}
-        className="p-3 rounded-xl border-2 border-gray-200 hover:border-red-300 transition-colors"
-        aria-label={favorite ? 'Удалить из избранного' : 'Добавить в избранное'}
-      >
-        <HeartIcon size={22} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-500'} />
-      </button>
+
+      <div className="flex items-center gap-3">
+        {cartItem ? (
+          <div className="flex-1 flex items-center justify-between bg-green-700 rounded-xl px-2 py-2">
+            <button
+              onClick={() => handleQuantityChange(-1)}
+              className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+              aria-label="Уменьшить количество"
+            >
+              <MinusIcon size={18} />
+            </button>
+            <span className="font-semibold text-white">{cartItem.quantity}</span>
+            <button
+              onClick={() => handleQuantityChange(1)}
+              className="p-2.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+              aria-label="Увеличить количество"
+            >
+              <PlusIcon size={18} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => {
+              addToCart(plant, 1);
+              showToast('Добавлено в корзину', 'success');
+            }}
+            disabled={!plant.inStock}
+            className="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            В корзину
+          </button>
+        )}
+        {!isOwnListing && (
+          <button
+            onClick={handleMessageSeller}
+            disabled={isMessaging}
+            className="p-3 rounded-xl border-2 border-blue-100 bg-blue-50 hover:border-blue-300 hover:bg-blue-100 transition-colors disabled:opacity-50"
+            aria-label="Написать продавцу"
+          >
+            <ChatIcon size={22} className="text-blue-600" />
+          </button>
+        )}
+        <button
+          onClick={handleFavoriteToggle}
+          className="p-3 rounded-xl border-2 border-gray-200 hover:border-red-300 transition-colors"
+          aria-label={favorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+        >
+          <HeartIcon size={22} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-500'} />
+        </button>
+      </div>
     </div>
   );
 };

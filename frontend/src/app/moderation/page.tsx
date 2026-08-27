@@ -208,7 +208,7 @@ export default function ModerationPage() {
 
               <Link
                 href={`/moderation/${listing.id}`}
-                className="text-green-600 text-sm font-medium hover:text-green-700 inline-block mt-2"
+                className="text-blue-600 text-sm font-medium hover:text-blue-700 inline-block mt-2"
               >
                 Открыть карточку →
               </Link>

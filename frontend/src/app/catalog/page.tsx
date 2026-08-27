@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchBar } from '@/components/SearchBar';
 import { CategoryFilter } from '@/components/CategoryFilter';
-import { PlantCard } from '@/components/PlantCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { PlantCard, PlantCardSkeleton } from '@/components/PlantCard';
 import { FilterIcon } from '@/components/Icons';
 import { fetchCategories, fetchListings, type Category } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
@@ -19,16 +18,46 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: 'price_desc', label: 'Сначала дороже' },
 ];
 
+const PRICE_PRESETS: { label: string; min?: number; max?: number }[] = [
+  { label: 'До 1 000 ₽', max: 1000 },
+  { label: '1 000–3 000 ₽', min: 1000, max: 3000 },
+  { label: '3 000–5 000 ₽', min: 3000, max: 5000 },
+  { label: 'От 5 000 ₽', min: 5000 },
+];
+
 export default function CatalogPage() {
+  return (
+    <Suspense fallback={<CatalogSkeleton />}>
+      <CatalogContent />
+    </Suspense>
+  );
+}
+
+function CatalogSkeleton() {
+  return (
+    <div className="animate-fade-in px-4 py-4">
+      <h1 className="text-xl font-bold text-gray-800 mb-4">Каталог</h1>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <PlantCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CatalogContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState(searchParams.get('category') || '');
   const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   const hasPriceFilter = minPrice !== '' || maxPrice !== '';
@@ -49,12 +78,31 @@ export default function CatalogPage() {
         minPrice: minPrice ? Number(minPrice) : undefined,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
       })
-        .then((page) => setPlants(page.items.map(listingToPlant)))
-        .catch(() => setPlants([]))
+        .then((page) => {
+          setPlants(page.items.map(listingToPlant));
+          setTotal(page.total);
+        })
+        .catch(() => {
+          setPlants([]);
+          setTotal(0);
+        })
         .finally(() => setIsLoading(false));
     }, 300);
     return () => clearTimeout(timeout);
   }, [query, category, sortBy, minPrice, maxPrice]);
+
+  const isPricePreset = (preset: { min?: number; max?: number }) =>
+    minPrice === String(preset.min ?? '') && maxPrice === String(preset.max ?? '');
+
+  const applyPricePreset = (preset: { min?: number; max?: number }) => {
+    if (isPricePreset(preset)) {
+      setMinPrice('');
+      setMaxPrice('');
+    } else {
+      setMinPrice(preset.min !== undefined ? String(preset.min) : '');
+      setMaxPrice(preset.max !== undefined ? String(preset.max) : '');
+    }
+  };
 
   return (
     <div className="animate-fade-in px-4 py-4">
@@ -99,6 +147,21 @@ export default function CatalogPage() {
 
           <div>
             <label className="text-sm text-gray-700 mb-1 block">Цена, ₽</label>
+            <div className="flex gap-2 flex-wrap mb-3">
+              {PRICE_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() => applyPricePreset(preset)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    isPricePreset(preset)
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="number"
@@ -134,15 +197,23 @@ export default function CatalogPage() {
         </div>
       )}
 
-      <div className="mb-6">
+      <div className="mb-4">
         <CategoryFilter categories={categories} selectedCategory={category} onCategorySelect={setCategory} />
       </div>
 
+      {!isLoading && (
+        <p className="text-sm text-gray-500 mb-4">
+          {total === 0 ? 'Ничего не найдено' : `Найдено объявлений: ${total}`}
+        </p>
+      )}
+
       {isLoading ? (
-        <LoadingSpinner text="Загружаем объявления..." />
-      ) : plants.length === 0 ? (
-        <p className="text-center text-gray-500 py-12">Ничего не найдено</p>
-      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <PlantCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : plants.length === 0 ? null : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {plants.map((plant) => (
             <PlantCard

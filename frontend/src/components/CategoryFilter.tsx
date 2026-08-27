@@ -27,7 +27,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         className={`flex-shrink-0 px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 ${
           selectedCategory === '' || selectedCategory === undefined
             ? 'gradient-nature text-white shadow-md'
-            : 'bg-white text-gray-600 hover:bg-green-50 border border-gray-200'
+            : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-gray-200'
         }`}
       >
         Все
@@ -39,7 +39,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           className={`flex-shrink-0 px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
             selectedCategory === category.slug
               ? 'gradient-nature text-white shadow-md'
-              : 'bg-white text-gray-600 hover:bg-green-50 border border-gray-200'
+              : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-gray-200'
           }`}
         >
           {category.icon && <span>{category.icon}</span>}

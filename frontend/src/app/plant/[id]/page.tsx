@@ -5,9 +5,14 @@ import { PlantActions } from '@/components/PlantActions';
 import { BackButton } from '@/components/PageHeader';
 import { ImageGallery } from '@/components/ImageGallery';
 import { SimilarListings } from '@/components/SimilarListings';
+import { ShareButton } from '@/components/ShareButton';
 import { EyeIcon, StarIcon } from '@/components/Icons';
-import { fetchListing, fetchSimilarListings, fetchSellerSummary, ApiError } from '@/lib/api';
+import { fetchListing, fetchSimilarListings, fetchSellerSummary, fetchCategories, ApiError } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 interface PlantDetailPageProps {
   params: Promise<{ id: string }>;
@@ -40,17 +45,35 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
     notFound();
   }
 
-  const [similarListings, seller] = await Promise.all([
+  const [similarListings, seller, categories] = await Promise.all([
     fetchSimilarListings(id)
       .then((listings) => listings.map(listingToPlant))
       .catch(() => []),
     fetchSellerSummary(plant.sellerId).catch(() => undefined),
+    fetchCategories().catch(() => []),
   ]);
+
+  const category = categories.find((c) => c.slug === plant.category);
 
   return (
     <div className="animate-fade-in pt-4">
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-3 flex items-center justify-between gap-2">
         <BackButton fallbackHref="/catalog" />
+        <ShareButton title={plant.name} className="p-2 -m-2 text-gray-400 hover:text-gray-600 transition-colors" />
+      </div>
+
+      <div className="px-4 mb-4 flex items-center gap-1.5 text-xs text-gray-400 overflow-x-auto whitespace-nowrap">
+        <Link href="/catalog" className="hover:text-blue-600 transition-colors">Каталог</Link>
+        {category && (
+          <>
+            <span>/</span>
+            <Link href={`/catalog?category=${category.slug}`} className="hover:text-blue-600 transition-colors">
+              {category.name}
+            </Link>
+          </>
+        )}
+        <span>/</span>
+        <span className="text-gray-500 truncate">{plant.name}</span>
       </div>
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-2 lg:items-start">
@@ -75,15 +98,46 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
           <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
           {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
 
-          <div className="flex items-center justify-between mb-4 mt-2">
+          <div className="flex items-center justify-between mb-1 mt-2">
             <p className="text-2xl font-bold text-green-700">{plant.price.toLocaleString('ru-RU')} ₽</p>
-            <span className="flex items-center gap-1 text-xs text-gray-400">
+            <span className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
               <EyeIcon size={14} />
               {plant.views}
             </span>
           </div>
+          <p className="text-xs text-gray-400 mb-4">Опубликовано {formatDate(plant.createdAt)}</p>
 
           <p className="text-gray-600 mb-6">{plant.description}</p>
+
+          <div className="card p-4 mb-6">
+            <h2 className="font-semibold text-gray-800 mb-3">Характеристики</h2>
+            <dl className="space-y-2 text-sm">
+              {category && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Категория</dt>
+                  <dd className="text-gray-700 font-medium text-right">{category.name}</dd>
+                </div>
+              )}
+              {plant.lightRequirements && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Освещение</dt>
+                  <dd className="text-gray-700 font-medium text-right">{plant.lightRequirements}</dd>
+                </div>
+              )}
+              {plant.waterRequirements && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Полив</dt>
+                  <dd className="text-gray-700 font-medium text-right">{plant.waterRequirements}</dd>
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500">Наличие</dt>
+                <dd className="text-gray-700 font-medium text-right">
+                  {plant.inStock ? `В наличии: ${plant.quantity} шт.` : 'Нет в наличии'}
+                </dd>
+              </div>
+            </dl>
+          </div>
 
           {plant.careInstructions && plant.careInstructions.length > 0 && (
             <div className="card p-4 mb-6">

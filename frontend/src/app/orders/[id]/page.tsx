@@ -191,7 +191,7 @@ export default function OrderDetailPage() {
           <Link href="/orders" className="btn-secondary block">
             Мои заказы
           </Link>
-          <Link href="/catalog" className="text-green-600 text-sm font-medium">
+          <Link href="/catalog" className="text-blue-600 text-sm font-medium">
             Продолжить покупки
           </Link>
         </div>

@@ -64,7 +64,7 @@ export function MyListings() {
   return (
     <div>
       <div className="flex items-center justify-end mb-3">
-        <Link href="/listings/new" className="text-green-600 text-sm font-medium hover:text-green-700">
+        <Link href="/listings/new" className="text-blue-600 text-sm font-medium hover:text-blue-700">
           + Новое
         </Link>
       </div>
@@ -95,7 +95,7 @@ export function MyListings() {
                 <div className="flex items-center gap-3 mt-2 pt-2 border-t border-gray-100">
                   <Link
                     href={`/listings/${listing.id}/edit`}
-                    className="text-xs font-medium text-green-600 hover:text-green-700"
+                    className="text-xs font-medium text-blue-600 hover:text-blue-700"
                   >
                     Редактировать
                   </Link>

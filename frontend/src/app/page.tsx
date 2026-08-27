@@ -76,7 +76,7 @@ export default async function HomePage() {
           <section className="px-4 py-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-800">Новые объявления</h2>
-              <Link href="/catalog" className="text-green-600 text-sm font-medium hover:text-green-700">
+              <Link href="/catalog" className="text-blue-600 text-sm font-medium hover:text-blue-700">
                 Все →
               </Link>
             </div>

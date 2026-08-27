@@ -106,7 +106,7 @@ export function SellerReviews({ sellerId, reviews: initialReviews }: { sellerId:
                     setReplyingId(review.id);
                     setReplyText('');
                   }}
-                  className="text-green-600 text-sm font-medium hover:text-green-700"
+                  className="text-blue-600 text-sm font-medium hover:text-blue-700"
                 >
                   Ответить
                 </button>
