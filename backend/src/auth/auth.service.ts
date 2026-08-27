@@ -1,16 +1,19 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly tokenBlacklist: TokenBlacklistService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -27,6 +30,7 @@ export class AuthService {
         name: dto.name,
         role: dto.role,
         phone: dto.phone,
+        consentToDataProcessingAt: new Date(),
       },
     });
 
@@ -42,8 +46,12 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  async logout(jti: string, exp: number): Promise<void> {
+    await this.tokenBlacklist.revoke(jti, exp);
+  }
+
   private buildAuthResponse(user: User) {
-    const accessToken = this.jwtService.sign({ sub: user.id, role: user.role });
+    const accessToken = this.jwtService.sign({ sub: user.id, role: user.role, jti: randomUUID() });
     return {
       accessToken,
       user: {

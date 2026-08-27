@@ -40,6 +40,7 @@ function ProfileContent() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.BUYER);
+  const [consent, setConsent] = useState(false);
 
   const canModerate = !!user && MODERATOR_ROLES.includes(user.role);
   const [pendingListingsCount, setPendingListingsCount] = useState(0);
@@ -57,7 +58,7 @@ function ProfileContent() {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        await register({ email, password, name, role, phone: phone || undefined });
+        await register({ email, password, name, role, phone: phone || undefined, consentToDataProcessing: consent });
         showToast('Регистрация прошла успешно', 'success');
       }
     } catch (error) {
@@ -141,6 +142,12 @@ function ProfileContent() {
         <Button fullWidth variant="ghost" onClick={logout}>
           Выйти
         </Button>
+
+        <div className="flex items-center justify-center gap-3 mt-6 text-xs text-gray-400">
+          <Link href="/legal/terms" className="hover:text-gray-600">Соглашение</Link>
+          <span>·</span>
+          <Link href="/legal/privacy" className="hover:text-gray-600">Конфиденциальность</Link>
+        </div>
       </div>
     );
   }
@@ -218,10 +225,30 @@ function ProfileContent() {
                 </option>
               ))}
             </select>
+
+            <label className="flex items-start gap-2.5 text-xs text-gray-600 px-1">
+              <input
+                type="checkbox"
+                required
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
+              />
+              <span>
+                Я согласен с{' '}
+                <Link href="/legal/terms" className="text-green-700 underline hover:text-green-800">
+                  пользовательским соглашением
+                </Link>{' '}
+                и даю согласие на{' '}
+                <Link href="/legal/privacy" className="text-green-700 underline hover:text-green-800">
+                  обработку персональных данных
+                </Link>
+              </span>
+            </label>
           </>
         )}
 
-        <Button type="submit" fullWidth isLoading={isLoading}>
+        <Button type="submit" fullWidth isLoading={isLoading} disabled={mode === 'register' && !consent}>
           {mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
         </Button>
       </form>

@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import { Equals, IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 import { UserRole } from '@prisma/client';
 
 // MODERATOR и ADMIN назначаются вручную, самостоятельная регистрация с этими ролями запрещена
@@ -25,4 +25,8 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  // 152-ФЗ: без явного согласия на обработку персональных данных регистрация невозможна
+  @Equals(true, { message: 'Необходимо согласие на обработку персональных данных' })
+  consentToDataProcessing: boolean;
 }

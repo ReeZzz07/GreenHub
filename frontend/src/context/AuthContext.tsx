@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types';
 import { User } from '@/types/models';
-import { apiLogin, apiRegister, fetchMe, type ApiUser, type AuthResponse } from '@/lib/api';
+import { apiLogin, apiLogout, apiRegister, fetchMe, type ApiUser, type AuthResponse } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -22,6 +22,7 @@ interface RegisterData {
   name: string;
   role: UserRole;
   phone?: string;
+  consentToDataProcessing: boolean;
 }
 
 const TOKEN_STORAGE_KEY = 'greenhub_token';
@@ -88,6 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    // Отзываем токен на сервере в фоне — даже если запрос не дойдёт (офлайн), клиент
+    // разлогинивается сразу, а сам токен всё равно истечёт по сроку действия
+    if (token) {
+      apiLogout(token).catch(() => {});
+    }
     setUser(null);
     setToken(null);
     localStorage.removeItem(TOKEN_STORAGE_KEY);

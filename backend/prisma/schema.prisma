@@ -34,6 +34,7 @@ model User {
   verificationStatus UserVerificationStatus  @default(VERIFIED)
   rejectionReason    String?
   role               UserRole                @default(BUYER)
+  consentToDataProcessingAt DateTime?
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
   listings           Listing[]

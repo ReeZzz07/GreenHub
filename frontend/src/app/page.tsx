@@ -9,12 +9,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [page, categories] = await Promise.all([
-    fetchListings({ limit: 7, sortBy: 'newest' }).catch(() => null),
+    fetchListings({ limit: 8, sortBy: 'newest' }).catch(() => null),
     fetchCategories().catch(() => []),
   ]);
   const plants = (page?.items ?? []).map(listingToPlant);
-  const gridPlants = plants.slice(0, 4);
-  const listPlants = plants.slice(4, 7);
   const totalCount = page?.total ?? 0;
 
   return (
@@ -196,82 +194,65 @@ export default async function HomePage() {
           </Link>
         </section>
       ) : (
-        <>
-          {/* New Listings */}
-          <section className="px-4 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-lg font-bold text-gray-900">Новые поступления</h2>
-              <Link href="/catalog" className="text-green-700 text-sm font-semibold hover:text-green-800">
-                Все →
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {gridPlants.map((plant) => (
-                <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-                  <div className="card">
-                    <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
-                      {plant.images[0] && (
-                        <img
-                          src={plant.images[0]}
-                          alt={plant.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      )}
-                      {!plant.inStock && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
-                            Нет в наличии
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-gray-800 text-sm truncate">{plant.name}</h3>
-                      <p className="font-display text-gray-900 font-bold text-sm mt-2">
-                        {plant.price.toLocaleString('ru-RU')} ₽
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {listPlants.length > 0 && (
-            <section className="px-4 py-4">
-              <h2 className="font-display text-lg font-bold text-gray-900 mb-4">Ещё объявления</h2>
-              <div className="space-y-3 lg:max-w-2xl">
-                {listPlants.map((plant) => (
-                  <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-                    <div className="card p-3 flex gap-3">
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
-                        {plant.images[0] && (
-                          <img
-                            src={plant.images[0]}
-                            alt={plant.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-800 truncate">{plant.name}</h3>
-                        {plant.latinName && (
-                          <p className="text-xs text-gray-500 italic truncate">{plant.latinName}</p>
-                        )}
-                        <span className="font-display text-gray-900 font-bold text-sm mt-2 block">
-                          {plant.price.toLocaleString('ru-RU')} ₽
+        <section className="px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-bold text-gray-900">Новые поступления</h2>
+            <Link href="/catalog" className="text-green-700 text-sm font-semibold hover:text-green-800">
+              Все →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {plants.map((plant) => (
+              <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
+                <div className="card">
+                  <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
+                    {plant.images[0] && (
+                      <img
+                        src={plant.images[0]}
+                        alt={plant.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                    {!plant.inStock && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">
+                          Нет в наличии
                         </span>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-medium text-gray-800 text-sm truncate">{plant.name}</h3>
+                    <p className="font-display text-gray-900 font-bold text-sm mt-2">
+                      {plant.price.toLocaleString('ru-RU')} ₽
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
+
+      {/* Closing CTA for sellers */}
+      <section className="px-4 pt-2 pb-8">
+        <div className="relative rounded-[22px] overflow-hidden px-6 py-6 gradient-nature text-center md:text-left md:flex md:items-center md:justify-between md:gap-6">
+          <div className="absolute inset-0 opacity-15 leaf-pattern"></div>
+          <div className="relative">
+            <h2 className="font-display text-white font-bold text-lg">Продаёте растения?</h2>
+            <p className="text-green-50 text-sm mt-1">
+              Разместите объявление бесплатно — оно появится в каталоге сразу после проверки
+            </p>
+          </div>
+          <Link
+            href="/listings/new"
+            className="relative inline-block bg-white text-green-800 font-semibold text-sm rounded-2xl px-5 py-2.5 mt-4 md:mt-0 flex-shrink-0"
+          >
+            Разместить объявление
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

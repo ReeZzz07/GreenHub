@@ -92,6 +92,7 @@ export interface RegisterPayload {
   name: string;
   role: UserRole;
   phone?: string;
+  consentToDataProcessing: boolean;
 }
 
 export function apiRegister(payload: RegisterPayload): Promise<AuthResponse> {
@@ -103,6 +104,13 @@ export function apiRegister(payload: RegisterPayload): Promise<AuthResponse> {
 
 export function fetchMe(token: string): Promise<ApiUser> {
   return request<ApiUser>('/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function apiLogout(token: string): Promise<void> {
+  return request<void>('/auth/logout', {
+    method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
   });
 }
