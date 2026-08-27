@@ -44,8 +44,7 @@ export class AiController {
 
     this.rateLimiter.checkAndRecord(user.id);
 
-    const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-    const suggestion = await this.plantId.identify(dataUrl);
+    const suggestion = await this.plantId.identify(file.buffer);
 
     if (!suggestion) {
       return { recognized: false };

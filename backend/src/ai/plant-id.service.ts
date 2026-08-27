@@ -1,7 +1,13 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import sharp from 'sharp';
 import { SettingsService } from '../settings/settings.service';
 
 const API_URL = 'https://api.plant.id/v3/identification?details=common_names,taxonomy';
+
+// Plant.id ограничивает изображение 25 000 000 пикселей (см. ошибку API). Фото с современных
+// телефонов часто превышают лимит (например, 5712×4408 ≈ 25,2 млн) — пережимаем перед отправкой.
+// Для распознавания вида растения такого разрешения более чем достаточно.
+const MAX_DIMENSION = 2000;
 
 export interface PlantIdSuggestion {
   name: string;
@@ -21,8 +27,7 @@ interface PlantIdResponse {
   };
 }
 
-// Клиент Plant.id API v3 (https://plant.id/). Не протестирован против боевого API — ключей нет;
-// повторяет документированный контракт, проверить нужно будет с реальным ключом администратора.
+// Клиент Plant.id API v3 (https://plant.id/).
 @Injectable()
 export class PlantIdService {
   constructor(private readonly settings: SettingsService) {}
@@ -31,7 +36,7 @@ export class PlantIdService {
     return (await this.settings.get('PLANT_ID_API_KEY')) !== null;
   }
 
-  async identify(imageBase64DataUrl: string): Promise<PlantIdSuggestion | null> {
+  async identify(imageBuffer: Buffer): Promise<PlantIdSuggestion | null> {
     const apiKey = await this.settings.get('PLANT_ID_API_KEY');
     if (!apiKey) {
       throw new ServiceUnavailableException(
@@ -39,13 +44,21 @@ export class PlantIdService {
       );
     }
 
+    const resized = await sharp(imageBuffer)
+      .resize({ width: MAX_DIMENSION, height: MAX_DIMENSION, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    const dataUrl = `data:image/jpeg;base64,${resized.toString('base64')}`;
+
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Api-Key': apiKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ images: [imageBase64DataUrl], similar_images: false }),
+      // Plant.id v3 принимает similar_images только как true (модификатор-флаг) — просто не
+      // передаём его, если похожие изображения не нужны; явный false отклоняется API.
+      body: JSON.stringify({ images: [dataUrl] }),
     });
 
     if (!res.ok) {
