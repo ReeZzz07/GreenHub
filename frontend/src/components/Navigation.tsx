@@ -3,16 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, GridIcon, CameraIcon, ChatIcon, ShoppingCartIcon, UserIcon, LeafIcon } from './Icons';
+import { HomeIcon, GridIcon, CameraIcon, ChatIcon, ShoppingCartIcon, LeafIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { ProfileMenu } from './ProfileMenu';
 
 const navItems = [
   { path: '/', icon: HomeIcon, label: 'Главная' },
   { path: '/catalog', icon: GridIcon, label: 'Каталог' },
   { path: '/recognize', icon: CameraIcon, label: 'Распознать' },
   { path: '/chats', icon: ChatIcon, label: 'Чаты' },
-  { path: '/profile', icon: UserIcon, label: 'Профиль' },
 ];
 
 export const BottomNavigation: React.FC = () => {
@@ -20,7 +20,7 @@ export const BottomNavigation: React.FC = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[26px] shadow-[0_-4px_18px_rgba(19,32,21,0.08)] z-40 safe-area-bottom md:hidden">
-      <div className="flex justify-around items-end px-2 pt-2.5 pb-3.5 max-w-lg mx-auto">
+      <div className="grid grid-cols-5 items-end justify-items-center px-2 pt-2.5 pb-3.5 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path);
@@ -65,41 +65,20 @@ export const BottomNavigation: React.FC = () => {
 
 export const Header: React.FC = () => {
   const { totalCount } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
-
-  const firstName = user?.name?.split(' ')[0];
-  const initial = user?.name?.trim()?.[0]?.toUpperCase() ?? null;
 
   return (
     <header className="sticky top-0 z-40 bg-white rounded-b-[26px] shadow-[0_4px_18px_rgba(19,32,21,0.05)]">
       <div className="flex items-center justify-between h-16 px-4 max-w-lg md:max-w-3xl lg:max-w-6xl mx-auto">
-        <Link href={isAuthenticated ? '/profile' : '/'} className="flex items-center gap-2.5 min-w-0">
-          {isAuthenticated && initial ? (
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
-            >
-              {initial}
-            </div>
-          ) : (
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
-            >
-              <LeafIcon size={18} className="text-white" />
-            </div>
-          )}
-          <div className="min-w-0">
-            {isAuthenticated && firstName ? (
-              <>
-                <div className="text-[11px] text-gray-400 leading-none">Привет,</div>
-                <div className="text-sm font-bold text-gray-900 leading-tight truncate">{firstName} 👋</div>
-              </>
-            ) : (
-              <div className="text-base font-display font-bold text-gray-900 tracking-tight">GreenHub</div>
-            )}
+        <Link href="/" className="flex items-center gap-2.5 min-w-0 flex-shrink-0">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
+          >
+            <LeafIcon size={18} className="text-white" />
           </div>
+          <div className="text-base font-display font-bold text-gray-900 tracking-tight hidden sm:block">GreenHub</div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -141,6 +120,35 @@ export const Header: React.FC = () => {
               </span>
             )}
           </Link>
+          {isAuthenticated && user ? (
+            <ProfileMenu user={user} onLogout={logout} />
+          ) : (
+            <div className="flex items-center gap-1">
+              <Link
+                href="/profile"
+                className="hidden md:block px-3 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-green-700 transition-colors"
+              >
+                Вход
+              </Link>
+              <Link
+                href="/profile?mode=register"
+                className="hidden md:block btn-primary py-2 px-4 text-sm"
+              >
+                Регистрация
+              </Link>
+              <Link
+                href="/profile"
+                className="md:hidden w-9 h-9 rounded-full bg-[var(--color-surface)] hover:bg-green-100 flex items-center justify-center transition-colors"
+                aria-label="Вход"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#132015" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
