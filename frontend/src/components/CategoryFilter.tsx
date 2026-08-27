@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { categoryColor } from '@/lib/category-colors';
 
 export interface CategoryOption {
   id: string;
@@ -20,32 +21,48 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onCategorySelect,
 }) => {
+  const isAllSelected = selectedCategory === '' || selectedCategory === undefined;
+
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex gap-3 overflow-x-auto px-1.5 py-1.5 -mx-1.5 scrollbar-hide">
       <button
         onClick={() => onCategorySelect('')}
-        className={`flex-shrink-0 px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 ${
-          selectedCategory === '' || selectedCategory === undefined
-            ? 'gradient-nature text-white shadow-md'
-            : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-gray-200'
-        }`}
+        className="flex-shrink-0 flex flex-col items-center gap-1.5"
       >
-        Все
-      </button>
-      {categories.map((category) => (
-        <button
-          key={category.id}
-          onClick={() => onCategorySelect(category.slug)}
-          className={`flex-shrink-0 px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
-            selectedCategory === category.slug
-              ? 'gradient-nature text-white shadow-md'
-              : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-gray-200'
+        <div
+          className={`w-[52px] h-[52px] rounded-2xl flex items-center justify-center text-xl transition-all duration-300 ${
+            isAllSelected ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[var(--color-background)]' : ''
           }`}
+          style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
         >
-          {category.icon && <span>{category.icon}</span>}
-          <span>{category.name}</span>
-        </button>
-      ))}
+          <span className="text-white text-base font-bold">✺</span>
+        </div>
+        <span className={`text-[10.5px] ${isAllSelected ? 'font-bold text-gray-900' : 'text-gray-500'}`}>Все</span>
+      </button>
+
+      {categories.map((category, index) => {
+        const isSelected = selectedCategory === category.slug;
+        const color = categoryColor(index);
+        return (
+          <button
+            key={category.id}
+            onClick={() => onCategorySelect(category.slug)}
+            className="flex-shrink-0 flex flex-col items-center gap-1.5"
+          >
+            <div
+              className={`w-[52px] h-[52px] rounded-2xl flex items-center justify-center text-xl transition-all duration-300 ${
+                isSelected ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[var(--color-background)]' : ''
+              }`}
+              style={{ backgroundColor: color.bg }}
+            >
+              {category.icon}
+            </div>
+            <span className={`text-[10.5px] whitespace-nowrap ${isSelected ? 'font-bold text-gray-900' : 'text-gray-500'}`}>
+              {category.name}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 };

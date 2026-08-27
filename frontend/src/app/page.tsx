@@ -1,66 +1,64 @@
 import Link from 'next/link';
-import { LeafIcon } from '@/components/Icons';
-import { fetchListings } from '@/lib/api';
+import { SearchIcon, CameraIcon } from '@/components/Icons';
+import { HomeCategoryShortcuts } from '@/components/HomeCategoryShortcuts';
+import { fetchListings, fetchCategories } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
 
 // Список объявлений меняется постоянно — рендерим на каждый запрос, не кэшируем на билд-тайм
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const page = await fetchListings({ limit: 7, sortBy: 'newest' }).catch(() => null);
+  const [page, categories] = await Promise.all([
+    fetchListings({ limit: 7, sortBy: 'newest' }).catch(() => null),
+    fetchCategories().catch(() => []),
+  ]);
   const plants = (page?.items ?? []).map(listingToPlant);
   const gridPlants = plants.slice(0, 4);
   const listPlants = plants.slice(4, 7);
-  const totalCount = page?.total ?? 0;
 
   return (
     <div className="animate-fade-in">
-      {/* Hero Section */}
-      <section className="relative h-64 overflow-hidden gradient-nature">
-        <div className="absolute inset-0 opacity-20 leaf-pattern"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <LeafIcon size={64} className="text-white mb-4 animate-pulse-soft" />
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Добро пожаловать в GreenHub
-          </h1>
-          <p className="text-green-100 text-sm max-w-xs">
-            Ваш персональный помощник в мире растений
-          </p>
-        </div>
+      {/* Search entry point */}
+      <section className="px-4 pt-5 pb-4">
+        <Link
+          href="/catalog"
+          className="flex items-center gap-2.5 bg-[var(--color-surface)] rounded-2xl px-4 py-3.5"
+        >
+          <SearchIcon size={16} className="text-gray-400" />
+          <span className="text-sm text-gray-400 flex-1">Что ищем сегодня?</span>
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
+          >
+            <CameraIcon size={13} className="text-white" />
+          </div>
+        </Link>
       </section>
 
-      {/* Quick Actions */}
-      <section className="px-4 py-6">
-        <div className="grid grid-cols-2 gap-4 lg:max-w-xl">
-          <Link
-            href="/recognize"
-            className="card p-4 text-center hover:scale-105 transition-transform"
-          >
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-              </svg>
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="pl-4 pr-2 pb-5">
+          <HomeCategoryShortcuts categories={categories} />
+        </section>
+      )}
+
+      {/* AI recognition promo */}
+      <section className="px-4 pb-6">
+        <Link
+          href="/recognize"
+          className="relative block rounded-[22px] overflow-hidden px-5 py-4 gradient-nature lg:max-w-xl"
+        >
+          <div className="absolute inset-0 opacity-15 leaf-pattern"></div>
+          <div className="relative flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-white font-bold text-base">Не знаете это растение?</h2>
+              <p className="text-green-50 text-xs mt-1">AI определит вид по фото за секунды</p>
             </div>
-            <h3 className="font-semibold text-gray-800">Распознать растение</h3>
-            <p className="text-xs text-gray-500 mt-1">AI-помощник</p>
-          </Link>
-          <Link
-            href="/catalog"
-            className="card p-4 text-center hover:scale-105 transition-transform"
-          >
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
+            <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <CameraIcon size={20} className="text-white" />
             </div>
-            <h3 className="font-semibold text-gray-800">Каталог</h3>
-            <p className="text-xs text-gray-500 mt-1">{totalCount} растений</p>
-          </Link>
-        </div>
+          </div>
+        </Link>
       </section>
 
       {plants.length === 0 ? (
@@ -75,15 +73,15 @@ export default async function HomePage() {
           {/* New Listings */}
           <section className="px-4 py-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Новые объявления</h2>
-              <Link href="/catalog" className="text-blue-600 text-sm font-medium hover:text-blue-700">
+              <h2 className="font-display text-lg font-bold text-gray-900">Новые поступления</h2>
+              <Link href="/catalog" className="text-green-700 text-sm font-semibold hover:text-green-800">
                 Все →
               </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridPlants.map((plant) => (
                 <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-                  <div className="card card-hover overflow-hidden">
+                  <div className="card">
                     <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 relative">
                       {plant.images[0] && (
                         <img
@@ -103,7 +101,7 @@ export default async function HomePage() {
                     </div>
                     <div className="p-3">
                       <h3 className="font-medium text-gray-800 text-sm truncate">{plant.name}</h3>
-                      <p className="text-green-700 font-bold text-sm mt-2">
+                      <p className="font-display text-gray-900 font-bold text-sm mt-2">
                         {plant.price.toLocaleString('ru-RU')} ₽
                       </p>
                     </div>
@@ -115,12 +113,12 @@ export default async function HomePage() {
 
           {listPlants.length > 0 && (
             <section className="px-4 py-4">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Ещё объявления</h2>
+              <h2 className="font-display text-lg font-bold text-gray-900 mb-4">Ещё объявления</h2>
               <div className="space-y-3 lg:max-w-2xl">
                 {listPlants.map((plant) => (
                   <Link key={plant.id} href={`/plant/${plant.id}`} className="block">
-                    <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
-                      <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
+                    <div className="card p-3 flex gap-3">
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                         {plant.images[0] && (
                           <img
                             src={plant.images[0]}
@@ -135,7 +133,7 @@ export default async function HomePage() {
                         {plant.latinName && (
                           <p className="text-xs text-gray-500 italic truncate">{plant.latinName}</p>
                         )}
-                        <span className="text-green-700 font-bold text-sm mt-2 block">
+                        <span className="font-display text-gray-900 font-bold text-sm mt-2 block">
                           {plant.price.toLocaleString('ru-RU')} ₽
                         </span>
                       </div>
@@ -150,11 +148,11 @@ export default async function HomePage() {
 
       {/* Features */}
       <section className="px-4 py-6">
-        <div className="gradient-sand rounded-2xl p-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Почему GreenHub?</h2>
+        <div className="card p-6">
+          <h2 className="font-display text-base font-bold text-gray-900 mb-4">Почему GreenHub?</h2>
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-6">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center flex-shrink-0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
                   <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -168,8 +166,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+              <div className="w-10 h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -182,8 +180,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+              <div className="w-10 h-10 rounded-full bg-[#E0E7FF] flex items-center justify-center flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                   <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                   <line x1="12" y1="22.08" x2="12" y2="12"></line>

@@ -3,19 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #15803d;
+  --color-primary: #16a34a;
   --color-primary-light: #4ade80;
   --color-primary-dark: #14532d;
-  --color-secondary: #d8f3dc;
+  --color-secondary: #dcfce7;
   --color-accent: #95d5b2;
   --color-blue: #2563eb;
   --color-blue-light: #60a5fa;
   --color-coral: #f43f5e;
+  --color-orange: #f97316;
   --color-earth: #bc6c25;
   --color-sand: #fefae0;
-  --color-text: #0f172a;
-  --color-text-light: #64748b;
-  --color-background: #f7f8fa;
+  --color-text: #132015;
+  --color-text-light: #6b7a6d;
+  --color-background: #f5faf5;
+  --color-surface: #f1f6f1;
   --color-white: #ffffff;
   --color-error: #e63946;
   --color-success: #2a9d8f;
@@ -27,13 +29,25 @@
   padding: 0;
 }
 
+html {
+  /* Резервируем место под вертикальный скроллбар всегда, иначе смена высоты страницы
+     (например скелетон каталога другой высоты, чем реальные карточки) заставляет
+     скроллбар то появляться, то исчезать — и весь layout дёргается по горизонтали. */
+  scrollbar-gutter: stable;
+}
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   background-color: var(--color-background);
   color: var(--color-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display, var(--font-body, sans-serif));
+  letter-spacing: -0.01em;
 }
 
 #root {
@@ -58,6 +72,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Animations */
@@ -107,7 +125,7 @@ body {
 
   /* Plant-themed gradients */
   .gradient-nature {
-    background: linear-gradient(135deg, #166534 0%, #15803d 45%, #0d9488 100%);
+    background: linear-gradient(120deg, #16a34a 0%, #22c55e 55%, #4ade80 100%);
   }
 
   .gradient-earth {
@@ -120,24 +138,29 @@ body {
 
   /* Button styles */
   .btn-primary {
-    @apply bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-green-900/20 hover:shadow-xl hover:shadow-green-900/25 transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-green-900/15 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #16a34a, #15803d);
   }
 
   .btn-secondary {
-    @apply bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-3 px-6 rounded-xl transition-all duration-300 border-2 border-green-300;
+    @apply bg-white hover:bg-green-50 text-green-800 font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-md;
   }
 
   .btn-accent {
-    @apply bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl;
+    @apply bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl;
   }
 
   .btn-info {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-blue-900/15 hover:shadow-xl;
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-900/15 hover:shadow-xl;
   }
 
   /* Card styles */
   .card {
-    @apply bg-white rounded-2xl border border-black/5 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
+    @apply bg-white rounded-[22px] shadow-[0_6px_18px_rgba(19,32,21,0.07)] hover:shadow-[0_10px_28px_rgba(19,32,21,0.12)] transition-all duration-300 overflow-hidden;
   }
 
   .card-hover {
@@ -146,7 +169,7 @@ body {
 
   /* Input styles */
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all duration-200;
+    @apply w-full px-4 py-3 rounded-2xl border-0 bg-[var(--color-surface)] focus:ring-2 focus:ring-green-300 outline-none transition-all duration-200;
   }
 
   /* Badge styles */

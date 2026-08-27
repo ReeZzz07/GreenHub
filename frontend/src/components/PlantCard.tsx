@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Plant } from '@/types/models';
-import { StarIcon, HeartIcon, ShoppingCartIcon, PlusIcon, MinusIcon } from './Icons';
+import { StarIcon, HeartIcon, PlusIcon, MinusIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useAuth } from '@/context/AuthContext';
@@ -42,8 +42,8 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
   };
 
   return (
-    <div 
-      className="card card-hover cursor-pointer group animate-fade-in"
+    <div
+      className="card relative cursor-pointer group animate-fade-in"
       onClick={onClick}
     >
       <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-green-50 to-green-100">
@@ -55,10 +55,10 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
         />
         <button
           onClick={handleFavoriteToggle}
-          className="absolute top-3 right-3 p-2 glass rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
+          className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
           aria-label={favorite ? 'Удалить из избранного' : 'Добавить в избранное'}
         >
-          <HeartIcon size={20} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-600'} />
+          <HeartIcon size={16} filled={favorite} className={favorite ? 'text-red-500' : 'text-gray-500'} />
         </button>
         {!plant.inStock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -73,67 +73,67 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant, onClick }) => {
           </div>
         )}
       </div>
-      
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate group-hover:text-green-700 transition-colors">
-              {plant.name}
-            </h3>
-            <p className="text-xs text-gray-500 italic truncate">{plant.latinName}</p>
+
+      <div className="relative">
+        {cartItem ? (
+          <div
+            className="absolute -top-4 right-3 flex items-center gap-1 rounded-full px-1.5 py-1.5 shadow-[0_4px_10px_rgba(22,163,74,0.4)]"
+            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={(e) => handleQuantityChange(e, -1)}
+              className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Уменьшить количество"
+            >
+              <MinusIcon size={13} />
+            </button>
+            <span className="w-4 text-center text-xs font-bold text-white">
+              {cartItem.quantity}
+            </span>
+            <button
+              onClick={(e) => handleQuantityChange(e, 1)}
+              className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Увеличить количество"
+            >
+              <PlusIcon size={13} />
+            </button>
           </div>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            disabled={!plant.inStock}
+            className="absolute -top-4 right-3 w-9 h-9 rounded-full flex items-center justify-center text-white shadow-[0_4px_10px_rgba(22,163,74,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-transform hover:scale-105 active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}
+            aria-label="Добавить в корзину"
+          >
+            <PlusIcon size={16} />
+          </button>
+        )}
+      </div>
+
+      <div className="p-4 pt-6">
+        <div className="flex-1 min-w-0 mb-1.5">
+          <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-green-700 transition-colors">
+            {plant.name}
+          </h3>
+          <p className="text-[11px] text-gray-500 italic truncate">{plant.latinName}</p>
         </div>
-        
+
         {plant.reviewsCount > 0 && (
-          <div className="flex items-center gap-1 mb-3">
-            <StarIcon size={14} filled className="text-amber-400" />
-            <span className="text-sm font-medium text-gray-700">{plant.rating.toFixed(1)}</span>
-            <span className="text-xs text-gray-400">({plant.reviewsCount})</span>
+          <div className="flex items-center gap-1 mb-2">
+            <StarIcon size={12} filled className="text-amber-400" />
+            <span className="text-xs font-medium text-gray-700">{plant.rating.toFixed(1)}</span>
+            <span className="text-[11px] text-gray-400">({plant.reviewsCount})</span>
           </div>
         )}
-        
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-green-700">
-              {plant.price.toLocaleString('ru-RU')} ₽
-            </span>
-            {plant.sellerName && (
-              <span className="text-xs text-gray-500">от {plant.sellerName}</span>
-            )}
-          </div>
-          
-          {cartItem ? (
-            <div
-              className="flex items-center gap-1 bg-green-700 rounded-xl px-1 py-1"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={(e) => handleQuantityChange(e, -1)}
-                className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
-                aria-label="Уменьшить количество"
-              >
-                <MinusIcon size={14} />
-              </button>
-              <span className="w-5 text-center text-sm font-semibold text-white">
-                {cartItem.quantity}
-              </span>
-              <button
-                onClick={(e) => handleQuantityChange(e, 1)}
-                className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
-                aria-label="Увеличить количество"
-              >
-                <PlusIcon size={14} />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              disabled={!plant.inStock}
-              className="btn-primary p-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Добавить в корзину"
-            >
-              <ShoppingCartIcon size={18} />
-            </button>
+
+        <div className="flex flex-col">
+          <span className="font-display text-base font-bold text-gray-900">
+            {plant.price.toLocaleString('ru-RU')} ₽
+          </span>
+          {plant.sellerName && (
+            <span className="text-[11px] text-gray-500 truncate">от {plant.sellerName}</span>
           )}
         </div>
       </div>

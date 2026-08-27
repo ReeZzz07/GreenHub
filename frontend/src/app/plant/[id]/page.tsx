@@ -95,11 +95,11 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
         </div>
 
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800">{plant.name}</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-900">{plant.name}</h1>
           {plant.latinName && <p className="text-sm text-gray-500 italic mb-2">{plant.latinName}</p>}
 
           <div className="flex items-center justify-between mb-1 mt-2">
-            <p className="text-2xl font-bold text-green-700">{plant.price.toLocaleString('ru-RU')} ₽</p>
+            <p className="font-display text-2xl font-bold text-gray-900">{plant.price.toLocaleString('ru-RU')} ₽</p>
             <span className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
               <EyeIcon size={14} />
               {plant.views}
@@ -110,7 +110,7 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
           <p className="text-gray-600 mb-6">{plant.description}</p>
 
           <div className="card p-4 mb-6">
-            <h2 className="font-semibold text-gray-800 mb-3">Характеристики</h2>
+            <h2 className="font-display font-semibold text-gray-900 mb-3">Характеристики</h2>
             <dl className="space-y-2 text-sm">
               {category && (
                 <div className="flex items-center justify-between gap-4">
@@ -141,7 +141,7 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
 
           {plant.careInstructions && plant.careInstructions.length > 0 && (
             <div className="card p-4 mb-6">
-              <h2 className="font-semibold text-gray-800 mb-3">Уход</h2>
+              <h2 className="font-display font-semibold text-gray-900 mb-3">Уход</h2>
               <ul className="space-y-2">
                 {plant.careInstructions.map((instruction) => (
                   <li key={instruction} className="text-sm text-gray-600 flex items-center gap-2">
@@ -155,7 +155,7 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
 
           <Link
             href={`/seller/${plant.sellerId}`}
-            className="flex items-center justify-between mb-6 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-[var(--color-surface)] hover:bg-green-50 transition-colors"
           >
             <span className="text-sm text-gray-700">Продавец: <span className="font-medium">{plant.sellerName}</span></span>
             {seller && seller.reviewsCount > 0 && (

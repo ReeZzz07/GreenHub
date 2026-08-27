@@ -36,7 +36,7 @@ export default function CatalogPage() {
 function CatalogSkeleton() {
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Каталог</h1>
+      <h1 className="font-display text-xl font-bold text-gray-900 mb-4">Каталог</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <PlantCardSkeleton key={i} />
@@ -106,7 +106,7 @@ function CatalogContent() {
 
   return (
     <div className="animate-fade-in px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Каталог</h1>
+      <h1 className="font-display text-xl font-bold text-gray-900 mb-4">Каталог</h1>
 
       <div className="flex gap-2 mb-4 lg:max-w-xl">
         <div className="flex-1">
@@ -114,16 +114,16 @@ function CatalogContent() {
         </div>
         <button
           onClick={() => setIsFiltersOpen((prev) => !prev)}
-          className={`flex-shrink-0 p-3 rounded-xl border-2 transition-colors relative ${
+          className={`flex-shrink-0 p-3 rounded-2xl transition-colors relative ${
             isFiltersOpen || sortBy !== 'newest' || hasPriceFilter
-              ? 'border-green-500 bg-green-50 text-green-700'
-              : 'border-gray-200 text-gray-500'
+              ? 'bg-green-600 text-white'
+              : 'bg-[var(--color-surface)] text-gray-500'
           }`}
           aria-label="Фильтры"
         >
           <FilterIcon size={20} />
           {(sortBy !== 'newest' || hasPriceFilter) && (
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-green-600" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-[var(--color-background)]" />
           )}
         </button>
       </div>
