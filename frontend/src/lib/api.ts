@@ -478,6 +478,14 @@ export function changePassword(
   });
 }
 
+export function deleteMyAccount(password: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>('/users/me', {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ password }),
+  });
+}
+
 // Email — логин пользователя, поэтому не применяется сразу: уходит на модерацию
 export function requestEmailChange(newEmail: string, token: string): Promise<ApiUser> {
   return request<ApiUser>('/users/me/email-change-request', {
@@ -559,5 +567,56 @@ export function replyToReview(reviewId: string, reply: string, token: string): P
     method: 'PATCH',
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify({ reply }),
+  });
+}
+
+export type NotificationType =
+  | 'NEW_MESSAGE'
+  | 'LISTING_APPROVED'
+  | 'LISTING_REJECTED'
+  | 'ORDER_PAID'
+  | 'NEW_REVIEW'
+  | 'REVIEW_REPLY';
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export function fetchNotifications(token: string): Promise<AppNotification[]> {
+  return request<AppNotification[]>('/notifications', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function fetchUnreadNotificationsCount(token: string): Promise<{ count: number }> {
+  return request<{ count: number }>('/notifications/unread-count', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function markNotificationRead(id: string, token: string): Promise<AppNotification> {
+  return request<AppNotification>(`/notifications/${id}/read`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function markAllNotificationsRead(token: string): Promise<{ success: true }> {
+  return request<{ success: true }>('/notifications/read-all', {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function markConversationNotificationsRead(conversationId: string, token: string): Promise<{ success: true }> {
+  return request<{ success: true }>(`/notifications/conversations/${conversationId}/read`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
   });
 }

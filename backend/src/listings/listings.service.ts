@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { ListingStatus, Prisma, UserRole } from '@prisma/client';
+import { ListingStatus, NotificationType, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
@@ -19,7 +20,10 @@ const LISTING_INCLUDE = {
 
 @Injectable()
 export class ListingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async findPublished(query: QueryListingsDto) {
     const page = query.page ?? 1;
@@ -189,7 +193,7 @@ export class ListingsService {
     const listing = await this.prisma.listing.findUnique({ where: { id } });
     if (!listing) throw new NotFoundException('Объявление не найдено');
 
-    return this.prisma.listing.update({
+    const updated = await this.prisma.listing.update({
       where: { id },
       data:
         dto.action === 'approve'
@@ -197,6 +201,26 @@ export class ListingsService {
           : { status: ListingStatus.REJECTED, rejectionReason: dto.reason },
       include: LISTING_INCLUDE,
     });
+
+    if (dto.action === 'approve') {
+      await this.notifications.create(
+        listing.sellerId,
+        NotificationType.LISTING_APPROVED,
+        'Объявление опубликовано',
+        `«${listing.title}» прошло модерацию и уже доступно в каталоге`,
+        `/plant/${id}`,
+      );
+    } else {
+      await this.notifications.create(
+        listing.sellerId,
+        NotificationType.LISTING_REJECTED,
+        'Объявление отклонено',
+        dto.reason ? `«${listing.title}»: ${dto.reason}` : `«${listing.title}» не прошло модерацию`,
+        '/listings/mine',
+      );
+    }
+
+    return updated;
   }
 
   private async getOwnedOrThrow(id: string, requester: RequestUser) {

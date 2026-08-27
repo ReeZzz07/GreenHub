@@ -3,21 +3,31 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PageHeader } from '@/components/PageHeader';
+import { Modal } from '@/components/Modal';
 import { UserIcon, CameraIcon, LoaderIcon } from '@/components/Icons';
-import { updateProfile, changePassword, requestEmailChange, uploadAvatar, ApiError } from '@/lib/api';
+import { UserRole } from '@/types';
+import { updateProfile, changePassword, requestEmailChange, uploadAvatar, deleteMyAccount, ApiError } from '@/lib/api';
+
+const DELETABLE_ROLES: UserRole[] = [UserRole.BUYER, UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS];
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 export default function EditProfilePage() {
-  const { user, token, isLoading: authLoading, refreshUser } = useAuth();
+  const { user, token, isLoading: authLoading, refreshUser, logout } = useAuth();
   const { showToast } = useToast();
+  const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
@@ -117,6 +127,22 @@ export default function EditProfilePage() {
     }
   };
 
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsDeleting(true);
+    try {
+      await deleteMyAccount(deletePassword, token);
+      logout();
+      router.push('/');
+      showToast('Аккаунт удалён', 'success');
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не удалось удалить аккаунт', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const canDeleteAccount = DELETABLE_ROLES.includes(user.role);
   const isPending = user.verificationStatus === 'PENDING_MODERATION';
 
   return (
@@ -233,6 +259,52 @@ export default function EditProfilePage() {
           </form>
         )}
       </section>
+
+      {canDeleteAccount && (
+        <section className="card p-4 border-2 border-red-100">
+          <h2 className="font-semibold text-red-700 mb-1">Удаление аккаунта</h2>
+          <p className="text-sm text-gray-500 mb-3">
+            Профиль будет обезличен, вход станет невозможен. Объявления снимутся с публикации, а история
+            заказов, чатов и отзывов с другими пользователями сохранится.
+          </p>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            onClick={() => setIsDeleteModalOpen(true)}
+          >
+            Удалить аккаунт
+          </Button>
+        </section>
+      )}
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletePassword('');
+        }}
+        title="Удалить аккаунт?"
+        size="sm"
+      >
+        <p className="text-sm text-gray-600 mb-4">
+          Это действие необратимо. Введите пароль, чтобы подтвердить удаление аккаунта.
+        </p>
+        <form onSubmit={handleDeleteAccount} className="space-y-3">
+          <input
+            type="password"
+            required
+            placeholder="Пароль"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            className="input-field"
+            autoFocus
+          />
+          <Button type="submit" variant="danger" fullWidth size="sm" isLoading={isDeleting}>
+            Удалить аккаунт навсегда
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }

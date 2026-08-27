@@ -69,7 +69,7 @@ function ReviewForm({ orderId, onSubmitted }: { orderId: string; onSubmitted: (r
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const attemptsRef = useRef(0);
@@ -127,6 +127,8 @@ export default function OrderDetailPage() {
     return <LoadingSpinner text="Загрузка заказа..." />;
   }
 
+  const isBuyer = user?.id === order.buyerId;
+
   return (
     <div className="animate-fade-in px-4 py-4 md:max-w-md md:mx-auto">
       <BackButton fallbackHref="/orders" className="mb-2" />
@@ -182,19 +184,29 @@ export default function OrderDetailPage() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : isBuyer ? (
               <ReviewForm orderId={order.id} onSubmitted={(review) => setOrder({ ...order, review })} />
+            ) : (
+              <p className="text-sm text-gray-500 text-center">Покупатель ещё не оставил отзыв</p>
             )}
           </div>
         )}
 
         <div className="flex flex-col gap-2">
-          <Link href="/orders" className="btn-secondary block">
-            Мои заказы
-          </Link>
-          <Link href="/catalog" className="text-blue-600 text-sm font-medium">
-            Продолжить покупки
-          </Link>
+          {isBuyer ? (
+            <>
+              <Link href="/orders" className="btn-secondary block">
+                Мои заказы
+              </Link>
+              <Link href="/catalog" className="text-blue-600 text-sm font-medium">
+                Продолжить покупки
+              </Link>
+            </>
+          ) : (
+            <Link href="/listings/mine" className="btn-secondary block">
+              Мои объявления
+            </Link>
+          )}
         </div>
       </div>
     </div>

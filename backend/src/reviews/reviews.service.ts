@@ -5,8 +5,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from '@prisma/client';
+import { NotificationType, OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReplyReviewDto } from './dto/reply-review.dto';
 
@@ -14,12 +15,15 @@ const REVIEWER_SELECT = { id: true, name: true, avatarUrl: true } as const;
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(orderId: string, buyerId: string, dto: CreateReviewDto) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { listing: { select: { sellerId: true } } },
+      include: { listing: { select: { sellerId: true, title: true } } },
     });
     if (!order) throw new NotFoundException('Заказ не найден');
     if (order.buyerId !== buyerId) throw new ForbiddenException('Нет доступа к этому заказу');
@@ -30,7 +34,7 @@ export class ReviewsService {
     const existing = await this.prisma.review.findUnique({ where: { orderId } });
     if (existing) throw new ConflictException('Отзыв на этот заказ уже оставлен');
 
-    return this.prisma.review.create({
+    const review = await this.prisma.review.create({
       data: {
         orderId,
         reviewerId: buyerId,
@@ -40,6 +44,16 @@ export class ReviewsService {
       },
       include: { reviewer: { select: REVIEWER_SELECT } },
     });
+
+    await this.notifications.create(
+      order.listing.sellerId,
+      NotificationType.NEW_REVIEW,
+      'Новый отзыв',
+      `${review.reviewer.name} оставил отзыв (${dto.rating}★) о «${order.listing.title}»`,
+      `/seller/${order.listing.sellerId}`,
+    );
+
+    return review;
   }
 
   async reply(reviewId: string, sellerId: string, dto: ReplyReviewDto) {
@@ -48,11 +62,21 @@ export class ReviewsService {
     if (review.sellerId !== sellerId) throw new ForbiddenException('Нет доступа к этому отзыву');
     if (review.sellerReply) throw new BadRequestException('Ответ на этот отзыв уже добавлен');
 
-    return this.prisma.review.update({
+    const updated = await this.prisma.review.update({
       where: { id: reviewId },
       data: { sellerReply: dto.reply },
       include: { reviewer: { select: REVIEWER_SELECT } },
     });
+
+    await this.notifications.create(
+      review.reviewerId,
+      NotificationType.REVIEW_REPLY,
+      'Продавец ответил на ваш отзыв',
+      dto.reply,
+      `/orders/${review.orderId}`,
+    );
+
+    return updated;
   }
 
   findForSeller(sellerId: string) {

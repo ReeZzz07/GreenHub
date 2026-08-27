@@ -22,6 +22,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { ModerateVerificationDto } from './dto/moderate-verification.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5 МБ, как и для остальной загрузки фото (TZ.md)
 
@@ -59,6 +60,12 @@ export class UsersController {
       throw new BadRequestException('Файл не передан');
     }
     return this.usersService.uploadAvatar(user.id, file);
+  }
+
+  @Roles(UserRole.BUYER, UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS)
+  @Delete('me')
+  deleteOwnAccount(@Body() dto: DeleteAccountDto, @CurrentUser() user: { id: string }) {
+    return this.usersService.deleteOwnAccount(user.id, dto);
   }
 
   @Get(':id')

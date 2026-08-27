@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Socket } from 'socket.io-client';
 import { useAuth } from '@/context/AuthContext';
+import { useChatWidget } from '@/context/ChatWidgetContext';
+import { useNotifications } from '@/context/NotificationsContext';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { BackButton } from '@/components/PageHeader';
 import {
@@ -17,7 +20,11 @@ import { createChatSocket } from '@/lib/socket';
 
 export default function ChatThreadPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { openConversation } = useChatWidget();
+  const { markConversationRead } = useNotifications();
+  const isDesktop = useIsDesktop();
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -26,18 +33,26 @@ export default function ChatThreadPage() {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // На десктопе/планшете чат живёт в плавающем окне — эта страница только перенаправляет туда и обратно в список.
   useEffect(() => {
-    if (!token) return;
+    if (!isDesktop) return;
+    openConversation(id);
+    router.replace('/chats');
+  }, [isDesktop, id, openConversation, router]);
+
+  useEffect(() => {
+    if (!token || isDesktop) return;
     Promise.all([fetchConversation(id, token), fetchConversationMessages(id, token)])
       .then(([conv, msgs]) => {
         setConversation(conv);
         setMessages(msgs);
       })
       .finally(() => setIsLoading(false));
-  }, [id, token]);
+    markConversationRead(id);
+  }, [id, token, isDesktop, markConversationRead]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || isDesktop) return;
     const socket = createChatSocket(token);
     socketRef.current = socket;
 
@@ -48,12 +63,13 @@ export default function ChatThreadPage() {
     socket.on('newMessage', (message: ChatMessage) => {
       if (message.conversationId !== id) return;
       setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
+      if (message.senderId !== user?.id) markConversationRead(id);
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [id, token]);
+  }, [id, token, isDesktop, user?.id, markConversationRead]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

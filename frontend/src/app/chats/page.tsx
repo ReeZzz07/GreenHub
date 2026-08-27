@@ -4,11 +4,15 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
+import { useChatWidget } from '@/context/ChatWidgetContext';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { fetchConversations, type Conversation } from '@/lib/api';
 
 export default function ChatsPage() {
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { openConversation } = useChatWidget();
+  const isDesktop = useIsDesktop();
   const [conversations, setConversations] = useState<Conversation[] | null>(null);
 
   useEffect(() => {
@@ -51,7 +55,16 @@ export default function ChatsPage() {
             const lastMessage = conversation.messages?.[0];
 
             return (
-              <Link key={conversation.id} href={`/chats/${conversation.id}`} className="block">
+              <Link
+                key={conversation.id}
+                href={`/chats/${conversation.id}`}
+                className="block"
+                onClick={(e) => {
+                  if (!isDesktop) return;
+                  e.preventDefault();
+                  openConversation(conversation.id);
+                }}
+              >
                 <div className="card p-3 flex gap-3 hover:shadow-lg transition-shadow">
                   <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 overflow-hidden">
                     {conversation.listing.images[0] && (

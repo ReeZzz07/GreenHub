@@ -1,5 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { NotificationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const CONVERSATION_INCLUDE = {
   listing: { select: { id: true, title: true, images: true, price: true, sellerId: true } },
@@ -9,7 +11,10 @@ const CONVERSATION_INCLUDE = {
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async getOrCreateConversation(buyerId: string, listingId: string) {
     const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
@@ -63,7 +68,7 @@ export class ChatService {
   }
 
   async sendMessage(conversationId: string, senderId: string, content: string) {
-    await this.assertParticipant(conversationId, senderId);
+    const conversation = await this.assertParticipant(conversationId, senderId);
 
     const [message] = await this.prisma.$transaction([
       this.prisma.message.create({
@@ -75,6 +80,16 @@ export class ChatService {
         data: { lastMessageAt: new Date() },
       }),
     ]);
+
+    const recipientId = conversation.buyerId === senderId ? conversation.sellerId : conversation.buyerId;
+    const preview = content.length > 80 ? `${content.slice(0, 80)}…` : content;
+    await this.notifications.create(
+      recipientId,
+      NotificationType.NEW_MESSAGE,
+      `Новое сообщение от ${message.sender.name}`,
+      preview,
+      `/chats/${conversationId}`,
+    );
 
     return message;
   }

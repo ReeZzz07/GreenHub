@@ -5,14 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRole, UserVerificationStatus } from '@prisma/client';
+import { ListingStatus, UserRole, UserVerificationStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { ModerateVerificationDto } from './dto/moderate-verification.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 const PUBLIC_SELECT = {
   id: true,
@@ -56,6 +58,47 @@ export class UsersService {
   async remove(id: string) {
     await this.findOne(id);
     await this.prisma.user.delete({ where: { id } });
+    return { success: true };
+  }
+
+  // Самостоятельное удаление аккаунта покупателем/продавцом (роль ограничена в контроллере).
+  // Профиль анонимизируется, а не удаляется физически — иначе упадёт FK у чатов, заказов и отзывов,
+  // где на этого пользователя ссылаются другие участники сделок; их история должна остаться нетронутой.
+  async deleteOwnAccount(userId: string, dto: DeleteAccountDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new NotFoundException('Пользователь не найден');
+
+    const matches = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!matches) {
+      throw new BadRequestException('Пароль указан неверно');
+    }
+
+    const randomPasswordHash = await bcrypt.hash(randomUUID(), 10);
+
+    await this.prisma.$transaction([
+      // Снимаем с публикации все активные объявления — сами записи не трогаем, чтобы не сломать
+      // FK у заказов/чатов/избранного, которые на них ссылаются.
+      this.prisma.listing.updateMany({
+        where: { sellerId: userId, status: { in: [ListingStatus.PENDING_MODERATION, ListingStatus.PUBLISHED] } },
+        data: { status: ListingStatus.REJECTED, rejectionReason: 'Профиль продавца удалён' },
+      }),
+      this.prisma.favorite.deleteMany({ where: { userId } }),
+      this.prisma.notification.deleteMany({ where: { userId } }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          name: 'Удалённый пользователь',
+          email: `deleted-${userId}@deleted.greenhub.local`,
+          phone: null,
+          avatarUrl: null,
+          pendingEmail: null,
+          rejectionReason: null,
+          passwordHash: randomPasswordHash,
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
+
     return { success: true };
   }
 

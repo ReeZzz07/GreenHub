@@ -7,6 +7,8 @@ import { HeartIcon, ChatIcon, PlusIcon, MinusIcon } from './Icons';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
+import { useChatWidget } from '@/context/ChatWidgetContext';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useToast } from './Toast';
 import { createConversation, createOrder, ApiError } from '@/lib/api';
 
@@ -14,6 +16,8 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
   const { items, addToCart, updateQuantity } = useCart();
   const { user, token, isAuthenticated } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { openConversation } = useChatWidget();
+  const isDesktop = useIsDesktop();
   const { showToast } = useToast();
   const router = useRouter();
   const [isMessaging, setIsMessaging] = React.useState(false);
@@ -68,7 +72,11 @@ export const PlantActions: React.FC<{ plant: Plant }> = ({ plant }) => {
     setIsMessaging(true);
     try {
       const conversation = await createConversation(plant.id, token);
-      router.push(`/chats/${conversation.id}`);
+      if (isDesktop) {
+        openConversation(conversation.id);
+      } else {
+        router.push(`/chats/${conversation.id}`);
+      }
     } catch (error) {
       showToast(error instanceof ApiError ? error.message : 'Не удалось открыть чат', 'error');
     } finally {

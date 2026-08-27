@@ -19,6 +19,7 @@ import { SettingsModule } from './settings/settings.module';
 import { OrdersModule } from './orders/orders.module';
 import { AiModule } from './ai/ai.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 120 }]),
     PrismaModule,
     RedisModule,
+    NotificationsModule,
     AuthModule,
     UsersModule,
     CategoriesModule,

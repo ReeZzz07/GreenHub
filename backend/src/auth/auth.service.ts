@@ -42,6 +42,9 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Неверный email или пароль');
     }
+    if (user.deletedAt) {
+      throw new UnauthorizedException('Этот аккаунт удалён');
+    }
 
     return this.buildAuthResponse(user);
   }

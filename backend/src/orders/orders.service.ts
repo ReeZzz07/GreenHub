@@ -1,7 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { OrderStatus } from '@prisma/client';
+import { NotificationType, OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { YooKassaService } from './yookassa.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -15,6 +16,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly yooKassa: YooKassaService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async create(buyerId: string, dto: CreateOrderDto) {
@@ -72,7 +74,10 @@ export class OrdersService {
   // Вебхук не доверяет статусу из тела запроса напрямую — перепроверяет его через GET-запрос
   // к самой ЮKassa (рекомендованная практика их API, т.к. базовый v3 API не подписывает уведомления).
   async handleWebhook(paymentId: string) {
-    const order = await this.prisma.order.findUnique({ where: { paymentId } });
+    const order = await this.prisma.order.findUnique({
+      where: { paymentId },
+      include: { listing: { select: { title: true, sellerId: true } } },
+    });
     if (!order) return;
 
     const verified = await this.yooKassa.getPayment(paymentId);
@@ -85,6 +90,16 @@ export class OrdersService {
 
     if (status !== order.status) {
       await this.prisma.order.update({ where: { id: order.id }, data: { status } });
+
+      if (status === OrderStatus.PAID) {
+        await this.notifications.create(
+          order.listing.sellerId,
+          NotificationType.ORDER_PAID,
+          'Новый оплаченный заказ',
+          `«${order.listing.title}» — оплачено на сумму ${order.amount.toLocaleString('ru-RU')} ₽`,
+          `/orders/${order.id}`,
+        );
+      }
     }
   }
 }
