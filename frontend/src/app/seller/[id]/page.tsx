@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { BackButton } from '@/components/PageHeader';
-import { SimilarListings } from '@/components/SimilarListings';
-import { SellerReviews } from '@/components/SellerReviews';
+import { SellerTabs } from '@/components/seller/SellerTabs';
+import { SellerContactButton } from '@/components/seller/SellerContactButton';
+import { ShareButton } from '@/components/ShareButton';
 import { UserIcon, StarIcon } from '@/components/Icons';
 import { fetchSellerSummary, fetchSellerReviews, fetchListings, ApiError } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
@@ -45,7 +46,7 @@ export default async function SellerPage({ params }: SellerPageProps) {
   }
 
   const [listingsPage, reviews] = await Promise.all([
-    fetchListings({ sellerId: id, limit: 20 }).catch(() => ({ items: [], total: 0, page: 1, limit: 20 })),
+    fetchListings({ sellerId: id, sortBy: 'newest', limit: 12 }).catch(() => ({ items: [], total: 0, page: 1, limit: 12 })),
     fetchSellerReviews(id).catch(() => []),
   ]);
   const plants = listingsPage.items.map(listingToPlant);
@@ -54,11 +55,15 @@ export default async function SellerPage({ params }: SellerPageProps) {
 
   return (
     <div className="animate-fade-in py-4">
-      <div className="px-4">
-        <BackButton fallbackHref="/catalog" className="mb-4" />
+      <div className="px-4 flex items-center justify-between mb-4">
+        <BackButton fallbackHref="/catalog" />
+        <ShareButton
+          title={`${seller.name} на GreenHub`}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
+        />
       </div>
 
-      <div className="flex flex-col items-center text-center mb-6 px-4 lg:max-w-md lg:mx-auto">
+      <div className="flex flex-col items-center text-center mb-4 px-4 lg:max-w-md lg:mx-auto">
         <div className="relative w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-3 overflow-hidden">
           {seller.avatarUrl ? (
             <Image src={seller.avatarUrl} alt={seller.name} fill sizes="80px" className="object-cover" />
@@ -79,6 +84,21 @@ export default async function SellerPage({ params }: SellerPageProps) {
         )}
       </div>
 
+      <div className="grid grid-cols-2 gap-3 px-4 mb-4 lg:max-w-md lg:mx-auto">
+        <div className="card p-3 text-center">
+          <p className="font-display text-lg font-bold text-gray-900">{seller.listingsCount}</p>
+          <p className="text-xs text-gray-500">объявлений</p>
+        </div>
+        <div className="card p-3 text-center">
+          <p className="font-display text-lg font-bold text-gray-900">{seller.soldCount}</p>
+          <p className="text-xs text-gray-500">продано</p>
+        </div>
+      </div>
+
+      <div className="flex justify-center px-4 mb-6 lg:max-w-md lg:mx-auto">
+        <SellerContactButton sellerId={seller.id} listings={plants.map((p) => ({ id: p.id, title: p.name, images: p.images }))} />
+      </div>
+
       {seller.reviewsCount > 0 && (
         <div className="card p-4 mb-6 mx-4 lg:max-w-md lg:mx-auto space-y-1.5">
           {seller.breakdown.map(({ star, count }) => (
@@ -97,12 +117,13 @@ export default async function SellerPage({ params }: SellerPageProps) {
         </div>
       )}
 
-      <SimilarListings plants={plants} title="Объявления продавца" />
-
-      <div className="px-4 lg:max-w-3xl lg:mx-auto">
-        <h2 className="font-semibold text-gray-800 mb-3">Отзывы</h2>
-        <SellerReviews sellerId={seller.id} reviews={reviews} />
-      </div>
+      <SellerTabs
+        sellerId={seller.id}
+        initialItems={plants}
+        initialTotal={listingsPage.total}
+        reviews={reviews}
+        reviewsCount={seller.reviewsCount}
+      />
     </div>
   );
 }

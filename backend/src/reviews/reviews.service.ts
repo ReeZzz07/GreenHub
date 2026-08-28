@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NotificationType, OrderStatus } from '@prisma/client';
+import { ListingStatus, NotificationType, OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -50,7 +50,7 @@ export class ReviewsService {
       NotificationType.NEW_REVIEW,
       'Новый отзыв',
       `${review.reviewer.name} оставил отзыв (${dto.rating}★) о «${order.listing.title}»`,
-      `/seller/${order.listing.sellerId}`,
+      `/seller/${order.listing.sellerId}?tab=reviews`,
     );
 
     return review;
@@ -94,7 +94,11 @@ export class ReviewsService {
     });
     if (!seller) throw new NotFoundException('Продавец не найден');
 
-    const reviews = await this.prisma.review.findMany({ where: { sellerId }, select: { rating: true } });
+    const [reviews, listingsCount, soldCount] = await Promise.all([
+      this.prisma.review.findMany({ where: { sellerId }, select: { rating: true } }),
+      this.prisma.listing.count({ where: { sellerId, status: ListingStatus.PUBLISHED } }),
+      this.prisma.order.count({ where: { status: OrderStatus.PAID, listing: { sellerId } } }),
+    ]);
     const reviewsCount = reviews.length;
     const avgRating = reviewsCount > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewsCount : 0;
     const breakdown = [5, 4, 3, 2, 1].map((star) => ({
@@ -102,6 +106,6 @@ export class ReviewsService {
       count: reviews.filter((r) => r.rating === star).length,
     }));
 
-    return { ...seller, avgRating, reviewsCount, breakdown };
+    return { ...seller, avgRating, reviewsCount, breakdown, listingsCount, soldCount };
   }
 }

@@ -539,6 +539,8 @@ export interface SellerSummary {
   avgRating: number;
   reviewsCount: number;
   breakdown: { star: number; count: number }[];
+  listingsCount: number;
+  soldCount: number;
 }
 
 export function fetchSellerSummary(id: string): Promise<SellerSummary> {
