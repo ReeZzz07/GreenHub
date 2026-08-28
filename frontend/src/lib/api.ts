@@ -404,6 +404,51 @@ export function updateSettings(
   });
 }
 
+export type HomeContentIconType = 'EMOJI' | 'PRESET' | 'UPLOAD';
+
+export interface HomeContentTextItem {
+  title: string;
+  description: string;
+}
+
+export interface HomeContentFeatureItem extends HomeContentTextItem {
+  icon?: string;
+  iconType?: HomeContentIconType;
+}
+
+export interface HomePageContent {
+  heroBanner: { title: string; ctaText: string };
+  recognizeBanner: { badgeText: string; title: string; description: string; ctaText: string };
+  featuresTitle: string;
+  features: HomeContentFeatureItem[];
+  howItWorksTitle: string;
+  steps: HomeContentTextItem[];
+  newArrivalsTitle: string;
+  closingCta: { title: string; description: string; buttonText: string };
+}
+
+export function fetchHomeContent(): Promise<HomePageContent> {
+  return request<HomePageContent>('/home-content');
+}
+
+export function updateHomeContent(content: HomePageContent, token: string): Promise<HomePageContent> {
+  return request<HomePageContent>('/home-content', {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(content),
+  });
+}
+
+export function uploadHomeContentIcon(file: File, token: string): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return fetch(`${API_URL}/home-content/icon`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  }).then((res) => handleResponse<{ url: string }>(res));
+}
+
 export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED';
 
 export interface Review {

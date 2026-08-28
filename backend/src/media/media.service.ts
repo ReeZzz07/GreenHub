@@ -105,8 +105,9 @@ export class MediaService implements OnModuleInit {
     return `${this.publicUrl}/${this.processedBucket}/${key}`;
   }
 
-  // Иконка категории: маленький квадрат без вотермарка — она рендерится мелко (как emoji в чипе фильтра)
-  async uploadCategoryIcon(file: { buffer: Buffer; mimetype: string }): Promise<string> {
+  // Мелкая иконка (категория, особенность на главной и т.п.): маленький квадрат без вотермарка —
+  // рендерится мелко, как emoji в чипе фильтра или в цветном кружке карточки.
+  async uploadSmallIcon(file: { buffer: Buffer; mimetype: string }, folder: string): Promise<string> {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException('Допустимые форматы изображений: JPG, PNG');
     }
@@ -117,7 +118,7 @@ export class MediaService implements OnModuleInit {
       .webp({ quality: 90 })
       .toBuffer();
 
-    const key = `category-icons/${randomUUID()}.webp`;
+    const key = `${folder}/${randomUUID()}.webp`;
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.processedBucket,

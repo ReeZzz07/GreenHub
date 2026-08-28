@@ -38,7 +38,7 @@ export class CategoriesController {
     if (!file) {
       throw new BadRequestException('Файл не передан');
     }
-    const url = await this.mediaService.uploadCategoryIcon(file);
+    const url = await this.mediaService.uploadSmallIcon(file, 'category-icons');
     return { url };
   }
 

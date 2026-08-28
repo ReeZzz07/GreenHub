@@ -14,6 +14,7 @@ import {
   LogOutIcon,
   ChevronDownIcon,
   GridIcon,
+  HomeIcon,
 } from './Icons';
 import { useFavorites } from '@/context/FavoritesContext';
 
@@ -139,6 +140,10 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, onLogout }) => {
                 <Link href="/admin/categories" className={menuItemClass}>
                   <GridIcon size={17} className="text-gray-400" />
                   Категории каталога
+                </Link>
+                <Link href="/admin/home-content" className={menuItemClass}>
+                  <HomeIcon size={17} className="text-gray-400" />
+                  Контент главной
                 </Link>
                 <Link href="/admin/settings" className={menuItemClass}>
                   <SettingsIcon size={17} className="text-gray-400" />

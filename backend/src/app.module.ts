@@ -16,6 +16,7 @@ import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { SettingsModule } from './settings/settings.module';
+import { HomeContentModule } from './home-content/home-content.module';
 import { OrdersModule } from './orders/orders.module';
 import { AiModule } from './ai/ai.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -49,6 +50,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ChatModule,
     FavoritesModule,
     SettingsModule,
+    HomeContentModule,
     OrdersModule,
     AiModule,
     ReviewsModule,

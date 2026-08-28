@@ -132,6 +132,15 @@ model SystemSetting {
   updatedBy String?
 }
 
+// Редактируемые тексты главной страницы (баннеры, "Почему GreenHub", "Как это работает" и т.д.) —
+// одна строка-синглтон с фиксированным id, правится администратором через /admin/home-content.
+model HomePageContent {
+  id        String   @id
+  content   Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
 // Один чат на пару (покупатель, объявление) — сообщения продавцу пишутся в контексте конкретного товара
 model Conversation {
   id String @id @default(uuid())
