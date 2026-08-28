@@ -13,6 +13,7 @@ import {
   SettingsIcon,
   LogOutIcon,
   ChevronDownIcon,
+  GridIcon,
 } from './Icons';
 import { useFavorites } from '@/context/FavoritesContext';
 
@@ -134,10 +135,16 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, onLogout }) => {
               </Link>
             )}
             {user.role === UserRole.ADMIN && (
-              <Link href="/admin/settings" className={menuItemClass}>
-                <SettingsIcon size={17} className="text-gray-400" />
-                Настройки интеграций
-              </Link>
+              <>
+                <Link href="/admin/categories" className={menuItemClass}>
+                  <GridIcon size={17} className="text-gray-400" />
+                  Категории каталога
+                </Link>
+                <Link href="/admin/settings" className={menuItemClass}>
+                  <SettingsIcon size={17} className="text-gray-400" />
+                  Настройки интеграций
+                </Link>
+              </>
             )}
           </div>
 

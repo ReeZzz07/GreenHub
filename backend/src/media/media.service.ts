@@ -105,6 +105,31 @@ export class MediaService implements OnModuleInit {
     return `${this.publicUrl}/${this.processedBucket}/${key}`;
   }
 
+  // Иконка категории: маленький квадрат без вотермарка — она рендерится мелко (как emoji в чипе фильтра)
+  async uploadCategoryIcon(file: { buffer: Buffer; mimetype: string }): Promise<string> {
+    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Допустимые форматы изображений: JPG, PNG');
+    }
+
+    const processed = await sharp(file.buffer)
+      .rotate()
+      .resize({ width: 128, height: 128, fit: 'cover' })
+      .webp({ quality: 90 })
+      .toBuffer();
+
+    const key = `category-icons/${randomUUID()}.webp`;
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.processedBucket,
+        Key: key,
+        Body: processed,
+        ContentType: 'image/webp',
+      }),
+    );
+
+    return `${this.publicUrl}/${this.processedBucket}/${key}`;
+  }
+
   private async applyWatermark(buffer: Buffer): Promise<Buffer> {
     const image = sharp(buffer).rotate();
     const metadata = await image.metadata();

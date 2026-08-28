@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { CategoryIconType } from '@prisma/client';
 
 export class CreateCategoryDto {
   @IsString()
@@ -10,6 +11,10 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsString()
   icon?: string;
+
+  @IsOptional()
+  @IsEnum(CategoryIconType)
+  iconType?: CategoryIconType;
 
   @IsOptional()
   @IsString()

@@ -2,12 +2,15 @@
 
 import React from 'react';
 import { categoryColor } from '@/lib/category-colors';
+import { CategoryIcon } from './CategoryIcon';
+import type { CategoryIconType } from '@/lib/api';
 
 export interface CategoryOption {
   id: string;
   slug: string;
   name: string;
   icon?: string | null;
+  iconType?: CategoryIconType;
 }
 
 interface CategoryFilterProps {
@@ -55,7 +58,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
               }`}
               style={{ backgroundColor: color.bg }}
             >
-              {category.icon}
+              <CategoryIcon category={{ icon: category.icon ?? null, iconType: category.iconType ?? 'EMOJI' }} size={22} />
             </div>
             <span className={`text-[10.5px] whitespace-nowrap ${isSelected ? 'font-bold text-gray-900' : 'text-gray-500'}`}>
               {category.name}

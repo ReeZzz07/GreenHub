@@ -48,16 +48,61 @@ export async function uploadMedia(file: File, token: string): Promise<{ url: str
   return handleResponse<{ url: string }>(res);
 }
 
+export type CategoryIconType = 'EMOJI' | 'PRESET' | 'UPLOAD';
+
 export interface Category {
   id: string;
   name: string;
   slug: string;
   icon: string | null;
+  iconType: CategoryIconType;
   parentId: string | null;
+  children?: Category[];
 }
 
 export function fetchCategories(): Promise<Category[]> {
   return request<Category[]>('/categories');
+}
+
+export interface CategoryPayload {
+  name: string;
+  slug: string;
+  icon?: string;
+  iconType?: CategoryIconType;
+  parentId?: string;
+}
+
+export function uploadCategoryIcon(file: File, token: string): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return fetch(`${API_URL}/categories/icon`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  }).then((res) => handleResponse<{ url: string }>(res));
+}
+
+export function createCategory(payload: CategoryPayload, token: string): Promise<Category> {
+  return request<Category>('/categories', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateCategory(id: string, payload: Partial<CategoryPayload>, token: string): Promise<Category> {
+  return request<Category>(`/categories/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteCategory(id: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/categories/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export type UserVerificationStatus = 'VERIFIED' | 'PENDING_MODERATION';

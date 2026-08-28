@@ -50,11 +50,18 @@ model User {
   notifications         Notification[]
 }
 
+enum CategoryIconType {
+  EMOJI
+  PRESET
+  UPLOAD
+}
+
 model Category {
-  id        String     @id @default(uuid())
+  id        String           @id @default(uuid())
   name      String
-  slug      String     @unique
+  slug      String           @unique
   icon      String?
+  iconType  CategoryIconType @default(EMOJI)
   parentId  String?
   parent    Category?  @relation("CategoryToSubcategories", fields: [parentId], references: [id], onDelete: SetNull)
   children  Category[] @relation("CategoryToSubcategories")
