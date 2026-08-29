@@ -17,7 +17,7 @@ export class NotificationsService {
     const notification = await this.prisma.notification.create({
       data: { userId, type, title, message, link },
     });
-    // Письмо отправляется в фоне и никогда не блокирует создание уведомления/ответ вызывающего сервиса.
+    // Письмо ставится в очередь (MailService.enqueue) и никогда не блокирует создание уведомления.
     this.sendEmail(userId, title, message, link).catch(() => undefined);
     return notification;
   }
@@ -28,7 +28,7 @@ export class NotificationsService {
 
     const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
     const url = `${frontendUrl}${link ?? ''}`;
-    await this.mail.send({
+    await this.mail.enqueue({
       to: user.email,
       subject: title,
       html: `<p>Здравствуйте, ${user.name}!</p><p>${message}</p><p><a href="${url}">Перейти в GreenHub</a></p>`,

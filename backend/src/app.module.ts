@@ -22,6 +22,7 @@ import { AiModule } from './ai/ai.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 120 }]),
     PrismaModule,
     RedisModule,
+    QueueModule,
     NotificationsModule,
     AuthModule,
     UsersModule,

@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   CreateBucketCommand,
+  GetObjectCommand,
   HeadBucketCommand,
   PutBucketPolicyCommand,
   PutObjectCommand,
@@ -9,6 +10,14 @@ import {
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import sharp from 'sharp';
+import { Queue, QueueEvents, Worker } from 'bullmq';
+import { createQueueRedisConnection } from '../queue/redis-connection';
+import { IMAGE_WATERMARK_QUEUE } from '../queue/queue.tokens';
+
+interface WatermarkJobData {
+  originalKey: string;
+  processedKey: string;
+}
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
 const ALLOWED_VIDEO_MIME_TYPES = ['video/mp4'];
@@ -21,14 +30,19 @@ const CERTIFICATE_EXTENSIONS: Record<string, string> = {
 const MAX_DIMENSION = 1600;
 
 @Injectable()
-export class MediaService implements OnModuleInit {
+export class MediaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MediaService.name);
   private readonly s3: S3Client;
   private readonly originalsBucket: string;
   private readonly processedBucket: string;
   private readonly publicUrl: string;
+  private watermarkWorker!: Worker<WatermarkJobData>;
+  private watermarkQueueEvents!: QueueEvents;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    @Inject(IMAGE_WATERMARK_QUEUE) private readonly watermarkQueue: Queue<WatermarkJobData>,
+  ) {
     this.originalsBucket = this.config.getOrThrow<string>('S3_BUCKET_ORIGINALS');
     this.processedBucket = this.config.getOrThrow<string>('S3_BUCKET_PROCESSED');
     this.publicUrl = this.config.getOrThrow<string>('S3_PUBLIC_URL');
@@ -51,9 +65,41 @@ export class MediaService implements OnModuleInit {
     } catch (error) {
       this.logger.error('Не удалось инициализировать S3-бакеты. Загрузка медиа будет недоступна.', error);
     }
+
+    // Генерация вотермарков — фоновая задача (TZ.md 2.2): воркер читает оригинал из originalsBucket,
+    // накладывает вотермарк и кладёт результат в processedBucket. uploadListingImage() дожидается
+    // завершения job (waitUntilFinished) — HTTP-контракт для клиента остаётся синхронным ({url} в ответе),
+    // а сама обработка проходит через устойчивую к сбоям очередь с ретраями.
+    this.watermarkQueueEvents = new QueueEvents(IMAGE_WATERMARK_QUEUE, { connection: createQueueRedisConnection() });
+    this.watermarkWorker = new Worker<WatermarkJobData>(
+      IMAGE_WATERMARK_QUEUE,
+      async (job) => {
+        const original = await this.s3.send(
+          new GetObjectCommand({ Bucket: this.originalsBucket, Key: job.data.originalKey }),
+        );
+        const buffer = Buffer.from(await original.Body!.transformToByteArray());
+        const processedBuffer = await this.applyWatermark(buffer);
+
+        await this.s3.send(
+          new PutObjectCommand({
+            Bucket: this.processedBucket,
+            Key: job.data.processedKey,
+            Body: processedBuffer,
+            ContentType: 'image/webp',
+          }),
+        );
+      },
+      { connection: createQueueRedisConnection() },
+    );
   }
 
-  // Загружает оригинал (приватно, для модерации/пересборки) и вотермарк-версию (публично)
+  async onModuleDestroy() {
+    await this.watermarkWorker?.close();
+    await this.watermarkQueueEvents?.close();
+  }
+
+  // Загружает оригинал (приватно, для модерации/пересборки), затем ставит в очередь генерацию
+  // вотермарк-версии (публично) и дожидается её готовности.
   async uploadListingImage(file: { buffer: Buffer; mimetype: string }): Promise<string> {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException('Допустимые форматы изображений: JPG, PNG');
@@ -61,27 +107,24 @@ export class MediaService implements OnModuleInit {
 
     const id = randomUUID();
     const originalExt = file.mimetype === 'image/png' ? 'png' : 'jpg';
+    const originalKey = `${id}.${originalExt}`;
+    const processedKey = `${id}.webp`;
 
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.originalsBucket,
-        Key: `${id}.${originalExt}`,
+        Key: originalKey,
         Body: file.buffer,
         ContentType: file.mimetype,
       }),
     );
 
-    const processedBuffer = await this.applyWatermark(file.buffer);
-    const processedKey = `${id}.webp`;
-
-    await this.s3.send(
-      new PutObjectCommand({
-        Bucket: this.processedBucket,
-        Key: processedKey,
-        Body: processedBuffer,
-        ContentType: 'image/webp',
-      }),
+    const job = await this.watermarkQueue.add(
+      'watermark',
+      { originalKey, processedKey },
+      { attempts: 2, backoff: { type: 'exponential', delay: 1000 }, removeOnComplete: true, removeOnFail: 50 },
     );
+    await job.waitUntilFinished(this.watermarkQueueEvents);
 
     return `${this.publicUrl}/${this.processedBucket}/${processedKey}`;
   }

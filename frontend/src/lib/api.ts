@@ -586,6 +586,30 @@ export interface RecognitionResult {
   confidence?: number;
 }
 
+type AiJobStatus<T> =
+  | { status: 'pending' }
+  | { status: 'completed'; result: T }
+  | { status: 'failed'; error: string };
+
+// Оба AI-эндпоинта обрабатываются в фоновой очереди на бэкенде (TZ.md 2.2) — POST отдаёт только
+// jobId, а результат приходит через поллинг GET .../:jobId. Функции ниже прячут это за тем же
+// Promise-интерфейсом, что и раньше, чтобы вызывающий код (RecognizePage, ListingForm) не менялся.
+async function pollAiJob<T>(path: string, token: string): Promise<T> {
+  const POLL_INTERVAL_MS = 1200;
+  const TIMEOUT_MS = 60_000;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < TIMEOUT_MS) {
+    const status = await request<AiJobStatus<T>>(path, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (status.status === 'completed') return status.result;
+    if (status.status === 'failed') throw new ApiError(500, status.error);
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+  }
+  throw new ApiError(504, 'Превышено время ожидания ответа AI');
+}
+
 export async function recognizePlant(file: File, token: string): Promise<RecognitionResult> {
   const formData = new FormData();
   formData.append('file', file);
@@ -595,7 +619,8 @@ export async function recognizePlant(file: File, token: string): Promise<Recogni
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
   });
-  return handleResponse<RecognitionResult>(res);
+  const { jobId } = await handleResponse<{ jobId: string }>(res);
+  return pollAiJob<RecognitionResult>(`/ai/recognize/${jobId}`, token);
 }
 
 export interface GenerateDescriptionPayload {
@@ -612,15 +637,16 @@ export interface GenerateDescriptionResult {
   flagReasons: string[];
 }
 
-export function generateDescription(
+export async function generateDescription(
   payload: GenerateDescriptionPayload,
   token: string,
 ): Promise<GenerateDescriptionResult> {
-  return request<GenerateDescriptionResult>('/ai/generate-description', {
+  const { jobId } = await request<{ jobId: string }>('/ai/generate-description', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload),
   });
+  return pollAiJob<GenerateDescriptionResult>(`/ai/generate-description/${jobId}`, token);
 }
 
 // Имя/телефон — не чувствительные поля, применяются сразу без модерации
