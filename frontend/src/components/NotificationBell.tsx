@@ -15,6 +15,7 @@ const TYPE_ICON: Record<NotificationType, { icon: React.FC<{ size?: number; clas
   LISTING_APPROVED: { icon: CheckIcon, className: 'bg-green-50 text-green-600' },
   LISTING_REJECTED: { icon: CheckIcon, className: 'bg-red-50 text-red-600' },
   ORDER_PAID: { icon: PackageIcon, className: 'bg-orange-50 text-orange-600' },
+  ORDER_CANCELLED: { icon: PackageIcon, className: 'bg-gray-100 text-gray-500' },
   NEW_REVIEW: { icon: StarIcon, className: 'bg-amber-50 text-amber-600' },
   REVIEW_REPLY: { icon: StarIcon, className: 'bg-amber-50 text-amber-600' },
 };

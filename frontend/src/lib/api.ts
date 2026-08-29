@@ -399,7 +399,13 @@ export type SettingKey =
   | 'PLANT_ID_API_KEY'
   | 'LLM_API_KEY'
   | 'LLM_API_URL'
-  | 'LLM_MODEL';
+  | 'LLM_MODEL'
+  | 'SMTP_HOST'
+  | 'SMTP_PORT'
+  | 'SMTP_USER'
+  | 'SMTP_PASSWORD'
+  | 'SMTP_FROM'
+  | 'SMTP_SECURE';
 
 export type SettingsStatus = Record<SettingKey, boolean>;
 
@@ -683,6 +689,7 @@ export type NotificationType =
   | 'LISTING_APPROVED'
   | 'LISTING_REJECTED'
   | 'ORDER_PAID'
+  | 'ORDER_CANCELLED'
   | 'NEW_REVIEW'
   | 'REVIEW_REPLY';
 

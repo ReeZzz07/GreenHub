@@ -51,6 +51,15 @@ const LLM_FIELDS: FieldConfig[] = [
   { key: 'LLM_MODEL', label: 'Модель', placeholder: 'qwen-plus', type: 'text' },
 ];
 
+const SMTP_FIELDS: FieldConfig[] = [
+  { key: 'SMTP_HOST', label: 'Хост', placeholder: 'smtp.yandex.ru', type: 'text' },
+  { key: 'SMTP_PORT', label: 'Порт', placeholder: '587', type: 'text' },
+  { key: 'SMTP_USER', label: 'Пользователь', placeholder: 'no-reply@greenhub.ru', type: 'text' },
+  { key: 'SMTP_PASSWORD', label: 'Пароль', placeholder: 'вставьте пароль', type: 'password' },
+  { key: 'SMTP_FROM', label: 'Отправитель', placeholder: 'GreenHub <no-reply@greenhub.ru>', type: 'text' },
+  { key: 'SMTP_SECURE', label: 'TLS (true/false)', placeholder: 'false', type: 'text' },
+];
+
 export default function AdminSettingsPage() {
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
@@ -160,6 +169,11 @@ export default function AdminSettingsPage() {
           'LLM (Qwen или совместимый)',
           'Генерация описаний объявлений',
           LLM_FIELDS,
+        )}
+        {renderFieldGroup(
+          'SMTP / Почта',
+          'Email-уведомления о заказах, модерации, сообщениях и отзывах',
+          SMTP_FIELDS,
         )}
 
         <Button type="submit" fullWidth isLoading={isSaving}>

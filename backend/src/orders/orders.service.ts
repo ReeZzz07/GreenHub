@@ -92,13 +92,39 @@ export class OrdersService {
       await this.prisma.order.update({ where: { id: order.id }, data: { status } });
 
       if (status === OrderStatus.PAID) {
-        await this.notifications.create(
-          order.listing.sellerId,
-          NotificationType.ORDER_PAID,
-          'Новый оплаченный заказ',
-          `«${order.listing.title}» — оплачено на сумму ${order.amount.toLocaleString('ru-RU')} ₽`,
-          `/orders/${order.id}`,
-        );
+        await Promise.all([
+          this.notifications.create(
+            order.listing.sellerId,
+            NotificationType.ORDER_PAID,
+            'Новый оплаченный заказ',
+            `«${order.listing.title}» — оплачено на сумму ${order.amount.toLocaleString('ru-RU')} ₽`,
+            `/orders/${order.id}`,
+          ),
+          this.notifications.create(
+            order.buyerId,
+            NotificationType.ORDER_PAID,
+            'Заказ оплачен',
+            `Оплата заказа «${order.listing.title}» прошла успешно`,
+            `/orders/${order.id}`,
+          ),
+        ]);
+      } else if (status === OrderStatus.CANCELLED) {
+        await Promise.all([
+          this.notifications.create(
+            order.listing.sellerId,
+            NotificationType.ORDER_CANCELLED,
+            'Заказ отменён',
+            `Заказ «${order.listing.title}» отменён`,
+            `/orders/${order.id}`,
+          ),
+          this.notifications.create(
+            order.buyerId,
+            NotificationType.ORDER_CANCELLED,
+            'Заказ отменён',
+            `Ваш заказ «${order.listing.title}» отменён`,
+            `/orders/${order.id}`,
+          ),
+        ]);
       }
     }
   }

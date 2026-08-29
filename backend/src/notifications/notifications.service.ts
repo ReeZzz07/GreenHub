@@ -1,17 +1,37 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { NotificationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 const RECENT_LIMIT = 30;
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+  ) {}
 
   // Внутренний метод для других сервисов (чат, модерация, заказы, отзывы) — не эндпоинт.
-  create(userId: string, type: NotificationType, title: string, message: string, link?: string) {
-    return this.prisma.notification.create({
+  async create(userId: string, type: NotificationType, title: string, message: string, link?: string) {
+    const notification = await this.prisma.notification.create({
       data: { userId, type, title, message, link },
+    });
+    // Письмо отправляется в фоне и никогда не блокирует создание уведомления/ответ вызывающего сервиса.
+    this.sendEmail(userId, title, message, link).catch(() => undefined);
+    return notification;
+  }
+
+  private async sendEmail(userId: string, title: string, message: string, link?: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+    if (!user) return;
+
+    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const url = `${frontendUrl}${link ?? ''}`;
+    await this.mail.send({
+      to: user.email,
+      subject: title,
+      html: `<p>Здравствуйте, ${user.name}!</p><p>${message}</p><p><a href="${url}">Перейти в GreenHub</a></p>`,
     });
   }
 

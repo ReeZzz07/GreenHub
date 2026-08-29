@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { MailModule } from '../mail/mail.module';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 
@@ -6,6 +7,7 @@ import { NotificationsController } from './notifications.controller';
 // просто инжектят NotificationsService, не добавляя его в свои imports.
 @Global()
 @Module({
+  imports: [MailModule],
   controllers: [NotificationsController],
   providers: [NotificationsService],
   exports: [NotificationsService],
