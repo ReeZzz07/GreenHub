@@ -50,6 +50,12 @@ export class ListingsController {
     return this.listingsService.findSimilar(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/analytics')
+  getAnalytics(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.listingsService.getAnalytics(id, user);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.listingsService.findPublishedById(id);

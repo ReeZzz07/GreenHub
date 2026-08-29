@@ -104,11 +104,25 @@ model Listing {
   conversations Conversation[]
   favoritedBy   Favorite[]
   orders        Order[]
+  viewLogs      ListingView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status, categoryId])
+}
+
+// Одна строка на просмотр карточки товара — нужна для аналитики продавца за 7/30 дней (TZ.md 5.3.2.7).
+// Отдельно от Listing.views (общий счётчик за всё время), который трогать не стали.
+model ListingView {
+  id String @id @default(uuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([listingId, createdAt])
 }
 
 model Favorite {

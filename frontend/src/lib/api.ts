@@ -239,6 +239,19 @@ export function fetchMyListings(token: string): Promise<Listing[]> {
   });
 }
 
+export interface ListingAnalytics {
+  views7d: number;
+  views30d: number;
+  favoritesCount: number;
+  paymentClicks: number;
+}
+
+export function fetchListingAnalytics(id: string, token: string): Promise<ListingAnalytics> {
+  return request<ListingAnalytics>(`/listings/${id}/analytics`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 export interface CreateListingPayload {
   title: string;
   latinName?: string;

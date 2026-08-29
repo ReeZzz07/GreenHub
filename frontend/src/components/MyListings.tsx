@@ -100,6 +100,15 @@ export function MyListings() {
                     Редактировать
                   </Link>
 
+                  {(listing.status === 'PUBLISHED' || listing.status === 'SOLD') && (
+                    <Link
+                      href={`/listings/${listing.id}/analytics`}
+                      className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                    >
+                      Аналитика
+                    </Link>
+                  )}
+
                   {listing.status === 'PUBLISHED' && (
                     <button
                       onClick={() => handleAvailability(listing.id, 'mark_sold')}

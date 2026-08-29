@@ -74,11 +74,15 @@ export class ListingsService {
     });
     if (!listing) throw new NotFoundException('Объявление не найдено');
 
-    return this.prisma.listing.update({
-      where: { id: listing.id },
-      data: { views: { increment: 1 } },
-      include: LISTING_INCLUDE,
-    });
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.listing.update({
+        where: { id: listing.id },
+        data: { views: { increment: 1 } },
+        include: LISTING_INCLUDE,
+      }),
+      this.prisma.listingView.create({ data: { listingId: listing.id } }),
+    ]);
+    return updated;
   }
 
   async findSimilar(id: string, limit = 6) {
@@ -223,6 +227,24 @@ export class ListingsService {
     }
 
     return updated;
+  }
+
+  // Аналитика продавца (MVP, TZ.md 5.3.2.7): просмотры за 7/30 дней, избранное, переходы по оплате.
+  async getAnalytics(id: string, requester: RequestUser) {
+    const listing = await this.getOwnedOrThrow(id, requester);
+
+    const now = Date.now();
+    const since7d = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const since30d = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+    const [views7d, views30d, favoritesCount, paymentClicks] = await Promise.all([
+      this.prisma.listingView.count({ where: { listingId: listing.id, createdAt: { gte: since7d } } }),
+      this.prisma.listingView.count({ where: { listingId: listing.id, createdAt: { gte: since30d } } }),
+      this.prisma.favorite.count({ where: { listingId: listing.id } }),
+      this.prisma.order.count({ where: { listingId: listing.id, paymentUrl: { not: null } } }),
+    ]);
+
+    return { views7d, views30d, favoritesCount, paymentClicks };
   }
 
   private async getOwnedOrThrow(id: string, requester: RequestUser) {
