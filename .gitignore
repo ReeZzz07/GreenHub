@@ -34,6 +34,9 @@ coverage/
 htmlcov/
 .coverage
 
+# Локальные дампы БД (backend/scripts/backup-db.sh) — реальное хранилище бэкапов это S3-бакет, не git
+backend/backups/
+
 # TypeScript
 *.tsbuildinfo
 .next/
