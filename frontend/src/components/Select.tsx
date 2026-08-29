@@ -19,9 +19,13 @@ interface SelectProps {
 
 // Кастомная замена нативному <select> — тот выглядит "браузерным" и выбивается из дизайна
 // (см. ProfileMenu/NotificationBell — тот же паттерн: кнопка + позиционированная панель).
+const PANEL_MAX_HEIGHT = 260; // max-h-64 (256px) + отступ до кнопки
+
 export function Select({ value, onChange, options, className = '', placeholder, disabled }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,11 +47,23 @@ export function Select({ value, onChange, options, className = '', placeholder, 
 
   const selected = options.find((o) => o.value === value);
 
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      setOpenUpward(spaceBelow < PANEL_MAX_HEIGHT && spaceAbove > spaceBelow);
+    }
+    setIsOpen((prev) => !prev);
+  };
+
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        onClick={handleToggle}
         disabled={disabled}
         className="input-field flex items-center justify-between gap-2 text-left text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         aria-haspopup="listbox"
@@ -65,7 +81,9 @@ export function Select({ value, onChange, options, className = '', placeholder, 
       {isOpen && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl shadow-[0_10px_30px_rgba(19,32,21,0.15)] overflow-hidden z-50 max-h-64 overflow-y-auto py-1.5 animate-fade-in"
+          className={`absolute left-0 right-0 bg-white rounded-2xl shadow-[0_10px_30px_rgba(19,32,21,0.15)] overflow-hidden z-50 max-h-64 overflow-y-auto py-1.5 animate-fade-in ${
+            openUpward ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
+          }`}
         >
           {options.map((option) => {
             const isSelected = option.value === value;
