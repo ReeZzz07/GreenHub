@@ -78,6 +78,28 @@ enum ListingStatus {
   SOLD
 }
 
+// Атрибуты-фильтры согласно TZ.md, раздел 4.2 ("Атрибутика и Теги (Фильтры)")
+enum PlantType {
+  CONIFEROUS
+  DECIDUOUS
+}
+
+enum LifeCycle {
+  PERENNIAL
+  ANNUAL
+}
+
+enum LightNeed {
+  SUN_LOVING
+  SHADE_TOLERANT
+}
+
+// ЗКС/ОКС — закрытая/открытая корневая система
+enum RootSystemType {
+  CLOSED
+  OPEN
+}
+
 model Listing {
   id                String        @id @default(uuid())
   title             String
@@ -94,6 +116,17 @@ model Listing {
   status            ListingStatus @default(PENDING_MODERATION)
   rejectionReason   String?
   views             Int           @default(0)
+
+  // Атрибуты-фильтры — TZ.md 4.2, все необязательны (не для всех категорий применимы)
+  plantType      PlantType?
+  lifeCycle      LifeCycle?
+  lightNeed      LightNeed?
+  toxicToPets    Boolean?
+  ageMonths      Int?
+  heightCm       Int?
+  diameterCm     Int?
+  rootSystemType RootSystemType?
+  potVolumeL     Int?
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])

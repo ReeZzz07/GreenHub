@@ -173,6 +173,10 @@ export function apiLogout(token: string): Promise<void> {
 }
 
 export type ListingStatus = 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED' | 'SOLD';
+export type PlantType = 'CONIFEROUS' | 'DECIDUOUS';
+export type LifeCycle = 'PERENNIAL' | 'ANNUAL';
+export type LightNeed = 'SUN_LOVING' | 'SHADE_TOLERANT';
+export type RootSystemType = 'CLOSED' | 'OPEN';
 
 export interface Listing {
   id: string;
@@ -187,6 +191,15 @@ export interface Listing {
   waterRequirements: string | null;
   careInstructions: string[];
   deliveryInfo: string | null;
+  plantType: PlantType | null;
+  lifeCycle: LifeCycle | null;
+  lightNeed: LightNeed | null;
+  toxicToPets: boolean | null;
+  ageMonths: number | null;
+  heightCm: number | null;
+  diameterCm: number | null;
+  rootSystemType: RootSystemType | null;
+  potVolumeL: number | null;
   status: ListingStatus;
   rejectionReason: string | null;
   views: number;
@@ -214,6 +227,13 @@ export interface ListingsQuery {
   page?: number;
   limit?: number;
   sortBy?: 'newest' | 'price_asc' | 'price_desc';
+  plantType?: PlantType;
+  lifeCycle?: LifeCycle;
+  lightNeed?: LightNeed;
+  toxicToPets?: boolean;
+  rootSystemType?: RootSystemType;
+  minHeight?: number;
+  maxHeight?: number;
 }
 
 export function fetchListings(query: ListingsQuery = {}): Promise<ListingsPage> {
@@ -265,6 +285,15 @@ export interface CreateListingPayload {
   waterRequirements?: string;
   careInstructions?: string[];
   deliveryInfo?: string;
+  plantType?: PlantType;
+  lifeCycle?: LifeCycle;
+  lightNeed?: LightNeed;
+  toxicToPets?: boolean;
+  ageMonths?: number;
+  heightCm?: number;
+  diameterCm?: number;
+  rootSystemType?: RootSystemType;
+  potVolumeL?: number;
 }
 
 export function createListing(payload: CreateListingPayload, token: string): Promise<Listing> {

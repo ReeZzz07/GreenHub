@@ -16,6 +16,7 @@ import {
   ApiError,
   type Category,
   type Listing,
+  type CreateListingPayload,
 } from '@/lib/api';
 
 interface ListingFormProps {
@@ -41,6 +42,17 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
   const [waterRequirements, setWaterRequirements] = useState(initial?.waterRequirements ?? '');
   const [careInstructions, setCareInstructions] = useState(initial?.careInstructions.join(', ') ?? '');
   const [deliveryInfo, setDeliveryInfo] = useState(initial?.deliveryInfo ?? '');
+  const [plantType, setPlantType] = useState<string>(initial?.plantType ?? '');
+  const [lifeCycle, setLifeCycle] = useState<string>(initial?.lifeCycle ?? '');
+  const [lightNeed, setLightNeed] = useState<string>(initial?.lightNeed ?? '');
+  const [toxicToPets, setToxicToPets] = useState<string>(
+    initial?.toxicToPets === true ? 'true' : initial?.toxicToPets === false ? 'false' : '',
+  );
+  const [ageMonths, setAgeMonths] = useState(initial?.ageMonths ? String(initial.ageMonths) : '');
+  const [heightCm, setHeightCm] = useState(initial?.heightCm ? String(initial.heightCm) : '');
+  const [diameterCm, setDiameterCm] = useState(initial?.diameterCm ? String(initial.diameterCm) : '');
+  const [rootSystemType, setRootSystemType] = useState<string>(initial?.rootSystemType ?? '');
+  const [potVolumeL, setPotVolumeL] = useState(initial?.potVolumeL ? String(initial.potVolumeL) : '');
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [videos, setVideos] = useState<string[]>(initial?.videos ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,6 +124,15 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         .map((item) => item.trim())
         .filter(Boolean),
       deliveryInfo: deliveryInfo || undefined,
+      plantType: (plantType || undefined) as CreateListingPayload['plantType'],
+      lifeCycle: (lifeCycle || undefined) as CreateListingPayload['lifeCycle'],
+      lightNeed: (lightNeed || undefined) as CreateListingPayload['lightNeed'],
+      toxicToPets: toxicToPets === '' ? undefined : toxicToPets === 'true',
+      ageMonths: ageMonths ? Number(ageMonths) : undefined,
+      heightCm: heightCm ? Number(heightCm) : undefined,
+      diameterCm: diameterCm ? Number(diameterCm) : undefined,
+      rootSystemType: (rootSystemType || undefined) as CreateListingPayload['rootSystemType'],
+      potVolumeL: potVolumeL ? Number(potVolumeL) : undefined,
     };
 
     setIsSubmitting(true);
@@ -210,6 +231,96 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         onChange={(e) => setDeliveryInfo(e.target.value)}
         className="input-field"
       />
+
+      <div className="pt-2">
+        <p className="text-sm font-medium text-gray-700 mb-2">Дополнительные характеристики (необязательно)</p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <Select
+            value={plantType}
+            onChange={setPlantType}
+            placeholder="Хвойное / лиственное"
+            options={[
+              { value: '', label: 'Не указано' },
+              { value: 'CONIFEROUS', label: 'Хвойное' },
+              { value: 'DECIDUOUS', label: 'Лиственное' },
+            ]}
+          />
+          <Select
+            value={lifeCycle}
+            onChange={setLifeCycle}
+            placeholder="Многолетнее / однолетнее"
+            options={[
+              { value: '', label: 'Не указано' },
+              { value: 'PERENNIAL', label: 'Многолетнее' },
+              { value: 'ANNUAL', label: 'Однолетнее' },
+            ]}
+          />
+          <Select
+            value={lightNeed}
+            onChange={setLightNeed}
+            placeholder="Светолюбивое / теневыносливое"
+            options={[
+              { value: '', label: 'Не указано' },
+              { value: 'SUN_LOVING', label: 'Светолюбивое' },
+              { value: 'SHADE_TOLERANT', label: 'Теневыносливое' },
+            ]}
+          />
+          <Select
+            value={toxicToPets}
+            onChange={setToxicToPets}
+            placeholder="Токсично для животных?"
+            options={[
+              { value: '', label: 'Не указано' },
+              { value: 'false', label: 'Не токсично' },
+              { value: 'true', label: 'Токсично' },
+            ]}
+          />
+          <Select
+            value={rootSystemType}
+            onChange={setRootSystemType}
+            placeholder="Тип корневой системы"
+            options={[
+              { value: '', label: 'Не указано' },
+              { value: 'CLOSED', label: 'ЗКС (закрытая)' },
+              { value: 'OPEN', label: 'ОКС (открытая)' },
+            ]}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            type="number"
+            min={0}
+            placeholder="Возраст, мес."
+            value={ageMonths}
+            onChange={(e) => setAgeMonths(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="Высота, см"
+            value={heightCm}
+            onChange={(e) => setHeightCm(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="Диаметр, см"
+            value={diameterCm}
+            onChange={(e) => setDiameterCm(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="Тара, л"
+            value={potVolumeL}
+            onChange={(e) => setPotVolumeL(e.target.value)}
+            className="input-field"
+          />
+        </div>
+      </div>
 
       <div>
         <div className="flex items-center justify-between mb-1">

@@ -36,6 +36,15 @@ export interface Plant {
   lightRequirements?: string;
   waterRequirements?: string;
   deliveryInfo?: string;
+  plantType?: 'CONIFEROUS' | 'DECIDUOUS';
+  lifeCycle?: 'PERENNIAL' | 'ANNUAL';
+  lightNeed?: 'SUN_LOVING' | 'SHADE_TOLERANT';
+  toxicToPets?: boolean;
+  ageMonths?: number;
+  heightCm?: number;
+  diameterCm?: number;
+  rootSystemType?: 'CLOSED' | 'OPEN';
+  potVolumeL?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
   createdAt: Date;
 }

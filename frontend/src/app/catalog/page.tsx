@@ -8,7 +8,15 @@ import { CategoryFilter } from '@/components/CategoryFilter';
 import { PlantCard, PlantCardSkeleton } from '@/components/PlantCard';
 import { EmptyCatalogIllustration } from '@/components/EmptyCatalogIllustration';
 import { FilterIcon } from '@/components/Icons';
-import { fetchCategories, fetchListings, type Category } from '@/lib/api';
+import {
+  fetchCategories,
+  fetchListings,
+  type Category,
+  type PlantType,
+  type LifeCycle,
+  type LightNeed,
+  type RootSystemType,
+} from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
 import { Plant } from '@/types/models';
 
@@ -25,6 +33,23 @@ const PRICE_PRESETS: { label: string; min?: number; max?: number }[] = [
   { label: '1 000–3 000 ₽', min: 1000, max: 3000 },
   { label: '3 000–5 000 ₽', min: 3000, max: 5000 },
   { label: 'От 5 000 ₽', min: 5000 },
+];
+
+const PLANT_TYPE_OPTIONS: { value: PlantType; label: string }[] = [
+  { value: 'CONIFEROUS', label: 'Хвойное' },
+  { value: 'DECIDUOUS', label: 'Лиственное' },
+];
+const LIFE_CYCLE_OPTIONS: { value: LifeCycle; label: string }[] = [
+  { value: 'PERENNIAL', label: 'Многолетнее' },
+  { value: 'ANNUAL', label: 'Однолетнее' },
+];
+const LIGHT_NEED_OPTIONS: { value: LightNeed; label: string }[] = [
+  { value: 'SUN_LOVING', label: 'Светолюбивое' },
+  { value: 'SHADE_TOLERANT', label: 'Теневыносливое' },
+];
+const ROOT_SYSTEM_OPTIONS: { value: RootSystemType; label: string }[] = [
+  { value: 'CLOSED', label: 'ЗКС' },
+  { value: 'OPEN', label: 'ОКС' },
 ];
 
 export default function CatalogPage() {
@@ -56,6 +81,13 @@ function CatalogContent() {
   const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [plantType, setPlantType] = useState<PlantType | ''>('');
+  const [lifeCycle, setLifeCycle] = useState<LifeCycle | ''>('');
+  const [lightNeed, setLightNeed] = useState<LightNeed | ''>('');
+  const [safeForPets, setSafeForPets] = useState(false);
+  const [rootSystemType, setRootSystemType] = useState<RootSystemType | ''>('');
+  const [minHeight, setMinHeight] = useState('');
+  const [maxHeight, setMaxHeight] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -64,6 +96,14 @@ function CatalogContent() {
   const [suggestions, setSuggestions] = useState<Plant[]>([]);
 
   const hasPriceFilter = minPrice !== '' || maxPrice !== '';
+  const hasAttributeFilter =
+    plantType !== '' ||
+    lifeCycle !== '' ||
+    lightNeed !== '' ||
+    safeForPets ||
+    rootSystemType !== '' ||
+    minHeight !== '' ||
+    maxHeight !== '';
 
   useEffect(() => {
     fetchCategories()
@@ -80,6 +120,13 @@ function CatalogContent() {
         sortBy,
         minPrice: minPrice ? Number(minPrice) : undefined,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        plantType: plantType || undefined,
+        lifeCycle: lifeCycle || undefined,
+        lightNeed: lightNeed || undefined,
+        toxicToPets: safeForPets ? false : undefined,
+        rootSystemType: rootSystemType || undefined,
+        minHeight: minHeight ? Number(minHeight) : undefined,
+        maxHeight: maxHeight ? Number(maxHeight) : undefined,
       })
         .then((page) => {
           setPlants(page.items.map(listingToPlant));
@@ -92,7 +139,20 @@ function CatalogContent() {
         .finally(() => setIsLoading(false));
     }, 300);
     return () => clearTimeout(timeout);
-  }, [query, category, sortBy, minPrice, maxPrice]);
+  }, [
+    query,
+    category,
+    sortBy,
+    minPrice,
+    maxPrice,
+    plantType,
+    lifeCycle,
+    lightNeed,
+    safeForPets,
+    rootSystemType,
+    minHeight,
+    maxHeight,
+  ]);
 
   // Когда по запросу ничего не нашлось — подсказываем похожие растения (по категории,
   // если она выбрана, иначе просто новые поступления), чтобы страница не была тупиком
@@ -130,14 +190,14 @@ function CatalogContent() {
         <button
           onClick={() => setIsFiltersOpen((prev) => !prev)}
           className={`flex-shrink-0 p-3 rounded-2xl transition-colors relative ${
-            isFiltersOpen || sortBy !== 'newest' || hasPriceFilter
+            isFiltersOpen || sortBy !== 'newest' || hasPriceFilter || hasAttributeFilter
               ? 'bg-green-600 text-white'
               : 'bg-[var(--color-surface)] text-gray-500'
           }`}
           aria-label="Фильтры"
         >
           <FilterIcon size={20} />
-          {(sortBy !== 'newest' || hasPriceFilter) && (
+          {(sortBy !== 'newest' || hasPriceFilter || hasAttributeFilter) && (
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-[var(--color-background)]" />
           )}
         </button>
@@ -187,12 +247,130 @@ function CatalogContent() {
             </div>
           </div>
 
-          {(sortBy !== 'newest' || hasPriceFilter) && (
+          <div>
+            <label className="text-sm text-gray-700 mb-1 block">Тип растения</label>
+            <div className="flex gap-2 flex-wrap">
+              {PLANT_TYPE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setPlantType((prev) => (prev === option.value ? '' : option.value))}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    plantType === option.value
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-700 mb-1 block">Цикл жизни</label>
+            <div className="flex gap-2 flex-wrap">
+              {LIFE_CYCLE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setLifeCycle((prev) => (prev === option.value ? '' : option.value))}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    lifeCycle === option.value
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-700 mb-1 block">Отношение к свету</label>
+            <div className="flex gap-2 flex-wrap">
+              {LIGHT_NEED_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setLightNeed((prev) => (prev === option.value ? '' : option.value))}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    lightNeed === option.value
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-700 mb-1 block">Корневая система</label>
+            <div className="flex gap-2 flex-wrap">
+              {ROOT_SYSTEM_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setRootSystemType((prev) => (prev === option.value ? '' : option.value))}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    rootSystemType === option.value
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <button
+              onClick={() => setSafeForPets((prev) => !prev)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                safeForPets
+                  ? 'bg-green-600 text-white border-green-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-green-300'
+              }`}
+            >
+              Не токсично для животных
+            </button>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-700 mb-1 block">Высота, см</label>
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="number"
+                min={0}
+                placeholder="От"
+                value={minHeight}
+                onChange={(e) => setMinHeight(e.target.value)}
+                className="input-field"
+              />
+              <input
+                type="number"
+                min={0}
+                placeholder="До"
+                value={maxHeight}
+                onChange={(e) => setMaxHeight(e.target.value)}
+                className="input-field"
+              />
+            </div>
+          </div>
+
+          {(sortBy !== 'newest' || hasPriceFilter || hasAttributeFilter) && (
             <button
               onClick={() => {
                 setSortBy('newest');
                 setMinPrice('');
                 setMaxPrice('');
+                setPlantType('');
+                setLifeCycle('');
+                setLightNeed('');
+                setSafeForPets(false);
+                setRootSystemType('');
+                setMinHeight('');
+                setMaxHeight('');
               }}
               className="text-sm text-gray-500 hover:text-gray-700"
             >
@@ -231,6 +409,13 @@ function CatalogContent() {
                 setSortBy('newest');
                 setMinPrice('');
                 setMaxPrice('');
+                setPlantType('');
+                setLifeCycle('');
+                setLightNeed('');
+                setSafeForPets(false);
+                setRootSystemType('');
+                setMinHeight('');
+                setMaxHeight('');
               }}
               className="btn-primary inline-block"
             >

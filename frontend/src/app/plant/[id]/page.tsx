@@ -14,6 +14,11 @@ function formatDate(date: Date) {
   return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+const PLANT_TYPE_LABELS: Record<string, string> = { CONIFEROUS: 'Хвойное', DECIDUOUS: 'Лиственное' };
+const LIFE_CYCLE_LABELS: Record<string, string> = { PERENNIAL: 'Многолетнее', ANNUAL: 'Однолетнее' };
+const LIGHT_NEED_LABELS: Record<string, string> = { SUN_LOVING: 'Светолюбивое', SHADE_TOLERANT: 'Теневыносливое' };
+const ROOT_SYSTEM_LABELS: Record<string, string> = { CLOSED: 'ЗКС (закрытая)', OPEN: 'ОКС (открытая)' };
+
 interface PlantDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -128,6 +133,58 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
                 <div className="flex items-center justify-between gap-4">
                   <dt className="text-gray-500">Полив</dt>
                   <dd className="text-gray-700 font-medium text-right">{plant.waterRequirements}</dd>
+                </div>
+              )}
+              {plant.plantType && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Тип</dt>
+                  <dd className="text-gray-700 font-medium text-right">{PLANT_TYPE_LABELS[plant.plantType]}</dd>
+                </div>
+              )}
+              {plant.lifeCycle && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Цикл жизни</dt>
+                  <dd className="text-gray-700 font-medium text-right">{LIFE_CYCLE_LABELS[plant.lifeCycle]}</dd>
+                </div>
+              )}
+              {plant.lightNeed && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Отношение к свету</dt>
+                  <dd className="text-gray-700 font-medium text-right">{LIGHT_NEED_LABELS[plant.lightNeed]}</dd>
+                </div>
+              )}
+              {plant.toxicToPets !== undefined && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Токсичность для животных</dt>
+                  <dd className="text-gray-700 font-medium text-right">{plant.toxicToPets ? 'Токсично' : 'Не токсично'}</dd>
+                </div>
+              )}
+              {plant.ageMonths !== undefined && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Возраст</dt>
+                  <dd className="text-gray-700 font-medium text-right">{plant.ageMonths} мес.</dd>
+                </div>
+              )}
+              {(plant.heightCm !== undefined || plant.diameterCm !== undefined) && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Высота / диаметр</dt>
+                  <dd className="text-gray-700 font-medium text-right">
+                    {plant.heightCm !== undefined ? `${plant.heightCm} см` : '—'}
+                    {' / '}
+                    {plant.diameterCm !== undefined ? `${plant.diameterCm} см` : '—'}
+                  </dd>
+                </div>
+              )}
+              {plant.rootSystemType && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Корневая система</dt>
+                  <dd className="text-gray-700 font-medium text-right">{ROOT_SYSTEM_LABELS[plant.rootSystemType]}</dd>
+                </div>
+              )}
+              {plant.potVolumeL !== undefined && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Тара</dt>
+                  <dd className="text-gray-700 font-medium text-right">{plant.potVolumeL} л</dd>
                 </div>
               )}
               <div className="flex items-center justify-between gap-4">

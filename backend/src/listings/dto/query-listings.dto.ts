@@ -1,5 +1,6 @@
-import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { PlantType, LifeCycle, LightNeed, RootSystemType } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class QueryListingsDto {
   @IsOptional()
@@ -42,4 +43,37 @@ export class QueryListingsDto {
   @IsOptional()
   @IsIn(['newest', 'price_asc', 'price_desc'])
   sortBy?: 'newest' | 'price_asc' | 'price_desc';
+
+  @IsOptional()
+  @IsEnum(PlantType)
+  plantType?: PlantType;
+
+  @IsOptional()
+  @IsEnum(LifeCycle)
+  lifeCycle?: LifeCycle;
+
+  @IsOptional()
+  @IsEnum(LightNeed)
+  lightNeed?: LightNeed;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  toxicToPets?: boolean;
+
+  @IsOptional()
+  @IsEnum(RootSystemType)
+  rootSystemType?: RootSystemType;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  minHeight?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  maxHeight?: number;
 }

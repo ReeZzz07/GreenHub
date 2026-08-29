@@ -45,6 +45,14 @@ export class ListingsService {
             ],
           }
         : {}),
+      ...(query.plantType ? { plantType: query.plantType } : {}),
+      ...(query.lifeCycle ? { lifeCycle: query.lifeCycle } : {}),
+      ...(query.lightNeed ? { lightNeed: query.lightNeed } : {}),
+      ...(query.toxicToPets !== undefined ? { toxicToPets: query.toxicToPets } : {}),
+      ...(query.rootSystemType ? { rootSystemType: query.rootSystemType } : {}),
+      ...(query.minHeight !== undefined || query.maxHeight !== undefined
+        ? { heightCm: { gte: query.minHeight, lte: query.maxHeight } }
+        : {}),
     };
 
     const orderBy: Prisma.ListingOrderByWithRelationInput =
@@ -139,6 +147,15 @@ export class ListingsService {
         waterRequirements: dto.waterRequirements,
         careInstructions: dto.careInstructions ?? [],
         deliveryInfo: dto.deliveryInfo,
+        plantType: dto.plantType,
+        lifeCycle: dto.lifeCycle,
+        lightNeed: dto.lightNeed,
+        toxicToPets: dto.toxicToPets,
+        ageMonths: dto.ageMonths,
+        heightCm: dto.heightCm,
+        diameterCm: dto.diameterCm,
+        rootSystemType: dto.rootSystemType,
+        potVolumeL: dto.potVolumeL,
         categoryId: dto.categoryId,
         sellerId,
       },

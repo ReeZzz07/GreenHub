@@ -25,6 +25,15 @@ export function listingToPlant(listing: Listing): Plant {
     lightRequirements: listing.lightRequirements ?? undefined,
     waterRequirements: listing.waterRequirements ?? undefined,
     deliveryInfo: listing.deliveryInfo ?? undefined,
+    plantType: listing.plantType ?? undefined,
+    lifeCycle: listing.lifeCycle ?? undefined,
+    lightNeed: listing.lightNeed ?? undefined,
+    toxicToPets: listing.toxicToPets ?? undefined,
+    ageMonths: listing.ageMonths ?? undefined,
+    heightCm: listing.heightCm ?? undefined,
+    diameterCm: listing.diameterCm ?? undefined,
+    rootSystemType: listing.rootSystemType ?? undefined,
+    potVolumeL: listing.potVolumeL ?? undefined,
     createdAt: new Date(listing.createdAt),
   };
 }

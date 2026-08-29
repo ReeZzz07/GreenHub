@@ -1,4 +1,5 @@
-import { ArrayMaxSize, IsArray, IsInt, IsOptional, IsString, IsUUID, Min, MinLength } from 'class-validator';
+import { PlantType, LifeCycle, LightNeed, RootSystemType } from '@prisma/client';
+import { ArrayMaxSize, IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, IsUUID, Min, MinLength } from 'class-validator';
 
 export class CreateListingDto {
   @IsString()
@@ -53,4 +54,44 @@ export class CreateListingDto {
   @IsOptional()
   @IsString()
   deliveryInfo?: string;
+
+  @IsOptional()
+  @IsEnum(PlantType)
+  plantType?: PlantType;
+
+  @IsOptional()
+  @IsEnum(LifeCycle)
+  lifeCycle?: LifeCycle;
+
+  @IsOptional()
+  @IsEnum(LightNeed)
+  lightNeed?: LightNeed;
+
+  @IsOptional()
+  @IsBoolean()
+  toxicToPets?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ageMonths?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  heightCm?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  diameterCm?: number;
+
+  @IsOptional()
+  @IsEnum(RootSystemType)
+  rootSystemType?: RootSystemType;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  potVolumeL?: number;
 }
