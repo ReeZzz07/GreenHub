@@ -18,6 +18,7 @@ import {
   type ListingStatus,
 } from '@/lib/api';
 import { UserRole } from '@/types';
+import { LISTING_REJECTION_REASONS } from '@/lib/rejection-reasons';
 
 const MODERATOR_ROLES: UserRole[] = [UserRole.MODERATOR, UserRole.ADMIN];
 
@@ -205,6 +206,22 @@ export default function ModerationListingReviewPage() {
       <Modal isOpen={isRejectOpen} onClose={() => setIsRejectOpen(false)} title="Причина отклонения">
         <div className="space-y-4">
           <p className="text-sm text-gray-600">«{listing.title}»</p>
+          <div className="flex flex-wrap gap-2">
+            {LISTING_REJECTION_REASONS.map((template) => (
+              <button
+                key={template}
+                type="button"
+                onClick={() => setReason(template)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  reason === template
+                    ? 'bg-red-600 text-white border-red-600'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-red-300'
+                }`}
+              >
+                {template}
+              </button>
+            ))}
+          </div>
           <textarea
             required
             minLength={3}
