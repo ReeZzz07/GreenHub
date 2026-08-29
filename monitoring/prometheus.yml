@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: greenhub-backend
+    metrics_path: /api/metrics
+    static_configs:
+      # host.docker.internal — бэкенд сейчас запускается на хосте (npm run start:dev), не в контейнере
+      # (см. docker-compose.yml). Если/когда backend получит собственный сервис в compose (см. TZ.md 2.2,
+      # автодеплой), замените таргет на имя сервиса, например "backend:4000".
+      - targets: ['host.docker.internal:4000']

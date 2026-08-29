@@ -7,6 +7,8 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { RedisIoAdapter } from './chat/redis-io.adapter';
 import { validateRequiredEnv } from './config/env.validation';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { TelegramAlertService } from './telegram/telegram-alert.service';
 
 async function bootstrap() {
   validateRequiredEnv();
@@ -31,6 +33,7 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(TelegramAlertService)));
 
   const port = process.env.PORT ?? 4000;
   await app.listen(port);

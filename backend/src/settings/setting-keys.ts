@@ -12,6 +12,8 @@ export const SETTING_KEYS = [
   'SMTP_PASSWORD',
   'SMTP_FROM',
   'SMTP_SECURE',
+  'TELEGRAM_BOT_TOKEN',
+  'TELEGRAM_CHAT_ID',
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];

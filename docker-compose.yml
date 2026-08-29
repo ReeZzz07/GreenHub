@@ -32,6 +32,35 @@ services:
     volumes:
       - minio_data:/data
 
+  # Мониторинг (TZ.md 2.2). Backend публикует метрики на /api/metrics (см. src/monitoring);
+  # Prometheus их скрейпит, Grafana — визуализирует. Не обязательны для обычной разработки —
+  # запускать выборочно: docker compose up -d prometheus grafana
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - '9090:9090'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - '3001:3000'
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
   minio_data:
+  prometheus_data:
+  grafana_data:

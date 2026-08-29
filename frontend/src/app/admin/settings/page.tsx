@@ -60,6 +60,11 @@ const SMTP_FIELDS: FieldConfig[] = [
   { key: 'SMTP_SECURE', label: 'TLS (true/false)', placeholder: 'false', type: 'text' },
 ];
 
+const TELEGRAM_FIELDS: FieldConfig[] = [
+  { key: 'TELEGRAM_BOT_TOKEN', label: 'Токен бота', placeholder: '123456:AAExample...', type: 'password' },
+  { key: 'TELEGRAM_CHAT_ID', label: 'ID чата для алертов', placeholder: '-1001234567890', type: 'text' },
+];
+
 export default function AdminSettingsPage() {
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
@@ -174,6 +179,11 @@ export default function AdminSettingsPage() {
           'SMTP / Почта',
           'Email-уведомления о заказах, модерации, сообщениях и отзывах',
           SMTP_FIELDS,
+        )}
+        {renderFieldGroup(
+          'Telegram-алерты',
+          'Уведомления об ошибках сервера (5xx) в Telegram-чат',
+          TELEGRAM_FIELDS,
         )}
 
         <Button type="submit" fullWidth isLoading={isSaving}>

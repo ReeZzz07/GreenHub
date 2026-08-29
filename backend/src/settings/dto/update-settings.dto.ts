@@ -48,4 +48,12 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   SMTP_SECURE?: string;
+
+  @IsOptional()
+  @IsString()
+  TELEGRAM_BOT_TOKEN?: string;
+
+  @IsOptional()
+  @IsString()
+  TELEGRAM_CHAT_ID?: string;
 }

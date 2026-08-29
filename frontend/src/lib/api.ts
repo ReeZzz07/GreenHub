@@ -463,7 +463,9 @@ export type SettingKey =
   | 'SMTP_USER'
   | 'SMTP_PASSWORD'
   | 'SMTP_FROM'
-  | 'SMTP_SECURE';
+  | 'SMTP_SECURE'
+  | 'TELEGRAM_BOT_TOKEN'
+  | 'TELEGRAM_CHAT_ID';
 
 export type SettingsStatus = Record<SettingKey, boolean>;
 

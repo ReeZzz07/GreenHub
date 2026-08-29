@@ -23,6 +23,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { QueueModule } from './queue/queue.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { QueueModule } from './queue/queue.module';
     PrismaModule,
     RedisModule,
     QueueModule,
+    MonitoringModule,
+    TelegramModule,
     NotificationsModule,
     AuthModule,
     UsersModule,
