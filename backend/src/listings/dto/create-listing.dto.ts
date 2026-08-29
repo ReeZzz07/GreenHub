@@ -32,6 +32,12 @@ export class CreateListingDto {
   images?: string[];
 
   @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  videos?: string[];
+
+  @IsOptional()
   @IsString()
   lightRequirements?: string;
 

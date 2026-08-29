@@ -86,6 +86,7 @@ model Listing {
   price             Int
   quantity          Int           @default(1)
   images            String[]
+  videos            String[]      @default([])
   lightRequirements String?
   waterRequirements String?
   careInstructions  String[]

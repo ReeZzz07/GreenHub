@@ -11,6 +11,7 @@ import { randomUUID } from 'crypto';
 import sharp from 'sharp';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
+const ALLOWED_VIDEO_MIME_TYPES = ['video/mp4'];
 const MAX_DIMENSION = 1600;
 
 @Injectable()
@@ -77,6 +78,26 @@ export class MediaService implements OnModuleInit {
     );
 
     return `${this.publicUrl}/${this.processedBucket}/${processedKey}`;
+  }
+
+  // Короткое видео объявления (TZ.md 4.3): sharp с видео не работает, поэтому без вотермарка и
+  // пересжатия — кладём оригинал в публичный бакет как есть. Длительность (≤15 сек) проверяется на клиенте.
+  async uploadListingVideo(file: { buffer: Buffer; mimetype: string }): Promise<string> {
+    if (!ALLOWED_VIDEO_MIME_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Допустимый формат видео: MP4');
+    }
+
+    const key = `listing-videos/${randomUUID()}.mp4`;
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.processedBucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }),
+    );
+
+    return `${this.publicUrl}/${this.processedBucket}/${key}`;
   }
 
   // Аватар пользователя: без вотермарка (это личное фото, а не карточка товара),

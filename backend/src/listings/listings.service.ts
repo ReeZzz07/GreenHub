@@ -130,6 +130,7 @@ export class ListingsService {
         price: dto.price,
         quantity: dto.quantity ?? 1,
         images: dto.images ?? [],
+        videos: dto.videos ?? [],
         lightRequirements: dto.lightRequirements,
         waterRequirements: dto.waterRequirements,
         careInstructions: dto.careInstructions ?? [],

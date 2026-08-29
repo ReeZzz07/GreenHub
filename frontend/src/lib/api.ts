@@ -48,6 +48,18 @@ export async function uploadMedia(file: File, token: string): Promise<{ url: str
   return handleResponse<{ url: string }>(res);
 }
 
+export async function uploadListingVideo(file: File, token: string): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_URL}/media/upload-video`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  return handleResponse<{ url: string }>(res);
+}
+
 export type CategoryIconType = 'EMOJI' | 'PRESET' | 'UPLOAD';
 
 export interface Category {
@@ -170,6 +182,7 @@ export interface Listing {
   price: number;
   quantity: number;
   images: string[];
+  videos: string[];
   lightRequirements: string | null;
   waterRequirements: string | null;
   careInstructions: string[];
@@ -234,6 +247,7 @@ export interface CreateListingPayload {
   quantity?: number;
   categoryId: string;
   images?: string[];
+  videos?: string[];
   lightRequirements?: string;
   waterRequirements?: string;
   careInstructions?: string[];

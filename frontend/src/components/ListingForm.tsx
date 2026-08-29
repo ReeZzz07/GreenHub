@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from './Toast';
 import { Button } from './Button';
 import { ImageUploader } from './ImageUploader';
+import { VideoUploader } from './VideoUploader';
 import { Select } from './Select';
 import {
   fetchCategories,
@@ -41,6 +42,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
   const [careInstructions, setCareInstructions] = useState(initial?.careInstructions.join(', ') ?? '');
   const [deliveryInfo, setDeliveryInfo] = useState(initial?.deliveryInfo ?? '');
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
+  const [videos, setVideos] = useState<string[]>(initial?.videos ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -102,6 +104,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
       quantity: Number(quantity) || 1,
       categoryId,
       images,
+      videos,
       lightRequirements: lightRequirements || undefined,
       waterRequirements: waterRequirements || undefined,
       careInstructions: careInstructions
@@ -233,6 +236,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
       </div>
 
       <ImageUploader images={images} onChange={setImages} />
+      <VideoUploader videos={videos} onChange={setVideos} />
 
       <Button type="submit" fullWidth isLoading={isSubmitting}>
         {mode === 'edit' ? 'Сохранить изменения' : 'Отправить на модерацию'}

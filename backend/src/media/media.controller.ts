@@ -30,4 +30,16 @@ export class MediaController {
     const url = await this.mediaService.uploadListingImage(file);
     return { url };
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SELLER_INDIVIDUAL, UserRole.SELLER_BUSINESS, UserRole.ADMIN)
+  @Post('upload-video')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }))
+  async uploadVideo(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Файл не передан');
+    }
+    const url = await this.mediaService.uploadListingVideo(file);
+    return { url };
+  }
 }

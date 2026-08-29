@@ -22,6 +22,7 @@ export interface Plant {
   description: string;
   price: number;
   images: string[];
+  videos?: string[];
   category: string;
   sellerId: string;
   sellerName: string;

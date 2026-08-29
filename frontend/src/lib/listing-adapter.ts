@@ -11,6 +11,7 @@ export function listingToPlant(listing: Listing): Plant {
     description: listing.description,
     price: listing.price,
     images: listing.images,
+    videos: listing.videos,
     category: listing.category.slug,
     sellerId: listing.sellerId,
     sellerName: listing.seller.name,

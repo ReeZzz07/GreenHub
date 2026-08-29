@@ -160,6 +160,26 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
             </div>
           )}
 
+          {plant.videos && plant.videos.length > 0 && (
+            <div className="mb-6">
+              <h2 className="font-display font-semibold text-gray-900 mb-3">Видео</h2>
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {plant.videos.map((url) => (
+                  <video
+                    key={url}
+                    src={url}
+                    className="w-40 h-40 rounded-2xl object-cover flex-shrink-0 bg-gray-900"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <Link
             href={`/seller/${plant.sellerId}`}
             className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-[var(--color-surface)] hover:bg-green-50 transition-colors"
