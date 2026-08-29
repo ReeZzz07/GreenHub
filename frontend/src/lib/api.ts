@@ -777,3 +777,86 @@ export function markConversationNotificationsRead(conversationId: string, token:
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  durationDays: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SubscriptionStatus = 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+
+export interface Subscription {
+  id: string;
+  status: SubscriptionStatus;
+  expiresAt: string | null;
+  paymentUrl: string | null;
+  paymentId: string | null;
+  planId: string;
+  plan: SubscriptionPlan;
+  sellerId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function fetchSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  return request<SubscriptionPlan[]>('/subscription-plans');
+}
+
+export function fetchAllSubscriptionPlans(token: string): Promise<SubscriptionPlan[]> {
+  return request<SubscriptionPlan[]>('/subscription-plans/admin', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export interface SubscriptionPlanPayload {
+  name: string;
+  price: number;
+  durationDays: number;
+  isActive?: boolean;
+}
+
+export function createSubscriptionPlan(payload: SubscriptionPlanPayload, token: string): Promise<SubscriptionPlan> {
+  return request<SubscriptionPlan>('/subscription-plans', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateSubscriptionPlan(
+  id: string,
+  payload: Partial<SubscriptionPlanPayload>,
+  token: string,
+): Promise<SubscriptionPlan> {
+  return request<SubscriptionPlan>(`/subscription-plans/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteSubscriptionPlan(id: string, token: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/subscription-plans/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function fetchMySubscription(token: string): Promise<Subscription | null> {
+  return request<Subscription | null>('/subscriptions/mine', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function subscribeToPlan(planId: string, token: string): Promise<Subscription> {
+  return request<Subscription>('/subscriptions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ planId }),
+  });
+}

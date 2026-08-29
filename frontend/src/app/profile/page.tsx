@@ -130,14 +130,26 @@ function ProfileContent() {
         )}
 
         {user.role === UserRole.ADMIN && (
-          <Link href="/admin/settings" className="btn-secondary block text-center mb-6">
+          <Link href="/admin/settings" className="btn-secondary block text-center mb-3">
             Настройки интеграций
+          </Link>
+        )}
+
+        {user.role === UserRole.ADMIN && (
+          <Link href="/admin/subscription-plans" className="btn-secondary block text-center mb-6">
+            Тарифы подписки
           </Link>
         )}
 
         {SELLER_ROLES.includes(user.role) && (
           <Link href="/listings/mine" className="btn-secondary block text-center mb-6">
             Мои объявления
+          </Link>
+        )}
+
+        {user.role === UserRole.SELLER_BUSINESS && (
+          <Link href="/subscription" className="btn-secondary block text-center mb-6">
+            Подписка
           </Link>
         )}
 

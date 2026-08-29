@@ -48,6 +48,7 @@ model User {
   reviewsWritten        Review[]       @relation("ReviewsWritten")
   reviewsReceived       Review[]       @relation("ReviewsReceived")
   notifications         Notification[]
+  subscriptions         Subscription[]
 }
 
 enum CategoryIconType {
@@ -255,6 +256,50 @@ model Order {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// TZ.md, раздел 5.4: тарифы подписки для питомников, настраиваются администратором
+model SubscriptionPlan {
+  id           String   @id @default(uuid())
+  name         String
+  price        Int
+  durationDays Int
+  isActive     Boolean  @default(true)
+
+  subscriptions Subscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// TZ.md, раздел 5.4: "Выбор тарифа -> генерация ссылки на оплату рекуррентного платежа".
+// MVP: платёж помечается save_payment_method — сохранённый способ оплаты готов к переиспользованию,
+// но сам механизм автопродления (переиспользование payment_method_id по расписанию) не реализован.
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Subscription {
+  id        String             @id @default(uuid())
+  status    SubscriptionStatus @default(PENDING)
+  expiresAt DateTime?
+
+  paymentUrl String?
+  paymentId  String? @unique
+
+  planId String
+  plan   SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId, status])
 }
 
 // Отзыв покупателя о продавце, привязан к оплаченной сделке (один отзыв на заказ).

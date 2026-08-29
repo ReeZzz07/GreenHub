@@ -8,6 +8,7 @@ export interface YooKassaPayment {
   id: string;
   status: 'pending' | 'waiting_for_capture' | 'succeeded' | 'canceled';
   confirmation?: { confirmation_url?: string };
+  payment_method?: { id: string; saved: boolean };
 }
 
 interface Credentials {
@@ -62,7 +63,12 @@ export class YooKassaService {
     return res.json();
   }
 
-  createPayment(params: { amount: number; description: string; returnUrl: string }): Promise<YooKassaPayment> {
+  createPayment(params: {
+    amount: number;
+    description: string;
+    returnUrl: string;
+    savePaymentMethod?: boolean;
+  }): Promise<YooKassaPayment> {
     return this.request<YooKassaPayment>('/payments', {
       method: 'POST',
       idempotent: true,
@@ -71,6 +77,7 @@ export class YooKassaService {
         confirmation: { type: 'redirect', return_url: params.returnUrl },
         capture: true,
         description: params.description,
+        ...(params.savePaymentMethod ? { save_payment_method: true } : {}),
       }),
     });
   }

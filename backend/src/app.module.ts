@@ -21,6 +21,7 @@ import { OrdersModule } from './orders/orders.module';
 import { AiModule } from './ai/ai.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     OrdersModule,
     AiModule,
     ReviewsModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: HttpThrottlerGuard }],

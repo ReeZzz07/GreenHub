@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -11,7 +12,10 @@ interface YooKassaWebhookPayload {
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly subscriptionsService: SubscriptionsService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('mine')
@@ -25,12 +29,14 @@ export class OrdersController {
     return this.ordersService.create(user.id, dto);
   }
 
-  // Публичный эндпоинт — ЮKassa стучится сюда напрямую, без JWT
+  // Публичный эндпоинт — ЮKassa стучится сюда напрямую, без JWT.
+  // Один и тот же paymentId принадлежит либо заказу, либо подписке — пробуем оба варианта.
   @Post('yookassa/webhook')
   @HttpCode(HttpStatus.OK)
   async handleWebhook(@Body() payload: YooKassaWebhookPayload) {
     if (payload?.object?.id) {
-      await this.ordersService.handleWebhook(payload.object.id);
+      const handled = await this.ordersService.handleWebhook(payload.object.id);
+      if (!handled) await this.subscriptionsService.handleWebhook(payload.object.id);
     }
     return { received: true };
   }

@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SettingsModule } from '../settings/settings.module';
+import { PaymentsModule } from '../payments/payments.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { YooKassaService } from './yookassa.service';
 
 @Module({
-  imports: [SettingsModule],
+  imports: [SettingsModule, PaymentsModule, SubscriptionsModule],
   controllers: [OrdersController],
-  providers: [OrdersService, YooKassaService],
+  providers: [OrdersService],
 })
 export class OrdersModule {}

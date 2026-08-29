@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { NotificationType, OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { YooKassaService } from './yookassa.service';
+import { YooKassaService } from '../payments/yookassa.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 const ORDER_INCLUDE = {
@@ -73,12 +73,12 @@ export class OrdersService {
 
   // Вебхук не доверяет статусу из тела запроса напрямую — перепроверяет его через GET-запрос
   // к самой ЮKassa (рекомендованная практика их API, т.к. базовый v3 API не подписывает уведомления).
-  async handleWebhook(paymentId: string) {
+  async handleWebhook(paymentId: string): Promise<boolean> {
     const order = await this.prisma.order.findUnique({
       where: { paymentId },
       include: { listing: { select: { title: true, sellerId: true } } },
     });
-    if (!order) return;
+    if (!order) return false;
 
     const verified = await this.yooKassa.getPayment(paymentId);
     const status =
@@ -127,5 +127,6 @@ export class OrdersService {
         ]);
       }
     }
+    return true;
   }
 }
