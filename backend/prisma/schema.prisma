@@ -89,6 +89,7 @@ model Listing {
   lightRequirements String?
   waterRequirements String?
   careInstructions  String[]
+  deliveryInfo      String? // Регионы/способы доставки текстом — TZ.md 5.3.2 (MVP: без структурированных полей)
   status            ListingStatus @default(PENDING_MODERATION)
   rejectionReason   String?
   views             Int           @default(0)

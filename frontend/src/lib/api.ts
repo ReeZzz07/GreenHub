@@ -173,6 +173,7 @@ export interface Listing {
   lightRequirements: string | null;
   waterRequirements: string | null;
   careInstructions: string[];
+  deliveryInfo: string | null;
   status: ListingStatus;
   rejectionReason: string | null;
   views: number;
@@ -236,6 +237,7 @@ export interface CreateListingPayload {
   lightRequirements?: string;
   waterRequirements?: string;
   careInstructions?: string[];
+  deliveryInfo?: string;
 }
 
 export function createListing(payload: CreateListingPayload, token: string): Promise<Listing> {

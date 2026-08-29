@@ -34,6 +34,7 @@ export interface Plant {
   careInstructions?: string[];
   lightRequirements?: string;
   waterRequirements?: string;
+  deliveryInfo?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   createdAt: Date;
 }

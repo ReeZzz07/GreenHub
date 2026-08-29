@@ -153,6 +153,13 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
             </div>
           )}
 
+          {plant.deliveryInfo && (
+            <div className="card p-4 mb-6">
+              <h2 className="font-display font-semibold text-gray-900 mb-3">Доставка</h2>
+              <p className="text-sm text-gray-600 whitespace-pre-line">{plant.deliveryInfo}</p>
+            </div>
+          )}
+
           <Link
             href={`/seller/${plant.sellerId}`}
             className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-[var(--color-surface)] hover:bg-green-50 transition-colors"

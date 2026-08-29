@@ -39,6 +39,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
   const [lightRequirements, setLightRequirements] = useState(initial?.lightRequirements ?? '');
   const [waterRequirements, setWaterRequirements] = useState(initial?.waterRequirements ?? '');
   const [careInstructions, setCareInstructions] = useState(initial?.careInstructions.join(', ') ?? '');
+  const [deliveryInfo, setDeliveryInfo] = useState(initial?.deliveryInfo ?? '');
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -107,6 +108,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean),
+      deliveryInfo: deliveryInfo || undefined,
     };
 
     setIsSubmitting(true);
@@ -196,6 +198,13 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         placeholder="Советы по уходу через запятую (необязательно)"
         value={careInstructions}
         onChange={(e) => setCareInstructions(e.target.value)}
+        className="input-field"
+      />
+      <textarea
+        rows={2}
+        placeholder="Доставка: регионы и способы, например «СДЭК по России, самовывоз из Москвы, встреча у метро» (необязательно)"
+        value={deliveryInfo}
+        onChange={(e) => setDeliveryInfo(e.target.value)}
         className="input-field"
       />
 

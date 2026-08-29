@@ -23,6 +23,7 @@ export function listingToPlant(listing: Listing): Plant {
     careInstructions: listing.careInstructions,
     lightRequirements: listing.lightRequirements ?? undefined,
     waterRequirements: listing.waterRequirements ?? undefined,
+    deliveryInfo: listing.deliveryInfo ?? undefined,
     createdAt: new Date(listing.createdAt),
   };
 }

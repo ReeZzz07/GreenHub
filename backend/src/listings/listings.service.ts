@@ -133,6 +133,7 @@ export class ListingsService {
         lightRequirements: dto.lightRequirements,
         waterRequirements: dto.waterRequirements,
         careInstructions: dto.careInstructions ?? [],
+        deliveryInfo: dto.deliveryInfo,
         categoryId: dto.categoryId,
         sellerId,
       },

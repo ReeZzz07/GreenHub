@@ -43,4 +43,8 @@ export class CreateListingDto {
   @IsArray()
   @IsString({ each: true })
   careInstructions?: string[];
+
+  @IsOptional()
+  @IsString()
+  deliveryInfo?: string;
 }
