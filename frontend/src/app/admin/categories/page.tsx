@@ -10,6 +10,7 @@ import { Modal } from '@/components/Modal';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PageHeader } from '@/components/PageHeader';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { Select } from '@/components/Select';
 import { PlusIcon, TrashIcon, LoaderIcon } from '@/components/Icons';
 import { slugify } from '@/lib/slugify';
 import { CATEGORY_ICON_PRESETS } from '@/lib/category-icon-presets';
@@ -361,20 +362,14 @@ export default function AdminCategoriesPage() {
 
             <div>
               <label className="text-sm text-gray-700 mb-1 block">Родительская категория</label>
-              <select
+              <Select
                 value={form.parentId}
-                onChange={(e) => setForm((prev) => (prev ? { ...prev, parentId: e.target.value } : prev))}
-                className="input-field"
-              >
-                <option value="">Нет — категория верхнего уровня</option>
-                {rootCategories
-                  .filter((c) => c.id !== form.id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-              </select>
+                onChange={(value) => setForm((prev) => (prev ? { ...prev, parentId: value } : prev))}
+                options={[
+                  { value: '', label: 'Нет — категория верхнего уровня' },
+                  ...rootCategories.filter((c) => c.id !== form.id).map((c) => ({ value: c.id, label: c.name })),
+                ]}
+              />
             </div>
             <Button type="submit" fullWidth isLoading={isSaving} disabled={isUploadingIcon}>
               {form.id ? 'Сохранить' : 'Добавить'}

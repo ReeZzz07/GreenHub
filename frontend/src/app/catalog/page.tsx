@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchBar } from '@/components/SearchBar';
+import { Select } from '@/components/Select';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { PlantCard, PlantCardSkeleton } from '@/components/PlantCard';
 import { EmptyCatalogIllustration } from '@/components/EmptyCatalogIllustration';
@@ -146,17 +147,7 @@ function CatalogContent() {
         <div className="card p-4 mb-4 space-y-3 animate-fade-in lg:max-w-xl">
           <div>
             <label className="text-sm text-gray-700 mb-1 block">Сортировка</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="input-field"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select value={sortBy} onChange={(value) => setSortBy(value as SortBy)} options={SORT_OPTIONS} />
           </div>
 
           <div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PlantCard, PlantCardSkeleton } from '../PlantCard';
 import { SearchBar } from '../SearchBar';
+import { Select } from '../Select';
 import { fetchListings } from '@/lib/api';
 import { listingToPlant } from '@/lib/listing-adapter';
 import { Plant } from '@/types/models';
@@ -80,17 +81,12 @@ export function SellerListings({ sellerId, initialItems, initialTotal }: SellerL
           <div className="flex-1">
             <SearchBar value={query} onChange={setQuery} onClear={() => setQuery('')} placeholder="Поиск по товарам продавца" />
           </div>
-          <select
+          <Select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortBy)}
-            className="input-field w-auto flex-shrink-0"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setSortBy(value as SortBy)}
+            options={SORT_OPTIONS}
+            className="w-44 flex-shrink-0"
+          />
         </div>
       )}
 

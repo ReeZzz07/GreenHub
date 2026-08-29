@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from './Toast';
 import { Button } from './Button';
 import { ImageUploader } from './ImageUploader';
+import { Select } from './Select';
 import {
   fetchCategories,
   createListing,
@@ -148,14 +149,13 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         className="input-field"
       />
 
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required className="input-field">
-        {categories.length === 0 && <option value="">Загрузка категорий...</option>}
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
+      <Select
+        value={categoryId}
+        onChange={setCategoryId}
+        options={categories.map((cat) => ({ value: cat.id, label: cat.name }))}
+        placeholder="Загрузка категорий..."
+        disabled={categories.length === 0}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <input

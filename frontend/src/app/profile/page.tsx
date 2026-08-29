@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useToast } from '@/components/Toast';
 import { Button } from '@/components/Button';
+import { Select } from '@/components/Select';
 import { UserIcon, HeartIcon, CheckIcon } from '@/components/Icons';
 import { UserRole } from '@/types';
 import { ApiError, fetchModerationQueue } from '@/lib/api';
@@ -215,17 +216,7 @@ function ProfileContent() {
               onChange={(e) => setPhone(e.target.value)}
               className="input-field"
             />
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-              className="input-field"
-            >
-              {REGISTER_ROLES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select value={role} onChange={(value) => setRole(value as UserRole)} options={REGISTER_ROLES} />
 
             <label className="flex items-start gap-2.5 text-xs text-gray-600 px-1">
               <input
