@@ -34,6 +34,7 @@ interface FormState {
   iconType: CategoryIconType;
   icon: string;
   parentId: string;
+  requiresPhytosanitaryCertificate: boolean;
 }
 
 const EMPTY_FORM: FormState = {
@@ -44,6 +45,7 @@ const EMPTY_FORM: FormState = {
   iconType: 'EMOJI',
   icon: '',
   parentId: '',
+  requiresPhytosanitaryCertificate: false,
 };
 
 const ICON_TYPE_LABELS: Record<CategoryIconType, string> = {
@@ -104,6 +106,7 @@ export default function AdminCategoriesPage() {
       iconType: category.iconType,
       icon: category.icon ?? '',
       parentId: category.parentId ?? '',
+      requiresPhytosanitaryCertificate: category.requiresPhytosanitaryCertificate,
     });
   };
 
@@ -143,6 +146,7 @@ export default function AdminCategoriesPage() {
       icon: form.icon.trim() || undefined,
       iconType: form.iconType,
       parentId: form.parentId || undefined,
+      requiresPhytosanitaryCertificate: form.requiresPhytosanitaryCertificate,
     };
 
     try {
@@ -371,6 +375,20 @@ export default function AdminCategoriesPage() {
                 ]}
               />
             </div>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={form.requiresPhytosanitaryCertificate}
+                onChange={(e) =>
+                  setForm((prev) =>
+                    prev ? { ...prev, requiresPhytosanitaryCertificate: e.target.checked } : prev,
+                  )
+                }
+              />
+              Требует фитосанитарный сертификат
+            </label>
+
             <Button type="submit" fullWidth isLoading={isSaving} disabled={isUploadingIcon}>
               {form.id ? 'Сохранить' : 'Добавить'}
             </Button>

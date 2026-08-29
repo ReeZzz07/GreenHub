@@ -63,6 +63,9 @@ model Category {
   slug      String           @unique
   icon      String?
   iconType  CategoryIconType @default(EMOJI)
+  // TZ.md 5.1: если категория требует фитосанитарного контроля — в форме объявления
+  // появляется поле загрузки сертификата (Listing.certificateUrl).
+  requiresPhytosanitaryCertificate Boolean @default(false)
   parentId  String?
   parent    Category?  @relation("CategoryToSubcategories", fields: [parentId], references: [id], onDelete: SetNull)
   children  Category[] @relation("CategoryToSubcategories")
@@ -114,6 +117,7 @@ model Listing {
   waterRequirements String?
   careInstructions  String[]
   deliveryInfo      String? // Регионы/способы доставки текстом — TZ.md 5.3.2 (MVP: без структурированных полей)
+  certificateUrl    String? // Фитосанитарный сертификат (PDF/фото) — TZ.md 5.1/5.2, проверяется модератором вручную
   status            ListingStatus @default(PENDING_MODERATION)
   rejectionReason   String?
   views             Int           @default(0)

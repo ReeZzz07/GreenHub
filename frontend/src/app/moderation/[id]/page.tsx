@@ -152,6 +152,30 @@ export default function ModerationListingReviewPage() {
           {listing.waterRequirements && <p>Полив: <span className="text-gray-800">{listing.waterRequirements}</span></p>}
         </div>
 
+        {listing.category.requiresPhytosanitaryCertificate && (
+          <div
+            className={`card p-4 mb-6 ${
+              listing.certificateUrl ? 'border border-green-200' : 'border border-red-200'
+            }`}
+          >
+            <h3 className="font-semibold text-gray-800 mb-2">Фитосанитарный сертификат</h3>
+            {listing.certificateUrl ? (
+              <a
+                href={listing.certificateUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
+              >
+                Открыть файл для проверки →
+              </a>
+            ) : (
+              <p className="text-sm text-red-600">
+                Категория требует сертификат, но продавец его не приложил
+              </p>
+            )}
+          </div>
+        )}
+
         {listing.status === 'REJECTED' && listing.rejectionReason && (
           <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-800">
             Причина отклонения: {listing.rejectionReason}

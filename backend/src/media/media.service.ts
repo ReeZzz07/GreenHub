@@ -12,6 +12,12 @@ import sharp from 'sharp';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
 const ALLOWED_VIDEO_MIME_TYPES = ['video/mp4'];
+const ALLOWED_CERTIFICATE_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const CERTIFICATE_EXTENSIONS: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+};
 const MAX_DIMENSION = 1600;
 
 @Injectable()
@@ -88,6 +94,27 @@ export class MediaService implements OnModuleInit {
     }
 
     const key = `listing-videos/${randomUUID()}.mp4`;
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.processedBucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }),
+    );
+
+    return `${this.publicUrl}/${this.processedBucket}/${key}`;
+  }
+
+  // Фитосанитарный сертификат (TZ.md 5.1/5.2): PDF или фото документа, кладём как есть —
+  // это официальный документ для ручной проверки модератором, а не карточка товара под вотермарк.
+  async uploadListingCertificate(file: { buffer: Buffer; mimetype: string }): Promise<string> {
+    if (!ALLOWED_CERTIFICATE_MIME_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Допустимые форматы сертификата: PDF, JPG, PNG');
+    }
+
+    const ext = CERTIFICATE_EXTENSIONS[file.mimetype];
+    const key = `listing-certificates/${randomUUID()}.${ext}`;
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.processedBucket,

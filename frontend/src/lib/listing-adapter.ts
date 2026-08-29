@@ -25,6 +25,7 @@ export function listingToPlant(listing: Listing): Plant {
     lightRequirements: listing.lightRequirements ?? undefined,
     waterRequirements: listing.waterRequirements ?? undefined,
     deliveryInfo: listing.deliveryInfo ?? undefined,
+    certificateUrl: listing.certificateUrl ?? undefined,
     plantType: listing.plantType ?? undefined,
     lifeCycle: listing.lifeCycle ?? undefined,
     lightNeed: listing.lightNeed ?? undefined,

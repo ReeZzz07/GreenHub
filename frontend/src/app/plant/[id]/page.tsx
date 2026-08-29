@@ -193,6 +193,21 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
                   {plant.inStock ? `В наличии: ${plant.quantity} шт.` : 'Нет в наличии'}
                 </dd>
               </div>
+              {plant.certificateUrl && (
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-gray-500">Фитосанитарный сертификат</dt>
+                  <dd className="text-right">
+                    <a
+                      href={plant.certificateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-700 font-medium hover:underline"
+                    >
+                      Есть, открыть →
+                    </a>
+                  </dd>
+                </div>
+              )}
             </dl>
           </div>
 

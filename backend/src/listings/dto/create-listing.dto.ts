@@ -56,6 +56,10 @@ export class CreateListingDto {
   deliveryInfo?: string;
 
   @IsOptional()
+  @IsString()
+  certificateUrl?: string;
+
+  @IsOptional()
   @IsEnum(PlantType)
   plantType?: PlantType;
 

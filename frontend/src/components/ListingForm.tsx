@@ -7,6 +7,7 @@ import { useToast } from './Toast';
 import { Button } from './Button';
 import { ImageUploader } from './ImageUploader';
 import { VideoUploader } from './VideoUploader';
+import { CertificateUploader } from './CertificateUploader';
 import { Select } from './Select';
 import {
   fetchCategories,
@@ -55,8 +56,12 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
   const [potVolumeL, setPotVolumeL] = useState(initial?.potVolumeL ? String(initial.potVolumeL) : '');
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [videos, setVideos] = useState<string[]>(initial?.videos ?? []);
+  const [certificateUrl, setCertificateUrl] = useState(initial?.certificateUrl ?? '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const selectedCategory = categories.find((c) => c.id === categoryId);
+  const needsCertificate = selectedCategory?.requiresPhytosanitaryCertificate ?? false;
 
   useEffect(() => {
     fetchCategories()
@@ -124,6 +129,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
         .map((item) => item.trim())
         .filter(Boolean),
       deliveryInfo: deliveryInfo || undefined,
+      certificateUrl: certificateUrl || undefined,
       plantType: (plantType || undefined) as CreateListingPayload['plantType'],
       lifeCycle: (lifeCycle || undefined) as CreateListingPayload['lifeCycle'],
       lightNeed: (lightNeed || undefined) as CreateListingPayload['lightNeed'],
@@ -348,6 +354,10 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
 
       <ImageUploader images={images} onChange={setImages} />
       <VideoUploader videos={videos} onChange={setVideos} />
+
+      {needsCertificate && (
+        <CertificateUploader certificateUrl={certificateUrl} onChange={setCertificateUrl} />
+      )}
 
       <Button type="submit" fullWidth isLoading={isSubmitting}>
         {mode === 'edit' ? 'Сохранить изменения' : 'Отправить на модерацию'}

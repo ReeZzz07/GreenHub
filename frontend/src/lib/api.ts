@@ -60,6 +60,18 @@ export async function uploadListingVideo(file: File, token: string): Promise<{ u
   return handleResponse<{ url: string }>(res);
 }
 
+export async function uploadListingCertificate(file: File, token: string): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_URL}/media/upload-certificate`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  return handleResponse<{ url: string }>(res);
+}
+
 export type CategoryIconType = 'EMOJI' | 'PRESET' | 'UPLOAD';
 
 export interface Category {
@@ -69,6 +81,7 @@ export interface Category {
   icon: string | null;
   iconType: CategoryIconType;
   parentId: string | null;
+  requiresPhytosanitaryCertificate: boolean;
   children?: Category[];
 }
 
@@ -82,6 +95,7 @@ export interface CategoryPayload {
   icon?: string;
   iconType?: CategoryIconType;
   parentId?: string;
+  requiresPhytosanitaryCertificate?: boolean;
 }
 
 export function uploadCategoryIcon(file: File, token: string): Promise<{ url: string }> {
@@ -191,6 +205,7 @@ export interface Listing {
   waterRequirements: string | null;
   careInstructions: string[];
   deliveryInfo: string | null;
+  certificateUrl: string | null;
   plantType: PlantType | null;
   lifeCycle: LifeCycle | null;
   lightNeed: LightNeed | null;
@@ -285,6 +300,7 @@ export interface CreateListingPayload {
   waterRequirements?: string;
   careInstructions?: string[];
   deliveryInfo?: string;
+  certificateUrl?: string;
   plantType?: PlantType;
   lifeCycle?: LifeCycle;
   lightNeed?: LightNeed;

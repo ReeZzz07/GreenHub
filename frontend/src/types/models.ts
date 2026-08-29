@@ -36,6 +36,7 @@ export interface Plant {
   lightRequirements?: string;
   waterRequirements?: string;
   deliveryInfo?: string;
+  certificateUrl?: string;
   plantType?: 'CONIFEROUS' | 'DECIDUOUS';
   lifeCycle?: 'PERENNIAL' | 'ANNUAL';
   lightNeed?: 'SUN_LOVING' | 'SHADE_TOLERANT';

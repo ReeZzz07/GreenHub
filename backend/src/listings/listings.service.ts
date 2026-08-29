@@ -147,6 +147,7 @@ export class ListingsService {
         waterRequirements: dto.waterRequirements,
         careInstructions: dto.careInstructions ?? [],
         deliveryInfo: dto.deliveryInfo,
+        certificateUrl: dto.certificateUrl,
         plantType: dto.plantType,
         lifeCycle: dto.lifeCycle,
         lightNeed: dto.lightNeed,
